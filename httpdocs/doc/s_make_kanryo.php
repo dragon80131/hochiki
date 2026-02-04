@@ -1,0 +1,511 @@
+<?php
+
+echo "<br> ".__LINE__." このファイルは旧バージョン :";
+	include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+	include_once _INC_DIR . "carrier.inc";
+	include_once _INC_DIR . "global.inc";
+
+	include_once _CLS_DIR . "SPFWDatabase.cls";
+	include_once _CLS_DIR . "SPFWLog.cls";
+	include_once _CLS_DIR . "SPFWTemplate.cls";
+	include_once _CLS_DIR . "SPFWListObject.cls";
+	include_once _CLS_DIR . "SPFWDate.cls";
+	include_once _CLS_DIR . "SPFWInputCheck.cls";
+	include_once _CLS_DIR . "SPUSUser.cls";
+
+	include_once _CLS_DIR . "SPUSBukken.cls";
+	include_once _CLS_DIR . "SPUSSiten.cls";
+
+	include_once _CLS_DIR . "SPUSIraiRenkei.cls";
+	include_once _CLS_DIR . "SPUSIraiFile.cls";
+	include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
+	include_once _CLS_DIR . "SPFWParameter.cls";
+	include_once _CLS_DIR . "SPUSKoji.cls";
+	include_once _CLS_DIR . "SPUSKojiDate.cls";
+
+
+	// データベースコネクト
+	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+	if (!$myDB->Connection)
+		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
+
+
+	########################################################
+	# 認証動作
+	########################################################
+	$rkey = SPFWParameter::getValues('rkey');
+
+	$myUser = new User($myDB);
+
+	if (!$myUser->doAuthenticationByRegistKey($rKey))
+		trigger_error("doAuthentication Failed.", E_USER_ERROR);
+
+	if ($myUser->UserCD == -1) {
+		$URL = _MAIN_URL . 'login_form.php';
+		header('Location: ' . $URL);
+		exit;
+	}
+
+	$wUserCD = $myUser->UserCD;
+	$MyShozokuCD = $myUser->Extra1 ;	#所属支店CD
+	$MyZokusei = $myUser->Extra3 ;		#管理ユーザ２一般ユーザ１
+	if($MyZokusei == 2 ) $IfNespe = TRUE ;#予定案内表示
+	$MyEigyoshoCD = $myUser->Extra4 ;	#営業所CD nespeユーザはNULLになってる
+
+	########################################################
+	# BukkenMatrix　部屋構成 登録
+	########################################################
+
+	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
+	$work = SPFWParameter::getValues('work');
+
+	if( $work == 1 ){
+
+		$KojiJun = SPFWParameter::getValues('KojiJun');
+		$KaiRoom = SPFWParameter::getValues('KaiRoom');#配列
+
+		$myBukkenMatrix = new BukkenMatrix($myDB);
+
+		if (!$myBukkenMatrix->executeSelect("BukkenCD = " . $editBukkenCD . " AND MukouFlg = FALSE", "")){
+			$ErrorString = array();
+			$ErrorString[] = "tBukkenM情報の抽出に失敗しました。";
+			showSorryPage($ErrorString);
+		}
+
+		if ($myBukkenMatrix->RecCnt == 0) {#新規
+			$myBukkenMatrix->BukkenMatrixCD = -1;
+		}
+
+		$myBukkenMatrix->BukkenCD = $editBukkenCD;
+		$myBukkenMatrix->KaiRoom = SPFWTools::encodePluralValue($KaiRoom);
+
+		if (!$myBukkenMatrix->executeUpdate()){
+			$ErrorString = array();
+			$ErrorString[] = "依頼連携情報の更新に失敗しました。";
+			showAdminSorryPage($ErrorString);
+		}else{
+			$IfOK = TRUE ;
+
+		}
+	}
+
+	#########################################################
+	# 削除ボタン押した時
+	#########################################################
+	if($work == 2){
+		if($editBukkenCD){
+
+			$db_link = mysqli_connect(_HOST_NAME, _USER_NAME, _PASSWD, _MAIN_DB);
+			$sql = " delete FROM `tKojiDateF` WHERE BukkenCD = " . $editBukkenCD ;
+			$result = mysqli_query( $db_link, $sql);
+			mysqli_close($db_link);
+
+		}
+	}
+
+	########################################################
+	# 物件情報抽出
+	########################################################
+
+if ( $editBukkenCD > 0 ){ #物件情報の修正の場合
+
+	$myBukken = new Bukken($myDB);
+
+	if (!$myBukken->executeSelect("BukkenCD = " . $editBukkenCD . " AND MukouFlg = FALSE", "")){
+		trigger_error("Getting myBukken Failed.", E_USER_ERROR);
+	}
+
+	$wBukkenCD = $myBukken->BukkenCD;
+	$wBukkenName = $myBukken->BukkenName;
+	$wTantoCD = $myBukken->TantoCD;
+	$wShozokuCD = $myBukken->ShozokuCD;
+	$wTosu = $myBukken->Tosu;
+	$wKosu = $myBukken->Kosu;
+	$wKaidaka = $myBukken->Kaidaka;
+
+	########################################################
+	# 部屋構成情報抽出
+	########################################################
+
+	$myBukkenMatrix = new BukkenMatrix($myDB);
+
+	if (!$myBukkenMatrix->executeSelect("BukkenCD = " . $editBukkenCD . "  AND MukouFlg = FALSE", "")){
+		trigger_error("Getting myBukkenMatrix Failed.", E_USER_ERROR);
+	}
+
+	$KaiRoom = $myBukkenMatrix->KaiRoom;
+	$KaiRoom = SPFWTools::decodePluralValue($KaiRoom);
+
+	if ($myBukkenMatrix->RecCnt == 0 || count($KaiRoom)==0) {#新規
+		$IfNew = TRUE;
+
+	}else{
+
+		$IfRoomOK = TRUE ;
+
+		$RoomSuu = count($KaiRoom);
+		for ($x=0; $x < count($KaiRoom); $x++){
+			#　前はいくつあるか不定　後ろはゼロサブで2桁固定 大きい部屋から格納されている
+			$Room[$x] = substr($KaiRoom[$x],-2);
+			#階高がかならずしも建物の部屋の前の文字を表していない 右うしろ2桁以外の文字 空に置き換え
+			$Kai[$x] = str_replace( $Room[$x] , "", $KaiRoom[$x]);
+			#echo "<br>Kai-Room:".$Kai[$x]."-".$Room[$x] ;
+			if($Kai[$x]=="")
+				$Kai[$x] = $Room[$x];
+		}
+
+
+		########################################################
+		# ２重ループ最小構成 Tate Yoko ( x,y )
+		########################################################
+
+		$CNT_FILE = "s_make_kanryo.tpl";
+		$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
+
+		// リスト部分(Loopの中身)のエレメント確定
+		$LoopString = $myTemplate->getStringBetween('ColsLoop');
+		$LoopString = '__ColsLoop__' . $LoopString . '__ColsLoop__';
+
+
+
+		$ColsLoop = max($Room) ;#
+		$RowsLoop = $wKaidaka;#
+
+
+		$x = 0;
+		for ($i = 0; $i < $RowsLoop; $i++){
+
+			$wKaiStart = 0;
+			for ($j = 0; $j < $ColsLoop; $j++) {#上からのフロアごとに左にすすむ
+
+				if($wKaiStart == $Kai[$x] or $wKaiStart == 0){#
+					$Pic[$j] = $KaiRoom[$x];
+					$wKaiStart = $Kai[$x];
+					$x = $x + 1;
+				}else{#階が異なっていたらーをいれておく。
+					$Pic[$j] = "-";
+				}
+			}
+
+			$myTemplate->Msg = $LoopString;
+			$myTemplate->convertTags();
+			$ColsBlock[$i] = $myTemplate->Msg;
+
+		}
+	}
+}
+	$wColsBlock = SPFWTools::encodePluralValue($ColsBlock);
+
+	########################################################
+	# 工事情報抽出
+	########################################################
+
+	// $myKoji = new Koji($myDB);
+
+	// if (!$myKoji->executeSelect("BukkenCD = " . $editBukkenCD . "  AND MukouFlg = FALSE", "")){
+	// 	trigger_error("Getting Koji Failed.", E_USER_ERROR);
+	// }
+
+	// if ($myKoji->RecCnt != 1) {
+
+	// 	#工事情報登録がまだ
+	// 	$ErrorString = array();
+	// 	$ErrorString[] = "工事情報を登録してください。";
+	// 	$ErrorLoop = count($ErrorString);
+	// 	$myTemplate = new SPFWTemplate(_ERROR_TPL, $MyCarrier, TRUE);
+	// 	exit;
+
+	// }
+
+	$IfKoji = TRUE;
+	// $IfNotKoji = FALSE;
+
+	$SenyuStartDate = $myBukken->SenyuStartDate ;
+	$SenyuEndDate = $myBukken->SenyuEndDate ;
+	$SenyuDateCnt = (( strtotime( $SenyuEndDate ) -  strtotime( $SenyuStartDate )) / 86400) + 1 ;#専有部日数
+	//echo "<br>236行目".$SenyuDateCnt."-".$SenyuEndDate."-".$SenyuStartDate;
+
+	$DateStart = date("Y,n,d", strtotime( '-1 month' ,strtotime( $SenyuStartDate)));
+	$DateEnd = date("Y,n,d", strtotime( '-1 month' ,strtotime($SenyuEndDate)));
+
+	$wHansu = $myBukken->Hansu ;
+	${"HansuSelect".$wHansu} = " selected ";
+	$wMinuteTime = $myBukken->MinuteTime ;
+	$wWakuPattern = $myBukken->WakuPattern ;
+	$wKojijun = $myBukken->Kojijun ;
+	${"KojijunChecked".$wKojijun} = " checked " ;
+	$wMaxWakuSu = $myBukken->MaxWakuSu;
+
+	$wMaxWakuSu = "-".$wMaxWakuSu."-";
+	$wMaxWakuSuu = SPFWTools::decodePluralValue($wMaxWakuSu,"-");
+
+
+	for($i=1;$i<=count($wMaxWakuSuu);$i++){
+
+		${"wWaku".$WAKUPATTERN[$wWakuPattern]['AMPM'][$i-1]} = $wMaxWakuSuu[$i];
+
+	}
+	if($wWakuAM1)
+		$wWakuAM = $wWakuAM1;
+	/*
+	$wWakuPM1 = $wMaxWakuSuu[2];
+	$wWakuPM2 = $wMaxWakuSuu[3];
+	*/
+	$wFirstDateFeature = $myKoji->FirstDateFeature;
+	${"FirstDateFeature".$wFirstDateFeature} = "selected";
+
+	if($wWakuPattern<3){
+		$p1style = "style='visibility:hidden'";
+		$p2style = "style='display:none'";
+	}else{
+		$p1style = "style='visibility:visible'";
+		$p2style = "style='display:block'";
+	}
+	if($wWakuPattern<7){
+		$a1style = "style='visibility:hidden'";
+		$a2style = "style='display:none'";
+	}else{
+		$a1style = "style='visibility:visible'";
+		$a2style = "style='display:block'";
+	}
+	if($wWakuPattern<8){
+		$p3style = "style='display:none'";
+	}else{
+		$p3style = "style='display:block'";
+	}
+	if($wWakuPattern<9){
+		$a3style = "style='display:none'";
+		$p4style = "style='display:none'";
+	}else{
+		$a3style = "style='display:block'";
+		$p4style = "style='display:block'";
+	}
+	$Holiday1 = $myBukken->Holiday1;
+	$Holiday = SPFWTools::decodePluralValue($Holiday1);
+	sort($Holiday);
+	$MINWaku = ($RoomSuu/$SenyuDateCnt)+4;
+	$HolidayDisp = "<table class='table table-bordered table-sm'><tr>";
+	for($i=1;$i<=count($Holiday);$i++){
+		if($i%3==1){
+			$HolidayDisp .= "<tr>";
+		}
+		${"wHoliday".$i}=$Holiday[$i-1];
+		$HolidayDisp .= "<td>".${"wHoliday".$i}."</td>";
+		if($i%3==0){
+			$HolidayDisp .= "</tr>";
+		}
+		$HolidayFlg = true;
+	}
+	$HolidayDisp .= "</table>";
+
+	########################################################
+	# 枠パターン一覧表示、
+	########################################################
+	$WakuPatternLoop = count( $WAKUPATTERN );
+	for( $x =0; $x < count( $WAKUPATTERN ); $x++ ){
+		$WakuPattern[$x] = $x;
+		$WakuPatternName[$x] = $WAKUPATTERN[$x]['Name'];# = "3枠(9:00-12:00,13:00-15:00,15:00-18:00)";
+		#		for( $y =1; $y <= count( $WAKUPATTERN[$x]['StartTime'] ); $y++ ){
+		#			$WakuPatternStartTime[$x][$y] = $WAKUPATTERN[$x]['StartTime'][$y] ;# = "09:00",13:00,15:00
+		#			$WakuPatternEndTime[$x][$y] = $WAKUPATTERN[$x]['EndTime'][$y] ;# = "12:00";15:00 18:00
+		#		}
+	}
+	$SelectedWakuPattern[$wWakuPattern] = " selected ";
+
+	########################################################
+	# 詳細工程表　作成用
+	########################################################
+
+	$date = new DateTime($SenyuStartDate);
+
+	$HoliDay = '0';
+	$WeekDay = '0';
+	$FHoliDay = '0';
+	$FWeekDay = '0';
+
+
+	if($IfKoji){
+		//echo "<br>253行目　SenyuDateCnt".$SenyuDateCnt;
+		for($i=0 ; $i< $SenyuDateCnt ; $i++){
+			$SenyuDate = $date->format('Y-m-d');
+			$result = array_search($SenyuDate,$SHUKUJITULIST);
+			$result2 = array_search($SenyuDate,$Holiday);
+			$YoubiCD =  $date->format('w') ;
+			if($result2===false){
+				if($result!==false || $YoubiCD == 0 || $YoubiCD == 6){
+					if($i==0){
+						$FHoliDay += 1;
+					}else{
+						$HoliDay += 1;
+					}
+				}else{
+					if($i==0){
+						$FWeekDay += 1;
+					}else{
+						$WeekDay += 1;
+						//echo "<br>269行目".$WeekDay;
+					}
+				}
+			}
+			$date->modify('+1 days');
+		}
+		$DateSum=$FHoliDay+$FWeekDay+$HoliDay+$WeekDay;
+		if($DateSum > 1){
+
+
+			#2枠選択時（初日考慮無）のベスト案
+			$MinWakuSum = ((2*(count($KaiRoom)))+(4*$FHoliDay)+(8*$FWeekDay)+(4*$WeekDay))/($FHoliDay+(2*$FWeekDay)+$HoliDay+(2*$WeekDay));
+			$MinWakuSum = ceil($MinWakuSum);
+
+			//echo $MinWakuSum;
+			#2枠選択時の初日がすべて空きになってしまう時
+			$MaxWakuSum = ((2*count($KaiRoom))+(4*$WeekDay))/($HoliDay+(2*$WeekDay));
+			$MaxWakuSum = ceil($MaxWakuSum);
+
+			#3枠選択時（初日考慮無）のベスト案
+			$MinWakuSum2 = ((2*count($KaiRoom))+(6*$FHoliDay)+(12*$FWeekDay)+(6*$WeekDay))/($FHoliDay+(2*$FWeekDay)+$HoliDay+(2*$WeekDay));
+			$MinWakuSum2 = ceil($MinWakuSum2);
+
+			#3枠選択時の初日がすべて空きになってしまう時
+			$MaxWakuSum2 = ((2*count($KaiRoom))+(6*$WeekDay))/($HoliDay+(2*$WeekDay));
+			$MaxWakuSum2 = ceil($MaxWakuSum2);
+
+		}elseif($DateSum==1){
+			#初日のみの場合
+			$MinWakuSum3 = (2*count($KaiRoom)+(4*$FHoliDay)+(8*$FWeekDay))/($FHoliDay+(2*$FWeekDay));
+			$MinWakuSum3 = ceil($MinWakuSum3);
+
+		}
+
+
+		//3枠のとき
+		$MinWakuSum = ((6*$WeekDay)+6+(2*count($KaiRoom)))/(2*$WeekDay+$HoliDay+1);
+		//echo "<br>274行目 WeekDay:".$WeekDay." KaiRoom:".count($KaiRoom)." HoliDay:".$HoliDay;
+
+		$MinWakuSum = floor($MinWakuSum);
+		//echo "<br>278行目 MinWakuSum:".$MinWakuSum;
+		$MaxWakuSum = (6*$WeekDay)+(6*$FHoliDay)+(12*$FWeekDay)+(2*(count($KaiRoom)));
+		$MaxWakuSum = $MaxWakuSum/((2*$WeekDay)+$HoliDay+$FHoliDay+(2*$FWeekDay));
+
+		//echo "<br>280行目".$MaxWakuSum."/((2*".$WeekDay.")+".$HoliDay."+".$FHoliDay."+(2*".$FWeekDay."));";
+		$MaxWakuSum = floor($MaxWakuSum)-1;
+		//echo "<br>282行目 MaxWakuSum:".$MaxWakuSum;
+		//2枠のとき
+		$MinWakuSum2 = ((4*$WeekDay)+4+(2*count($KaiRoom)))/(2*$WeekDay+$HoliDay+1);
+		$MinWakuSum2 = floor($MinWakuSum2);
+		$MaxWakuSum2 = (4*$WeekDay)+(4*$FHoliDay)+(8*$FWeekDay)+(2*(count($KaiRoom)));
+		$MaxWakuSum2 = $MaxWakuSum2/((2*$WeekDay)+$HoliDay+$FHoliDay+(2*$FWeekDay));
+		$MaxWakuSum2 = floor($MaxWakuSum2);
+
+		//午前NGのとき
+		if($WeekDay !== 0){
+			$MinWakuSum3 = (6*$WeekDay)+(2*(count($KaiRoom)));
+			#echo $MinWakuSum3."<br>".$WeekDay;
+			//$MinWakuSum3 = $MinWakuSum3/((2*$WeekDay)+$HoliDay);
+
+			$MinWakuSum3 = floor($MinWakuSum3)-1;
+		}
+
+
+		/*	//午前NGのとき
+			$MinWakuSum3 = (6*$WeekDay)+(2*(count($KaiRoom)));
+			$MinWakuSum3 = $MinWakuSum3/((2*$WeekDay)+$HoliDay);
+			$MinWakuSum3 = floor($MinWakuSum3)-1;
+		*/
+
+		########################################################
+		# 戻るボタン
+		########################################################
+		$backw = SPFWParameter::getValues('backw');
+		if($backw == 1 ){
+			$wHansu = SPFWParameter::getValues('wHansu');			#班数
+			$wMinuteTime = SPFWParameter::getValues('wMinuteTime');	#工事施工時間（リアル）
+			$wWakuPattern = SPFWParameter::getValues('wWakuPattern');
+			$wWakuAM = SPFWParameter::getValues('wWakuAM');
+			$wWakuPM1 = SPFWParameter::getValues('wWakuPM1');
+			$wWakuPM2 = SPFWParameter::getValues('wWakuPM2');
+			$wFirstDateFeature = SPFWParameter::getValues('wFirstDateFeature');#初日工事数考慮
+			$wKojijun = SPFWParameter::getValues('wKojijun');		# 工事順
+			$wHoliday1 = SPFWParameter::getValues('wHoliday1');		#休日
+			$wHoliday2 = SPFWParameter::getValues('wHoliday2');
+			$wHoliday3 = SPFWParameter::getValues('wHoliday3');
+			$wHoliday4 = SPFWParameter::getValues('wHoliday4');
+
+			${"HansuSelect".$wHansu} = "selected";
+			$SelectedWakuPattern[$wWakuPattern] = "selected";
+			if($wWakuPattern <= 2){
+				$p2style = "style=\"display: none\"";
+			}else{
+				$p2style = "style=\"display: block\"";
+			}
+			${"FirstDateFeature".$wFirstDateFeature} = "selected";
+			${"KojijunChecked".$wKojijun} = "checked";
+		}
+		if($wWakuPattern >2){#3枠なら
+			$OverErrorStrings = "※最大工事枠数の合計を".$MinWakuSum."以下に設定してください。";
+			$OverErrorStrings .= "<br>　ただし、休工日・初日考慮設定時は少し多めに設定してください。";
+		}elseif($wWakuPattern <3){#2枠なら
+			$OverErrorStrings = "※最大工事枠数の合計を".$MinWakuSum2."以下に設定してください。";
+			$OverErrorStrings .= "<br>　ただし、休工日・初日考慮設定時は少し多めに設定してください。";
+		}
+
+	}
+	########################################################
+	# 工事日程登録済みを表示
+	########################################################
+	$myListObject = new SPFWListObject($myDB);
+
+	$sql = "SELECT ";
+	$sql .= "RoomID, ";
+	$sql .= "RoomDate, ";
+	$sql .= "Updated ";
+	$myListObject->SelectSQL = $sql;
+
+	$sql = " FROM tKojiDateF ";
+	$sql .= " WHERE  MukouFlg = FALSE  ";
+	$sql .= " AND BukkenCD = " . $editBukkenCD;
+	$myListObject->Condition = $sql;
+
+	$myListObject->Order ="KojiDateCD";
+	$myListObject->Limit = "allpage";
+
+	if (!($myListObject->GetList(1))) {
+		$ErrorString = array();
+		$ErrorString[] = "メニューマスタリストの抽出に失敗しました。";
+		showAdminSorryPage($ErrorString);
+	}
+
+	// データ表示
+
+	$CellLoop = $myListObject->Rows;
+
+	if($CellLoop){
+		$IfRoomOK = TRUE ;
+	}
+
+	for ($i = 0; $i < $CellLoop; $i++) {
+		$No[$i] = $i+1;
+
+		$RoomID[$i] = $myListObject->GetValue($i, 0);
+
+		$wTimeFromDate[$i] = substr( $myListObject->GetValue($i, 1),0,10);
+		$wTimeFromTime[$i] = substr( $myListObject->GetValue($i, 1),11,5);
+	}
+
+	//$KojiDateRegistTime = $myListObject->GetValue(0, 2);#登録タイムスタンプ
+
+	########################################################
+	# コンテンツ表示
+	########################################################
+
+	$CNT_FILE = "s_make_kanryo2.tpl";
+
+	$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
+	$HiddenValues = $myTemplate->getValuesToPass();
+
+	$myTemplate->convertTags();
+	$myTemplate->outputTemplate();
+
+	unset($myTemplate);
+	unset($myLog);
+?>

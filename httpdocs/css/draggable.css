@@ -1,0 +1,91 @@
+﻿body
+{
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+}
+.draggable
+{
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  border: 1px solid #0090DF;
+  background-color: #68BFEF;
+  padding: 10px;
+  text-align: center;
+}
+#parentElem
+{
+  width: 402px;
+  height: 160px;
+  background-color: #FFDFDF;
+  border: 10px solid #900;
+  padding: 20px;
+  top: 150px;
+  left: 0px;
+  position: absolute;
+  overflow: hidden;
+  margin: 10px;
+  color: #000;
+  border-left-width: 10px;
+}
+#insideParent
+{
+  width: 100px;
+  height: 100px;
+  background-color: #9c0;
+  color: #fff;
+}
+#drag1
+{
+  top: 10px;
+  left: 10px;
+}
+#drag2
+{
+  top: 10px;
+  left: 130px;
+}
+#drag3
+{
+  top: 10px;
+  left: 250px;
+}
+#drag4
+{
+  top: 10px;
+  left: 370px;
+}
+#drag5
+{
+  top: 80px;
+  left: 10px;
+}
+#drag6
+{
+  top: 80px;
+  left: 130px;
+}
+#drag7
+{
+  top: 80px;
+  left: 250px;
+}
+#drag7 div
+{
+  cursor: move;
+  background-color: #900;
+  height: 15px;
+}
+#drag8
+{
+  top: 80px;
+  left: 370px;
+}
+.frameClass
+{
+  border: 1px dotted #999;
+}

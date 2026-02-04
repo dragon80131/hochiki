@@ -1,0 +1,304 @@
+<?php
+/**
+ * SPFWError????
+ *
+ * ???????????? ?o???????
+ *
+ * @package 
+ * @access  public
+ * @author  MasahitoSAMEKAWA
+ * @create  2004/10/22
+ * @version 1.1
+ **/
+
+define("EXIST_CLASS_SPFWError","yes");
+
+// ???????????
+define('_MODE_NORMAL', 1);
+define('_MODE_ADMIN', 2);
+define('_MODE_MODULE', 3);
+
+// ??????????б?????????(????????)
+define("_ILLEGAL_ACCESS", 1);
+define("_SORRY_TERMINAL", 2);
+define("_UNIVERSAL_ERROR", 3);
+define("_SORRY_ENQ_YET", 4);
+define("_SORRY_ENQ_FINISHED", 5);
+define("_SORRY_ENQ_ALREADY_1", 6);
+define("_SORRY_ENQ_ALREADY_2", 7);
+define("_SORRY_COUPON", 8);
+define("_SORRY_COUPON_LIMIT", 9);
+define("_SORRY_BACKNUMBER", 10);
+
+$TEMPLATE[_ILLEGAL_ACCESS] = "_sorry_illegal.tpl";
+$TEMPLATE[_SORRY_TERMINAL] = "redirect:corres.php";
+$TEMPLATE[_UNIVERSAL_ERROR] = "_sorry_busy.tpl";
+$TEMPLATE[_SORRY_ENQ_YET] = "_sorry_enq_yet.tpl";
+$TEMPLATE[_SORRY_ENQ_FINISHED] = "_sorry_enq_finished.tpl";
+$TEMPLATE[_SORRY_ENQ_ALREADY_1] = "_sorry_enq_already_1.tpl";
+$TEMPLATE[_SORRY_ENQ_ALREADY_2] = "_sorry_enq_already_2.tpl";
+$TEMPLATE[_SORRY_COUPON] = "_sorry_coupon.tpl";
+$TEMPLATE[_SORRY_COUPON_LIMIT] = "_sorry_coupon_limit.tpl";
+$TEMPLATE[_SORRY_BACKNUMBER] = "_sorry_backnumber.tpl";
+
+// ???????ε??????
+define('_SORRY_USER', 1);
+define('_SORRY_ADMIN', 2);
+define('_SORRY_MAIL', 3);
+$BEHAVIER[_MODE_NORMAL] = array(NULL, TRUE, FALSE, FALSE);
+$BEHAVIER[_MODE_ADMIN] = array(NULL, FALSE, TRUE, FALSE);
+$BEHAVIER[_MODE_MODULE] = array(NULL, FALSE, FALSE, TRUE);
+
+/**
+ * ?С????????Υ????????????燭擦襪????????????????
+ **/
+if ($isAdminMode)
+	$ERROR_HANDLING_MODE = _MODE_ADMIN;
+else if ($isModuleMode)
+	$ERROR_HANDLING_MODE = _MODE_MODULE;
+else
+	$ERROR_HANDLING_MODE = _MODE_NORMAL;
+
+// ??????????? 彪λ?????????
+$TERMINATE = TRUE;
+
+class SPFWError {
+	/**
+	 * ??? ????
+	 * ?????????Υ???????????
+	 *
+	 * @param		Integer		$errNo		???????
+	 * @param		String		$errStr		?????????
+	 * @param		String		$errFile	????????????
+	 * @param		String		$errLine	??????????
+	 * @access		public
+	 */
+	function __construct ($errNo, $errStr, $errFile, $errLine) {
+		global $ERROR_HANDLING_MODE, $TERMINATE, $BEHAVIER;
+
+		// ??????a???????
+		$ErrorMessage = SPFWError::processError($errNo, $errStr, $errFile, $errLine);
+
+		if ($ErrorMessage == NULL)
+			return TRUE;
+
+		// ????????Υ??ε??
+		SPFWError::recordError($ErrorMessage);
+
+		// ????ι??ν???????????????????????ν????κ????exit???????????Τ???? ??癸「$TERMINATE??????FALSE?ヒ、??????オ、???
+		$HideTerminate = $TERMINATE;
+		$TERMINATE = FALSE;
+
+		// ???鬘シ???ホス???
+		if ($BEHAVIER[$ERROR_HANDLING_MODE][_SORRY_USER])
+			SPFWError::showSorryPage(_UNIVERSAL_ERROR);
+		if ($BEHAVIER[$ERROR_HANDLING_MODE][_SORRY_ADMIN]) {
+			$ErrorString[0] = "?????ニ・爭ィ?鬘シ??ネッタク???゛、??????ハイ??ホ・??テ・??????ウ・ヤ。????ニ・????ニ・??????ヤ、ヒ・癸シ?????ヌ、?マ「?惕ッ?タ、?????";
+			$ErrorString[1] = "[" . $ErrorMessage . "]";
+			SPFWError::showAdminSorryPage($ErrorString);
+		}
+		if ($BEHAVIER[$ERROR_HANDLING_MODE][_SORRY_MAIL])
+			SPFWError::notifyByMail($ErrorMessage, $errFile);
+
+		$TERMINATE = $HideTerminate;
+
+		// ??ホサ????
+		if ($TERMINATE)
+			exit;
+	}
+
+	/**
+	 * ???鬘シ???ル・??ヒ、??テ、ニ・??鬘シハク??????タクタョ?????ヨ、??゛、???
+	 *
+	 * @param		Integer		$errNo		???鬘シ?ヨケ?
+	 * @param		String		$errStr		???鬘シハク????
+	 * @param		String		$errFile	???鬘シネッタク?ユ・?????
+	 * @param		String		$errLine	???鬘シネッタク???ヨケ?
+	 * @return		String		タクタョ???鬘シ???テ・?????
+	 * @access		public
+	 */
+	function processError($errNo, $errStr, $errFile, $errLine) {
+		switch ($errNo) {
+			case E_USER_ERROR:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_USER_WARNING:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_USER_NOTICE:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_PARSE:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_NOTICE:
+				//$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_WARNING:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_ERROR:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			case E_STRICT:
+				//$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+			default:
+				$ErrorMessage = "ERROR: [" . $errNo . "] " . $errStr . " at line " . $errLine . " in " . $errFile;
+				break;
+		}
+
+		if ($ErrorMessage != NULL) {
+			$errinfo = "\n>>>>> DEBUG TRACE OUTPUT IS FOLLOWING. <<<<<\n";
+			$da=debug_backtrace();
+			$dstep=count($da);
+			for($i=3;$i<$dstep;$i++){
+				$errinfo .= sprintf("[%d]%s%s%s():%s:%d \n%s \n",$i-3,$da[$i]['class'],$da[$i]['type'],$da[$i]['function'],basename($da[$i-1]['file']),$da[$i-1]['line'],var_export($da[$i]['args'],true));
+			}
+			$errinfo .= sprintf("[%d]%s:%d \n",$dstep-3,basename($da[$dstep-1]['file']),$da[$dstep-1]['line']);
+			if(count($GLOBALS['argv'])>0) {
+				$errinfo .= "== argv == \n".var_export($GLOBALS['argv'],true). "== argv == \n";
+			}else if(count($_REQUEST)>0){
+				$errinfo .= "== _REQUEST == \n".var_export($_REQUEST,true)."== _REQUEST == \n";
+			}
+			$ErrorMessage .= $errinfo;
+		}
+
+		return $ErrorMessage;
+	}
+
+	/**
+	 * ?愠ー?リ、ホオ?マソ???ヤ、??゛、???
+	 *
+	 * @param		String		$ErrorMessage	タクタョ???鬘シ???テ・?????
+	 * @access		public
+	 */
+	function recordError($ErrorMessage) {
+
+	include_once "D:/xampp/htdocs/kotei/SPFW/class/SPFWLog.cls";
+		$myLog = new SPFWLog();
+		for ($i = 0;$i < count($GLOBALS['ExecuteError']); $i++)
+			$Errors .= $GLOBALS['ExecuteError'][$i] . "\n";
+		$Errors .= $ErrorMessage;
+		$myLog->error($Errors);
+		unset($myLog);
+	}
+
+	/**
+	 * ???鬘シ?ホケ??ホス??????ヤ、??゛、?(?譯シ??????)
+	 *
+	 * @param		String		$errType	???鬘シ???フ、ホシ???
+	 * @access		public
+	 */
+static	function showSorryPage($errType) {
+		global $TEMPLATE, $MyCarrier, $ErrorMessage, $TERMINATE;
+
+		if (strstr($TEMPLATE[$errType], 'redirect:')) {
+			$URL = _MAIN_URL . str_replace('redirect:', NULL, $TEMPLATE[$errType]);
+			header('Location: ' . $URL);
+			exit;
+		}
+		else {
+			$CNT_FILE = $TEMPLATE[$errType];
+			$errHtml = new SPFWTemplate($CNT_FILE, $MyCarrier);
+			$errHtml->convertTags();
+			$errHtml->outputTemplate();
+			unset($errHtml);
+		}
+
+		// ??ホサ????
+		if ($TERMINATE)
+			exit;
+	}
+
+	/**
+	 * ???鬘シ?ホケ??ホス??????ヤ、??゛、?(?????ヤク???)
+	 *
+	 * @param		String		$ErrorMessage	タクタョ???鬘シ???テ・?????
+	 * @access		public
+	 */
+	function showAdminSorryPage($ErrorMessage, $CloseFlg = FALSE) {
+		global $TEMPLATE, $MyCarrier, $ErrorLoop, $ErrorString, $TERMINATE;
+
+		// ???鬘シ????
+		$ErrorString = array();
+		if (is_array($ErrorMessage))
+			$ErrorString = $ErrorMessage;
+		else
+			$ErrorString[] = $ErrorMessage;
+		$ErrorLoop = count($ErrorString);
+
+		$GLOBALS['IfClose'] = $CloseFlg;
+		$GLOBALS['IfNotClose'] = !$CloseFlg;
+
+		$errHtml = new SPFWTemplate('admin/error.tpl', $MyCarrier);
+		$errHtml->convertTags();
+		$errHtml->outputTemplate();
+		unset($errHtml);
+
+		// ??ホサ????
+		if ($TERMINATE)
+			exit;
+	}
+
+	/**
+	 * ???鬘シ?ホ・癸シ???ョ、??ヤ、??゛、???
+	 *
+	 * @param		String		$ErrorMessage	タクタョ???鬘シ???テ・?????
+	 * @param		String		$errFile		???鬘シネッタク?ユ・?????
+	 * @access		public
+	 */
+	function notifyByMail($ErrorMessage, $errFile) {
+		global $TERMINATE;
+
+		// ???鬘シ????
+		$MailText = $errFile . "?ヌ、ホス??????ヒーハイ??ホ・??鬘シ??ネッタク???゛、??????????????ヌ、??ニ、??゛、???\n\n";
+		$MailText .= "" . $ErrorMessage . "";
+
+		mb_send_mail('info@nespe.jp', "Modules Error Notice - " . _MAIN_URL, $MailText);
+
+		// ??ホサ????
+		if ($TERMINATE)
+			exit;
+	}
+}
+
+/**
+ * ???鬘シ??ネッタク?????ン、ヒクニ、モスミ、??????リソ?
+ **/
+
+function error_handling ($errNo, $errStr, $errFile, $errLine) {
+	$myError = new SPFWError($errNo, $errStr, $errFile, $errLine);
+}
+
+
+
+function showSorryPage($errType){
+	SPFWError::showSorryPage ($errType);
+}
+
+function showAdminSorryPage($errorMessage, $CloseFlg = FALSE){
+	SPFWError::showAdminSorryPage($errorMessage, $CloseFlg);
+}
+
+function myErrorHandler($errNo, $errStr, $errFile, $errLine) {
+	SPFWError::SPFWError($errNo, $errStr, $errFile, $errLine);
+}
+
+function moduleErrorHandler($errNo, $errStr, $errFile, $errLine) {
+	SPFWError::SPFWError($errNo, $errStr, $errFile, $errLine);
+}
+
+function adminErrorHandler($errNo, $errStr, $errFile, $errLine) {
+	SPFWError::SPFWError($errNo, $errStr, $errFile, $errLine);
+}
+
+
+//error_reporting (E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE);
+error_reporting(E_ALL ^ E_NOTICE);
+set_error_handler("error_handling");
+
+
+
+
+?>

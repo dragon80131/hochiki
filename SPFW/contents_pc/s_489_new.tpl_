@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リニューアル支援</title>
+
+<!-- BootstrapのCSS読み込み -->
+<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery読み込み -->
+<script src="./include/js/jquery-3.2.1.min.js"></script>
+
+<!-- BootstrapのJS読み込み -->
+<script src="./include/bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./css/rnsien.css">
+<script type="text/javascript" src="tools.js"></script>
+
+<!--datepicker-->
+<link href="css/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet">
+<link href="css/jquery-ui-1.12.1/jquery-ui.structure.min.css" rel="stylesheet">
+<link href="css/jquery-ui-1.12.1/jquery-ui.theme.min.css" rel="stylesheet">
+<script src="js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script src="js/jquery-ui/datepicker-ja.js"></script>
+<script>
+$(function() {
+	$(".datepicker").datepicker({});
+});
+
+
+// 画面読み込み時処理
+window.onload = function(){
+	var result = "__resultMitumoriNo__";
+	if (result == "NG") {
+		alert("件名Noの登録が正しくありません。\nメニュー画面の物件情報から「件名No」を、10桁の半角数字で登録してください。");
+	}
+}
+
+// ファイルサイズ取得
+function check(no){ 
+	var list1 = "", list2 = "", list3 = "", list4 = "", list5 = "";
+	var fileList1 = document.getElementById("tempfile1").files;
+	var fileList2 = document.getElementById("tempfile2").files;
+	var fileList3 = document.getElementById("tempfile3").files;
+	var fileList4 = document.getElementById("tempfile4").files;
+	var fileList5 = document.getElementById("tempfile5").files;
+	var listsize1 = "", listsize2 = "", listsize3 = "", listsize4 = "", listsize5 = "";
+	for(var i=0; i<fileList1.length; i++){
+		list1 += "[" + fileList1[i].size + " bytes]" + fileList1[i].name + "<br>";
+		listsize1 = fileList1[i].size;
+	}
+	for(var i=0; i<fileList2.length; i++){
+		list2 += "[" + fileList2[i].size + " bytes]" + fileList2[i].name + "<br>";
+		listsize2 = fileList2[i].size;
+	}
+	for(var i=0; i<fileList3.length; i++){
+		list3 += "[" + fileList3[i].size + " bytes]" + fileList3[i].name + "<br>";
+		listsize3 = fileList3[i].size;
+	}
+	for(var i=0; i<fileList4.length; i++){
+		list4 += "[" + fileList4[i].size + " bytes]" + fileList4[i].name + "<br>";
+		listsize4 = fileList4[i].size;
+	}
+	for(var i=0; i<fileList5.length; i++){
+		list5 += "[" + fileList5[i].size + " bytes]" + fileList5[i].name + "<br>";
+		listsize5 = fileList5[i].size;
+	}
+	document.getElementById("tempfileresult").innerHTML = list1 +list2 + list3 + list4 + list5;
+
+	var alertFlg = "";
+	if (no == 1) {
+		if (listsize1 > 10485760) { alertFlg = 1; }
+	} else if (no == 2) {
+		if (listsize2 > 10485760) { alertFlg = 1; }
+	} else if (no == 3) {
+		if (listsize3 > 10485760) { alertFlg = 1; }
+	} else if (no == 4) {
+		if (listsize4 > 10485760) { alertFlg = 1; }
+	} else if (no == 5) {
+		if (listsize5 > 10485760) { alertFlg = 1; }
+	}
+
+	document.getElementById("tempfilesizeresult").style.display="none";
+	if (listsize1 > 10485760 || listsize2 > 10485760 || listsize3 > 10485760 || listsize4 > 10485760 || listsize5 > 10485760) {
+		document.getElementById("tempfilesizeresult").innerHTML = "ng";
+	} else {
+		document.getElementById("tempfilesizeresult").innerHTML = "";
+	}
+
+	if (alertFlg == 1) {
+		alert("サイズが10MB以上のファイルは登録できません。");
+		return false;
+	}
+}
+
+function tempfileclear(oId) {
+	var obj = document.getElementById(oId);
+	var stO = obj.innerHTML;
+	obj.innerHTML = stO;
+	check();
+}
+
+<!-- //ファイル名取得のため
+function FilesSubmit(Form){
+
+	if (document.mainform.wPSScene1.value=='2' || document.mainform.wPSScene2.value=='2') {
+		if (document.mainform.wPhotoPattern.value=='a-1' || document.mainform.wPhotoPattern.value=='a-2') {
+			window.alert('専有部の撮影シーンで「施工中」が選択されている為、台帳選択a(4枚)は選択できません');
+			return(false);
+		}
+	}
+
+	if (document.getElementById("tempfilesizeresult").innerHTML == 'ng') {
+		window.alert('資料のサイズが大きすぎます。1ファイル10MB以下にしてください。');
+		return(false);
+	}
+	if (document.mainform.wAnswer.value=='') {
+		window.alert('専有部工事日時変更受付方法が入力されていません');
+		return(false);
+	}else{
+		var str = "";
+		var frm = Form;
+		for(i=0;i<frm.length;i++) {
+			if(frm.elements[i].type == "file") {
+				str = str+frm.elements[i].name+":<->:"+frm.elements[i].value+"%<->%";
+			}
+		}
+		frm.hiddenfilenames.value=str;
+		frm.submit();
+	}
+}
+// -->
+
+
+function moveWithWorkAndIraiFileCD(page, key, work, msg) {
+	if (work == 2){
+		if (window.confirm(" 削除してもよろしいでしょうか？ ")) {
+			document.mainform.editIraiFileCD.value = key;
+			document.mainform.work.value = work;
+			document.mainform.action = page;
+			document.mainform.submit(true);
+			document.mainform.work.value = '';
+		}
+	}
+}
+</script>
+<script type="text/javascript" src="js/tools_ajax.js"></script>
+<script type="text/javascript" src="js/ConnectedSelect.js"></script>
+
+</head>
+
+<body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
+__SHeader__
+
+
+<div class="content-all" style="width:1000px"><!--content-all-->
+
+<hr size="__HRSize__" color="__HRColor__">
+<center>《予約センター受付依頼》</center>
+<hr size="__HRSize__" color="__HRColor__">
+
+
+<div class="left-yose">
+	<a href="s_menu.php__QUERY__&editBukkenCD=__editBukkenCD__ ">＜＜ メニュー</a>
+	<br><br>
+	<a href="s_489_copy.php__QUERY__&editBukkenCD=__editBukkenCD__">＞＞ 過去の物件</a>
+	★マークの項目は、過去物件の依頼データを反映することが可能です。<br>
+	この機能を使う場合は、入力前に設定してください。（先に入力すると、入力内容がクリアされます。）<br><br>
+
+	<font color="red" size=4><b>※「㈱、Ⅰ、Ⅱ、①、②」等の環境依存文字は文字化けします。</b></font>
+</div>
+
+
+
+
+
+<!--<form action="s_489_confirm.php" method="POST" name="mainform" enctype="multipart/form-data">-->
+<form action="s_489_new.php" method="POST" name="mainform" enctype="multipart/form-data">
+<input type="hidden" name="wShozokuCD" value="__wShozokuCD__" >
+<input type="hidden" name="editIraiFileCD" value="" >
+<input type="hidden" name="work" value="" >
+
+<b>予約センター依頼内容　入力画面</b>　　　　　　　　
+<font color="blue">参考フォーマット：</font>
+<a href="/kotei/upfile/iraifile_tmp/Format_ver1.xls">▼予定案内・確定案内フォーマットver1.xls</a><br>
+
+<div class="left-yose" id="yoyakuirai">
+<table class="table table-bordered table-sm" style="width:950px">
+<!--1．受付依頼ステータス-->
+<tr class="table-active">
+	<th colspan="4">1．受付依頼ステータス</th></tr>
+<tr><td colspan="2" class="table-active">件名No</td>
+	<td colspan="2" bgcolor="lightyellow">__wMitumoriNo__</td></tr>
+	<td colspan="2" class="table-active">物件CD</td>
+	<td colspan="2" bgcolor="lightyellow">__editBukkenCD__</td></tr>
+<tr><td colspan="2" class="table-active">物件名</td>
+	<td colspan="2" bgcolor="lightyellow">__wBukkenName__</td></tr>
+<tr><td colspan="2" class="table-active">所属支店</td>
+	<td colspan="2" bgcolor="lightyellow">__wSitenName__</td></tr>
+<tr><td colspan="2" class="table-active">受付依頼ステータス</td>
+	<td colspan="2" bgcolor="lightyellow">__wwIraiRenkeiStatus__</td></tr>
+<tr><td colspan="2" class="table-active">受付依頼日</td>
+	<td colspan="2"><input type="text" name="wIraiDate" id="IraiDate" value="__wIraiDate__" size="10" class="datepicker"></td></tr>
+
+
+<!--2．物件基本情報-->
+<tr class="table-active">
+	<th colspan="4">2．物件基本情報</th></tr>
+<tr><td colspan="2" class="table-active">住所</td>
+	<td colspan="2" bgcolor="lightyellow">__wAddress__</td></tr>
+<tr><td colspan="2" class="table-active">マンション販売形態</td>
+	<td colspan="2" bgcolor="lightyellow">__wwBunjyo__</td></tr>
+<tr><td colspan="2" class="table-active">総戸数</td>
+	<td colspan="2" bgcolor="lightyellow">__wKosu__</td></tr>
+
+<tr><td colspan="2" class="table-active">★施工主体</td>
+	<td colspan="2">
+		<input type="checkbox" name="wIR01[]" __IR01Checked__ value="1">元請け<br>
+		<input type="text" name="wSekoShutai" value="__wSekoShutai__" size="50">
+		<br><font size="2" color="blue">記入例）元請けではない場合、依頼元(管理会社名など）を記載します。</font></td></tr>
+
+<tr><td colspan="2" class="table-active">★専有部工事日時変更受付方法<font color="red">　※必須</font></td>
+	<td colspan="2">
+		<select name="wAnswer">
+		<option value="">-</option>
+		<option value="A.日時変更住戸のみ返答" __Answer1Selected__>A.日時変更住戸のみ返答</option>
+		<option value="B.全住戸返答" __Answer2Selected__>B.全住戸返答</option>
+		<option value="C.全住戸返答+確定時未返事シート" __Answer3Selected__>C.全住戸返答+確定時未返事シート</option>
+		</select></td></tr>
+
+<tr><td rowspan="3" class="table-active">利用様式</td>
+	<td class="table-active">★予定案内</td>
+	<td colspan="2">
+		<select name="wYoshikiYotei">
+		<option value="利用しない" __YoshikiYotei0Selected__>利用しない</option>
+		<option value="予定１-A" __YoshikiYotei1Selected__>予定１-A</option>
+		<option value="予定１-B" __YoshikiYotei2Selected__>予定１-B</option>
+		<option value="予定２-A" __YoshikiYotei3Selected__>予定２-A</option>
+		<option value="予定２-B" __YoshikiYotei4Selected__>予定２-B</option>
+		<option value="予定３-A" __YoshikiYotei5Selected__>予定３-A</option>
+		<option value="予定３-B" __YoshikiYotei6Selected__>予定３-B</option>
+		<option value="独自書式" __YoshikiYotei7Selected__>独自書式</option>
+		</select>
+		<font color="red" size="2">　※独自書式の場合はテンプレート添付必須</font>
+	</td></tr>
+
+<tr><td class="table-active">★確定案内</td>
+	<td colspan="2">
+		<select name="wYoshikiKakutei">
+		<option value="利用しない" __YoshikiKakutei0Selected__>利用しない</option>
+		<option value="確定１" __YoshikiKakutei1Selected__>確定１</option>
+		<option value="確定２" __YoshikiKakutei2Selected__>確定２</option>
+		<option value="独自書式" __YoshikiKakutei3Selected__>独自書式</option>
+		</select>
+		<font color="red" size="2">　※独自書式の場合はテンプレート添付必須</font>
+		</td></tr>
+
+<tr><td class="table-active">★オプション案内</td>
+	<td colspan="2">
+		<select name="wYoshikiOP">
+		<option value="">-</option>
+		<option value="必要" __YoshikiOPi1Selected__>必要</option>
+		<option value="不要" __YoshikiOPi2Selected__>不要</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★確定案内 記載社名</td>
+	<td colspan="2">
+		<select name="wKakuteiCompanyName">
+		<option value="-" __KakuteiCompany0Selected__>-</option>
+		<option value="アイホン株式会社" __KakuteiCompany1Selected__>アイホン株式会社</option>
+		<option value="アイホン株式会社+管理会社" __KakuteiCompany2Selected__>アイホン株式会社+管理会社</option>
+		<option value="資料記載に合わせる" __KakuteiCompany3Selected__>資料記載に合わせる</option>
+		<option value="その他" __KakuteiCompany4Selected__>その他</option><br>
+		</select>　
+		<font color="red" size="2">※ポスティングありの場合は記入必須</font><br>
+		<font color="gray" size="2">※その他の場合は「★8．その他（注意事項等）」に入力して下さい</font>
+		</td></tr>
+
+<tr><td colspan="2" class="table-active">★工事写真管理アプリ</td>
+	<td colspan="2">
+		<select name="wPicStatus">
+		<option value="0" __PicStatus0Selected__>利用しない</option>
+		<option value="1" __PicStatus1Selected__>利用する</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">電子看板アプリ利用時の施工会社名<br>
+										<font size="2">（15文字以内、看板に表示されます）</font></td>
+	<td colspan="2"><input type="text" name="wPicAppSekoName" value="__wPicAppSekoName__" size="30"><font color="gray" size="2">　※15文字以内</font></td></tr>
+
+<tr><td colspan="2" class="table-active">★ポスティング業務依頼</td>
+	<td colspan="2">
+		<select name="wPostingFlg">
+		<option value="0" __PostingFlg0Selected__>依頼しない</option>
+		<option value="3" __PostingFlg3Selected__>予定案内のみ</option>
+		<option value="1" __PostingFlg1Selected__>確定案内のみ</option>
+		<option value="2" __PostingFlg2Selected__>予定案内・確定案内（計2回）</option>
+		</select>
+		<br>
+		<font size="2" color="red">通常、両面印刷・左上1点留めです。<br>それ以外の場合は「★8．その他（注意事項等）」にご記入ください。</font><br>
+		<input type="checkbox" name="wIR02[]" __IR02Checked__ value="1">腕章あり　<font size="2" color="blue">←ポスティングありの場合のみ有効</font>
+		</td></tr>
+
+<tr><td colspan="2" class="table-active">★管理員様封書の差出名</td>
+	<td colspan="2">
+		<select name="wPostingName">
+			<option value="-" __PostingName0Selected__>-</option>
+			<option value="アイホン株式会社" __PostingName1Selected__>アイホン株式会社</option>
+			<option value="アイホン株式会社+管理会社" __PostingName2Selected__>アイホン株式会社+管理会社</option>
+			<option value="資料記載に合わせる" __PostingName3Selected__>資料記載に合わせる</option>
+			<option value="その他" __PostingName4Selected__>その他</option><br>
+		</select>　
+		<font size="2" color="red">※ポスティングありの場合は記入必須</font></td></tr>
+
+<tr><td colspan="2" class="table-active">タブレット確認書アプリ利用</td>
+	<td colspan="2">
+		<select name="wKakuninFlg">
+			<!--20180518 確認書アプリは「利用する」しか選べないように変更
+			<option value="0" __KakuninFlg0Selected__>利用しない</option>-->
+			<option value="1" __KakuninFlg1Selected__>利用する</option>
+		</select>　<font size="2" color="gray">※費用はかかりません。</font>
+		</td></tr>
+<tr><td colspan="1" rowspan="2" class="table-active">確認書アプリ</td>
+	<td class="table-active">タイトル</td>
+	<td colspan="2"><input type="text" name="wKakuninTitle" value="__wKakuninTitle__" size="30">
+					<font size="2" color="dimgray">　※「インターホン工事完了確認書」以外の場合修正</font></td></tr>
+<tr><td class="table-active">フッター</td>
+	<td colspan="2"><input type="text" name="wKakuninFooter" value="__wKakuninFooter__" size="30">
+					<font size="2" color="dimgray">　※「アイホン株式会社」以外の場合修正</font></td></tr>
+
+<tr><td colspan="2" class="table-active">スマートボード利用</td>
+	<td colspan="2">
+		<select name="wSmartFlg">
+		<option value="0" __SmartFlg0Selected__>利用しない</option>
+		<option value="1" __SmartFlg1Selected__>利用する</option>
+		</select></td></tr>
+
+
+
+<!--3．日程-->
+<tr class="table-active">
+	<th colspan="4">3．日程</th></tr>
+
+<tr><td colspan="2" class="table-active">予定案内提供日<br><font size="2" color="dimgray">　ネスペ⇒担当者に資料を提供する日</font></td>
+	<td colspan="2"><input type="text" name="wYoteTekyoDate" id="YoteTekyoDate" value="__wYoteTekyoDate__" size="10" class="datepicker"></td></tr>
+
+<tr><td colspan="2" class="table-active">工事説明資料配布日<br>　<font size="2" color="dimgray">予約システム受付サービス開始日</font></td>
+	<td colspan="2"><input type="text" name="wYoteDate" id="YoteDate" value="__wYoteDate__" size="10" class="datepicker"></td></tr>
+
+<tr><td colspan="2" class="table-active">変更受付締切日<br>　<font size="2" color="dimgray">受付を一旦終了し、工事日時調整開始</font></td>
+	<td colspan="2"><input type="text" name="wYoyakuEnd" id="YoyakuEnd" value="__wYoyakuEnd__" size="10" class="datepicker"></td></tr>
+
+<tr><td colspan="2" class="table-active">専有部決定案内提供日<br>　<font size="2" color="dimgray">ネスペ⇒担当者に資料を提供する日(AM中)</font></td>
+	<td colspan="2"><input type="text" name="wTekyoDate" id="TekyoDate" value="__wTekyoDate__" size="10" class="datepicker"></td></tr>
+
+<tr><td colspan="2" class="table-active">専有部決定案内配布日<br>　<font size="2" color="dimgray">以後の専有部工事日時変更は、メールにて報告</font></td>
+	<td colspan="2"><input type="text" name="wKeteiDate" id="KeteiDate" value="__wKeteiDate__" size="10" class="datepicker"></td></tr>
+
+
+<!--4．工事施工会社情報-->
+<tr class="table-active">
+	<th colspan="4">4．工事施工会社情報</th></tr>
+
+<tr class="table-active">
+	<td colspan="4">アイホン担当者情報　<a href=./s_tanto_detail.php?rKey=__rKey__>登録はこちら＞＞</a></td></tr>
+<tr><td colspan="2" class="table-active">★アイホン担当者１</td>
+	<td colspan="2">
+		<select name="wTantoCD1">
+		<option value="0">-</option>
+		__TantoLoop__
+		<option value="__TantoCD__" __TantoCD1Selected__ >__EigyoshoName__　__TantoName__</option>
+		__TantoLoop__
+		</select></td></tr>
+<tr><td colspan="2" class="table-active">★アイホン担当者２</td>
+	<td colspan="2">
+		<select name="wTantoCD2">
+		<option value="0">-</option>
+		__TantoLoop__
+		<option value="__TantoCD__" __TantoCD2Selected__ >__EigyoshoName__　__TantoName__</option>
+		__TantoLoop__
+		</select></td></tr>
+
+<tr class="table-active">
+	<td colspan="4">施工業者情報
+	<br><font size="2">　リストにない場合は「★8．その他（注意事項等）」に会社名,担当者名,連絡先,メールアドレスをご記入お願いします。</font></td></tr>
+
+<tr><td colspan="2" class="table-active">施工業者担当者１</td>
+	<td colspan="2">
+		<select name="wGyosyaTantoCD1">
+		<option value="0">-</option>
+		__GyosyaTantoLoop__
+		<option value="__GyosyaTantoCD__" __GyosyaTantoCD1Selected__>__GyosyaName__ __GyosyaTantoName__</option>
+		__GyosyaTantoLoop__
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">施工業者担当者２</td>
+	<td colspan="2">
+		<select name="wGyosyaTantoCD2">
+		<option value="0">-</option>
+		__GyosyaTantoLoop__
+		<option value="__GyosyaTantoCD__" __GyosyaTantoCD2Selected__ > __GyosyaName__ __GyosyaTantoName__</option>
+		__GyosyaTantoLoop__
+		</select></td></tr>
+
+
+
+<!--5．工事可能戸数-->
+<tr class="table-active">
+	<th colspan="4">5．工事可能戸数</th></tr>
+
+<tr><td rowspan="3" class="table-active">作業時間帯区分</td>
+	<td class="table-active">★午前</td>
+	<td colspan="2">
+		<input type="text" name="wTimeAStart" value="__wTimeAStart__" size="10">～
+		<input type="text" name="wTimeAEnd" value="__wTimeAEnd__" size="10">
+		<input type="text" name="wTimeASu" value="__wTimeASu__" size="2">戸</td></tr>
+<tr><td class="table-active">★午後１</td>
+	<td colspan="2">
+		<input type="text" name="wTimeBStart" value="__wTimeBStart__" size="10">～
+		<input type="text" name="wTimeBEnd" value="__wTimeBEnd__" size="10">
+		<input type="text" name="wTimeBSu" value="__wTimeBSu__" size="2">戸</td></tr>
+<tr><td class="table-active">★午後２</td>
+	<td colspan="2">
+		<input type="text" name="wTimeCStart" value="__wTimeCStart__" size="10">～
+		<input type="text" name="wTimeCEnd" value="__wTimeCEnd__" size="10">
+		<input type="text" name="wTimeCSu" value="__wTimeCSu__" size="2">戸</td></tr>
+
+
+
+<!--6．施工方法情報-->
+<tr class="table-active">
+	<th colspan="4">6．施工方法情報</th></tr>
+<tr class="table-active">
+	<td colspan="4"><font size="2">　リストにない場合は「★8．その他（注意事項等）」に機器名、型番、価格をご記入お願いします。</font></td></tr>
+
+<tr><td colspan="2" class="table-active">★居室親機型番</td>
+	<td colspan="2">
+		<select name="wOyaDeviceCD">
+		<option value="0">-</option>
+		__OyaDeviceLoop__
+		<option value="__OyaDeviceCD__" __OyaDeviceSelected__ >__OyaKataban__ (__OyaDeviceName__)</option>
+		__OyaDeviceLoop__
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★玄関子機型番</td>
+	<td colspan="2">
+		<select name="wKokiDeviceCD">
+		<option value="0">-</option>
+		__KokiDeviceLoop__
+		<option value="__KokiDeviceCD__" __KokiDeviceSelected__ >__KokiKataban__ (__KokiDeviceName__)</option>
+		__KokiDeviceLoop__
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★玄関子機パネル型番</td>
+	<td colspan="2"><input type="text" name="wKokiPanelKataban" value="__wKokiPanelKataban__" ></td></tr>
+
+<tr><td colspan="2" rowspan="4" class="table-active">★オプション機器<br>★販売価格</td>
+	<td colspan="2">
+		<select name="wOP1DeviceCD">
+		<option value="0">-</option>
+		__OPDeviceLoop__
+		<option value="__OPDeviceCD__" __OP1DeviceSelected__ >__OPKataban__ (__OPDeviceName__)</option>
+		__OPDeviceLoop__
+		</select><br>
+		￥<input type="text" name="wOPPrice1" value="__wOPPrice1__" size="6"></td></tr>
+
+<tr><td colspan="2">
+		<select name="wOP2DeviceCD">
+		<option value="0">-</option>
+		__OPDeviceLoop__
+		<option value="__OPDeviceCD__" __OP2DeviceSelected__ >__OPKataban__ (__OPDeviceName__)</option>
+		__OPDeviceLoop__
+		</select><br>
+		￥<input type="text" name="wOPPrice2" value="__wOPPrice2__" size="6"></td></tr>
+
+<tr><td colspan="2">
+		<select name="wOP3DeviceCD">
+		<option value="0">-</option>
+		__OPDeviceLoop__
+		<option value="__OPDeviceCD__" __OP3DeviceSelected__ >__OPKataban__ (__OPDeviceName__)</option>
+		__OPDeviceLoop__
+		</select><br>
+		￥<input type="text" name="wOPPrice3" value="__wOPPrice3__" size="6"></td></tr>
+
+<tr><td colspan="2">
+		<select name="wOP4DeviceCD">
+		<option value="0">-</option>
+		__OPDeviceLoop__
+		<option value="__OPDeviceCD__" __OP4DeviceSelected__ >__OPKataban__ (__OPDeviceName__)</option>
+		__OPDeviceLoop__
+		</select><br>
+		￥<input type="text" name="wOPPrice4" value="__wOPPrice4__" size="6"></td></tr>
+
+<tr><td colspan="2" class="table-active">★オプション支払方法</td>
+	<td colspan="2">
+		<select name="wShiharai">
+		<option value="">-</option>
+		<option value="現金" __Shiharai1Selected__>現金</option>
+		<option value="振込" __Shiharai2Selected__>振込</option>
+		<option value="現金 or 振込選択(ヒアリング依頼)" __Shiharai3Selected__>現金 or 振込選択(ヒアリング依頼)</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★1日の基本班体制数</td>
+	<td colspan="2"><input type="text" name="wHansu" value="__wHansu__" size="6"> 班</td></tr>
+
+<tr><td colspan="2" class="table-active">★1戸あたりの標準作業時間</td>
+	<td colspan="2"><input type="text" name="wConstTime" value="__wConstTime__" size="6"> 分</td></tr>
+
+<tr><td colspan="2" class="table-active">★住戸工事期間中の休工日</td>
+	<td colspan="2"><input type="text" name="wKyukoDate" value="__wKyukoDate__"></td></tr>
+
+<tr><td colspan="2" class="table-active">★工事期間中の集玄開錠方法</td>
+	<td colspan="2">
+		<input type="checkbox" name="wKaijyo[]" value="鍵" __Kaijyo1Checked__>鍵
+		<input type="checkbox" name="wKaijyo[]" value="仮暗証番号" __Kaijyo2Checked__>仮暗証番号
+		<input type="checkbox" name="wKaijyo[]" value="暗証番号" __Kaijyo3Checked__>暗証番号
+		<input type="checkbox" name="wKaijyo[]" value="工事期間中は終日開放" __Kaijyo4Checked__>工事期間中は終日開放
+	</td></tr>
+
+<tr><td colspan="2" class="table-active">★居室端末の移動対応</td>
+	<td colspan="2">
+		<select name="wIsetu">
+		<option value="">-</option>
+		<option value="しない" __Isetu1Selected__>しない</option>
+		<option value="有料にて対応" __Isetu2Selected__>有料にて対応</option>
+		<option value="無料対応" __Isetu3Selected__>無料対応</option>
+		<option value="アイホン担当者に確認" __Isetu4Selected__>アイホン担当者に確認</option>
+		</select></td></tr>
+
+
+
+<!--7．写真撮影方法-->
+<tr class="table-active">
+	<th colspan="4">7．写真撮影方法</th></tr>
+<tr class="table-active">
+	<td colspan="4">工事写真管理アプリ利用時のみご記入ください。</td></tr>
+
+<tr><td colspan="2" class="table-active">写真台帳提供日<br>　<font size="2" color="dimgray">写真台帳の提供日(以降の写真はアイホンメンテ)</font></td>
+	<td colspan="2"><input type="text" name="wPhotoTekyoDate" id="PhotoTekyoDate" value="__wPhotoTekyoDate__" size="10" class="datepicker"></td></tr>
+
+<tr><td colspan="2" class="table-active">★台帳選択<br>　<font size="2" color="dimgray">写真台帳【選択】シートより確認</font></td>
+	<td colspan="2">
+		<select name="wPhotoPattern">
+		<option value="">-</option>
+		<option value="a-1" __PhotoPattern1Selected__>a-1</option>
+		<option value="a-2" __PhotoPattern2Selected__>a-2</option>
+		<option value="b-1" __PhotoPattern3Selected__>b-1</option>
+		<option value="b-2" __PhotoPattern4Selected__>b-2</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">専有部</td>
+	<td class="table-active">機器名　</td>
+	<td class="table-active">撮影シーン</td></tr>
+<tr><td colspan="2" class="table-active">★項目1</td>
+	<td><select name="wPhotoSenyu1">
+		<option value="1" __PhotoSenyu11Selected__>居室親機</option>
+		<option value="2" __PhotoSenyu12Selected__>住宅情報盤</option>
+		<option value="3" __PhotoSenyu13Selected__>玄関子機</option>
+		<option value="0">-</option>
+		</select></td>
+	<td><select name="wPSScene1">
+		<option value="1" __PSScene11Selected__>施工前/施工後</option>
+		<option value="2" __PSScene12Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PSScene13Selected__>施工後のみ</option>
+		<option value="0">-</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目2</td>
+	<td><select name="wPhotoSenyu2">
+		<option value="1" __PhotoSenyu21Selected__>居室親機</option>
+		<option value="2" __PhotoSenyu22Selected__>住宅情報盤</option>
+		<option value="3" __PhotoSenyu23Selected__>玄関子機</option>
+		<option value="0">-</option>
+		</select></td>
+	<td><select name="wPSScene2">
+		<option value="1" __PSScene21Selected__>施工前/施工後</option>
+		<option value="2" __PSScene22Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PSScene23Selected__>施工後のみ</option>
+		<option value="0">-</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目3</td>
+	<td><select name="wPhotoSenyu3">
+		<option value="0">-</option>
+		<option value="1" __PhotoSenyu31Selected__>居室親機</option>
+		<option value="2" __PhotoSenyu32Selected__>住宅情報盤</option>
+		<option value="3" __PhotoSenyu33Selected__>玄関子機</option>
+		</select></td>
+	<td><select name="wPSScene3">
+		<option value="0">-</option>
+		<option value="1" __PSScene31Selected__>施工前/施工後</option>
+		<option value="2" __PSScene32Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PSScene33Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目4</td>
+	<td><select name="wPhotoSenyu4">
+		<option value="0">-</option>
+		<option value="1" __PhotoSenyu41Selected__>居室親機</option>
+		<option value="2" __PhotoSenyu42Selected__>住宅情報盤</option>
+		<option value="3" __PhotoSenyu43Selected__>玄関子機</option>
+		</select></td>
+	<td><select name="wPSScene4">
+		<option value="0">-</option>
+		<option value="1" __PSScene41Selected__>施工前/施工後</option>
+		<option value="2" __PSScene42Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PSScene43Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">共用部</td>
+	<td class="table-active">機器名</td>
+	<td class="table-active">撮影シーン</td></tr>
+<tr><td colspan="2" class="table-active">★項目1</td>
+	<td><select name="wPhotoKyoyo1">
+		<option value="1" __PhotoKyoyo11Selected__>制御装置</option>
+		<option value="2" __PhotoKyoyo12Selected__>管理室親機</option>
+		<option value="3" __PhotoKyoyo13Selected__>集合玄関機</option>
+		<option value="4" __PhotoKyoyo14Selected__>映像増幅器</option>
+		<option value="0">-</option>
+		</select></td>
+	<td><select name="wPKScene1">
+		<option value="1" __PKScene11Selected__>施工前/施工後</option>
+		<option value="2" __PKScene12Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene13Selected__>施工後のみ</option>
+		<option value="0">-</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目2</td>
+	<td><select name="wPhotoKyoyo2">
+		<option value="1" __PhotoKyoyo21Selected__>制御装置</option>
+		<option value="2" __PhotoKyoyo22Selected__>管理室親機</option>
+		<option value="3" __PhotoKyoyo23Selected__>集合玄関機</option>
+		<option value="4" __PhotoKyoyo24Selected__>映像増幅器</option>
+		<option value="0">-</option>
+		</select></td>
+	<td><select name="wPKScene2">
+		<option value="1" __PKScene21Selected__>施工前/施工後</option>
+		<option value="2" __PKScene22Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene23Selected__>施工後のみ</option>
+		<option value="0">-</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目3</td>
+	<td><select name="wPhotoKyoyo3">
+		<option value="1" __PhotoKyoyo31Selected__>制御装置</option>
+		<option value="2" __PhotoKyoyo32Selected__>管理室親機</option>
+		<option value="3" __PhotoKyoyo33Selected__>集合玄関機</option>
+		<option value="4" __PhotoKyoyo34Selected__>映像増幅器</option>
+		<option value="0">-</option>
+		</select></td>
+	<td><select name="wPKScene3">
+		<option value="1" __PKScene31Selected__>施工前/施工後</option>
+		<option value="2" __PKScene32Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene33Selected__>施工後のみ</option>
+		<option value="0">-</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目4</td>
+	<td><select name="wPhotoKyoyo4">
+		<option value="0">-</option>
+		<option value="1" __PhotoKyoyo41Selected__>制御装置</option>
+		<option value="2" __PhotoKyoyo42Selected__>管理室親機</option>
+		<option value="3" __PhotoKyoyo43Selected__>集合玄関機</option>
+		<option value="4" __PhotoKyoyo44Selected__>映像増幅器</option>
+		</select></td>
+	<td><select name="wPKScene4">
+		<option value="0">-</option>
+		<option value="1" __PKScene41Selected__>施工前/施工後</option>
+		<option value="2" __PKScene42Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene43Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目5</td>
+	<td><input type="text" name="wPhotoKyoyo5" value="__wPhotoKyoyo5__"></td>
+	<td><select name="wPKScene5">
+		<option value="0">-</option>
+		<option value="1" __PKScene51Selected__>施工前/施工後</option>
+		<option value="2" __PKScene52Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene53Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目6</td>
+	<td><input type="text" name="wPhotoKyoyo6" value="__wPhotoKyoyo6__"></td>
+	<td><select name="wPKScene6">
+		<option value="0">-</option>
+		<option value="1" __PKScene61Selected__>施工前/施工後</option>
+		<option value="2" __PKScene62Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene63Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目7</td>
+	<td><input type="text" name="wPhotoKyoyo7" value="__wPhotoKyoyo7__"></td>
+	<td><select name="wPKScene7">
+		<option value="0">-</option>
+		<option value="1" __PKScene71Selected__>施工前/施工後</option>
+		<option value="2" __PKScene72Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene73Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目8</td>
+	<td><input type="text" name="wPhotoKyoyo8" value="__wPhotoKyoyo8__"></td>
+	<td><select name="wPKScene8">
+		<option value="0">-</option>
+		<option value="1" __PKScene81Selected__>施工前/施工後</option>
+		<option value="2" __PKScene82Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene83Selected__>施工後のみ</option>
+		</select></td></tr>
+
+<tr><td colspan="2" class="table-active">★項目9</td>
+	<td><input type="text" name="wPhotoKyoyo9" value="__wPhotoKyoyo9__"></td>
+	<td><select name="wPKScene9">
+		<option value="0">-</option>
+		<option value="1" __PKScene91Selected__>施工前/施工後</option>
+		<option value="2" __PKScene92Selected__>施工前/施工中/施工後</option>
+		<option value="3" __PKScene93Selected__>施工後のみ</option>
+		</select></td></tr>
+
+
+<!--8．その他（注意事項等）-->
+<tr class="table-active">
+	<th colspan="4">★8．その他（注意事項等）</th></tr>
+<tr><td colspan="4"><textarea name="wNotes" cols="100" rows="7">__wNotes__</textarea></td></tr>
+</table>
+
+
+
+<!--関連資料-->
+<table class="table table-bordered table-sm" style="width:950px">
+<tr class="table-active">
+	<th>関連資料（住人様ご案内資料、仮日程表など）</th></tr>
+<tr><td>
+		※5つ以上ファイルがある場合は圧縮してzip形式にしていただき、登録してください。<br>
+		<span style="background-color:yellow" >
+		<font color="red"><b>※1ファイルのサイズが10M(=10485760 bytes)を超えると登録できません。</b></font></span><br>
+		<a href="/kotei/upfile/iraifile_tmp/yoyakuirai_file.pdf" target="_blank">▼資料サイズが大きい場合</a><br>
+
+		<input type="hidden" name="MAX_FILE_SIZE" value="10485760" /><!--1024*1024*10 = 10MB 20170213-->
+
+		<table width="100%"><!--⑩-->
+		<tr><td width="50%">
+			<span id="f1"><input type="file" name="tempfile[]" size="30" id="tempfile1" onchange="check(1)" /></span>
+			<input type="button" value="クリア" onclick="tempfileclear('f1')"><br />
+
+			<span id="f2"><input type="file" name="tempfile[]" size="30" id="tempfile2" onchange="check(2)" /></span>
+			<input type="button" value="クリア" onclick="tempfileclear('f2')"><br />
+
+			<span id="f3"><input type="file" name="tempfile[]" size="30" id="tempfile3" onchange="check(3)" /></span>
+			<input type="button" value="クリア" onclick="tempfileclear('f3')"><br />
+
+			<span id="f4"><input type="file" name="tempfile[]" size="30" id="tempfile4" onchange="check(4)" /></span>
+			<input type="button" value="クリア" onclick="tempfileclear('f4')"><br />
+
+			<span id="f5"><input type="file" name="tempfile[]" size="30" id="tempfile5" onchange="check(5)" /></span>
+			<input type="button" value="クリア" onclick="tempfileclear('f5')"><br />
+		</td><td width="50%">
+			<div id="tempfileresult"></div>
+		</table><!--⑩-->
+
+		<div id="tempfilesizeresult" style="display: none;"></div><!--資料サイズ結果-->
+
+		<br>
+		<table border=1 style="width:100%">
+			<tr><td colspan=4 bgcolor="gainsboro">登録済ファイル</td></tr>
+			__IraiFileLoop__
+				<tr bgcolor="lightyellow">
+					<td style="width:30px">__FileNo__</td>
+					<td>・__IraiFile__</td>
+					<td style="width:160px"><font size="2">__Created__</font></td> 
+					<td style="width:60px"><input type="button" value="削除" class="button" onclick="javascript:moveWithWorkAndIraiFileCD('s_489.php',  __IraiFileCD__ ,2 )"></td>
+				</tr>
+			__IraiFileLoop__
+		</table>
+	</td>
+</tr>
+</table>
+
+
+<!--施工会社様向け依頼事項Start-->
+<table class="table table-bordered table-sm" style="width:950px">
+<tr class="table-success">
+	<th colspan="2">施工業者指示内容</th></tr>
+<tr class="table-success">
+	<td colspan="2">施工業者様へ下記内容を予約センターから通知いたします。</td></tr>
+
+<tr><td class="table-success">リニューアル方式</td>
+	<td><input type="radio" name="wRenewalType" __RenewalTypeChecked1__ value="1">既設システム停止でのRN<br>
+		<input type="radio" name="wRenewalType" __RenewalTypeChecked2__ value="2">新旧並行稼働でのRN
+	</td></tr>
+
+<tr><td class="table-success">配線</td>
+	<td><input type="radio" name="wHaisenType" __HaisenTypeChecked1__ value="1">既設配線流用<br>
+		<input type="radio" name="wHaisenType" __HaisenTypeChecked2__ value="2">既設配線抜き替え（大幅）<br>
+		<input type="radio" name="wHaisenType" __HaisenTypeChecked3__ value="3">既設配線抜き替え（一部）<br>
+		<input type="radio" name="wHaisenType" __HaisenTypeChecked4__ value="4">新規露出配線
+	</td></tr>
+
+<tr><td class="table-success">管理室呼び出し</td>
+	<td><input type="radio" name="wKanrishituCall" __KanrishituCallChecked1__ value="1">表示なし<br>
+		<input type="radio" name="wKanrishituCall" __KanrishituCallChecked2__ value="2">常時表示<br>
+		<input type="radio" name="wKanrishituCall" __KanrishituCallChecked3__ value="3">メモリ時のみ
+	</td></tr>
+
+<tr><td class="table-success">写真撮影件数（共用部）</td>
+	<td><input type="radio" name="wPicKSu" __PicKSuChecked1__ value="1">全箇所<br>
+		<input type="radio" name="wPicKSu" __PicKSuChecked2__ value="2">主要機器のみ<br>
+		<input type="radio" name="wPicKSu" __PicKSuChecked3__ value="3">不要
+	</td></tr>
+
+<tr><td class="table-success">写真撮影枚数（共用部）</td>
+	<td><input type="radio" name="wPicKType" __PicKTypeChecked1__ value="1">作業前・中・後<br>
+		<input type="radio" name="wPicKType" __PicKTypeChecked2__ value="2">作業前・後<br>
+		<input type="radio" name="wPicKType" __PicKTypeChecked3__ value="3">不要
+	</td></tr>
+
+<tr><td class="table-success">写真撮影件数（専有部）</td>
+	<td><input type="radio" name="wPicSu" __PicSuChecked1__ value="1">全戸<br>
+		<input type="radio" name="wPicSu" __PicSuChecked2__ value="2">抜粋<br>
+		<input type="radio" name="wPicSu" __PicSuChecked3__ value="3">不要
+	</td></tr>
+
+<tr><td class="table-success">写真撮影枚数（専有部）</td>
+	<td><input type="radio" name="wPicType" __PicTypeChecked1__ value="1">作業前・中・後<br>
+		<input type="radio" name="wPicType" __PicTypeChecked2__ value="2">作業前・後<br>
+		<input type="radio" name="wPicType" __PicTypeChecked3__ value="3">不要
+	</td></tr>
+
+<tr><td class="table-success">消防申請</td>
+	<td><input type="radio" name="wShobo" __ShoboChecked1__ value="1">必要<br>
+		<input type="radio" name="wShobo" __ShoboChecked2__ value="2">不要
+	</td></tr>
+
+<tr><td class="table-success">工事完了後の提出書類</td>
+	<td><input type="checkbox" name="wTeishutuDoc[]" __TeishutuDocChecked1__ value="1">完了確認書<br>
+		<input type="checkbox" name="wTeishutuDoc[]" __TeishutuDocChecked2__ value="2">工事写真台帳<br>
+		<input type="checkbox" name="wTeishutuDoc[]" __TeishutuDocChecked3__ value="3">系統図
+	</td></tr>
+
+<tr><td class="table-success">その他指示事項</td>
+	<td><textarea name="wSonotaShiji" cols="80" rows="7">__wSonotaShiji__</textarea></td></tr>
+</table>
+<!--施工会社様向け依頼事項End-->
+</div>
+
+
+
+<font color="red" size="4"><b>※「㈱、Ⅰ、Ⅱ、①、②」等の環境依存文字は文字化けします。<br>
+							　「（株）、I、II、(1)、(2)」に変更お願いします。</b></font>
+
+<br><br>
+<input type="hidden" name="rKey" value="__rKey__">
+<input type="hidden" name="editBukkenCD" value="__editBukkenCD__">
+<input type="hidden" name="wIraiRenkeiStatus" value="__wIraiRenkeiStatus__" >
+<input type="hidden" name="editIraiRenkeiCD" value="__editIraiRenkeiCD__" > 
+<input type="hidden" name="wBunjyo" value="__wBunjyo__" > 
+<input type="hidden" name="wKosu" value="__wKosu__" > 
+
+
+<!-- ファイル名取得のため
+<input type="submit" value="  内容確認  " >-->
+<input type="hidden" name="hiddenfilenames" value="">
+<input type="hidden" name="action" value="form">
+<input type="button" value="内容確認" onclick="javascript:FilesSubmit(this.form);">
+</form>
+<br>
+
+
+
+<hr size="__HRSize__" color="__HRColor__">
+<a href="s_menu.php__QUERY__&editBukkenCD=__editBukkenCD__ ">メニュー</a><br><br>
+<a href="s_search.php__QUERY__">トップ</a><br>
+<hr size="__HRSize__" color="__HRColor__">
+__SFooter__
+__SCopyright__
+
+</div><!--content-all-->
+
+</body>
+</html>

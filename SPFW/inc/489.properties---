@@ -1,0 +1,272 @@
+<?php
+$DATENAME[0] = "-";
+$DATENAME[1] = "総会";
+$DATENAME[2] = "臨時総会";
+$DATENAME[3] = "工事前・事前確認作業案内";
+$DATENAME[4] = "工事前・事前確認作業";
+$DATENAME[5] = "工事案内・専有部工事日程案内";
+$DATENAME[6] = "工事案内・専有部工事日程・オプション案内";
+$DATENAME[7] = "専有部工事日程変更受付";
+$DATENAME[8] = "専有部工事日程変更受付・オプション受付";
+$DATENAME[9] = "専有部工事日程確定案内";
+$DATENAME[10] = "共用部工事";
+$DATENAME[11] = "専有部工事";
+$DATENAME[12] = "共用部旧機器撤去";
+$DATENAME[13] = "産廃処理";
+
+
+
+$OTHERWISEDATE[0] = "-";
+$OTHERWISEDATE[1] = "総会";
+$OTHERWISEDATE[2] = "臨時総会";
+$OTHERWISEDATE[3] = "工事前・事前確認作業案内";
+$OTHERWISEDATE[4] = "工事前・事前確認作業";
+$OTHERWISEDATE[5] = "専有部工事日程変更受付";
+$OTHERWISEDATE[6] = "専有部工事日程変更受付・オプション受付";
+$OTHERWISEDATE[7] = "共用部旧機器撤去";
+$OTHERWISEDATE[8] = "産廃処理";
+
+
+$OTHERWISESHORTNAME[0] = "-";
+$OTHERWISESHORTNAME[1] = "総会";
+$OTHERWISESHORTNAME[2] = "臨総";
+$OTHERWISESHORTNAME[3] = "配布";
+$OTHERWISESHORTNAME[4] = "作業";
+$OTHERWISESHORTNAME[5] = "受付";
+$OTHERWISESHORTNAME[6] = "受付";
+$OTHERWISESHORTNAME[7] = "撤去";
+$OTHERWISESHORTNAME[8] = "産廃";
+
+
+
+
+$DATESHORTNAME[0] = "-";
+$DATESHORTNAME[1] = "審議";
+$DATESHORTNAME[2] = "審議";
+$DATESHORTNAME[3] = "掲示";
+$DATESHORTNAME[4] = "作業";
+$DATESHORTNAME[5] = "掲示";
+$DATESHORTNAME[6] = "掲示";
+$DATESHORTNAME[7] = "受付";
+$DATESHORTNAME[8] = "受付";
+$DATESHORTNAME[9] = "配布";
+$DATESHORTNAME[10] = "共有";
+$DATESHORTNAME[11] = "専有";
+$DATESHORTNAME[12] = "撤去";
+$DATESHORTNAME[13] = "産廃";
+
+
+
+#
+# 対応カテゴリー名
+#
+$TAIOCATEGORY = array("日程変更/空日程","日程変更なし", "工期外・相談", "設備/工事の問合せ", "外部オーナーなどから","その他");
+#
+
+
+
+#
+# 時間指定名
+#
+#
+#$SHITEI = array("", "指定", "頃" , "早め" ,"遅め","時間厳守","完了必須");
+$SHITEI[0] = "";
+$SHITEI[1] = "指定";
+$SHITEI[2] = "頃";
+$SHITEI[3] = "早め";
+$SHITEI[4] = "遅め";
+$SHITEI[5] = "時間厳守";
+$SHITEI[6] = "完了必須";
+
+
+
+
+
+#
+# 工事枠パターン
+#
+$WAKUPATTERN[0]['Name'] = "2枠( AM 9:00-12:00, PM 13:00-17:00)";
+$WAKUPATTERN[0]['StartTime'][0] = "09:00";
+$WAKUPATTERN[0]['EndTime'][0] = "12:00";
+$WAKUPATTERN[0]['AMPM'][0] = "AM";
+$WAKUPATTERN[0]['WD60min'][0] = "3";
+$WAKUPATTERN[0]['WE60min'][0] = "2";
+
+$WAKUPATTERN[0]['StartTime'][1] = "13:00";
+$WAKUPATTERN[0]['EndTime'][1] = "17:00";
+$WAKUPATTERN[0]['AMPM'][1] = "PM";
+$WAKUPATTERN[0]['WD60min'][1] = "4";
+$WAKUPATTERN[0]['WE60min'][1] = "3";
+
+
+$WAKUPATTERN[1]['Name'] = "2枠( AM 9:00-12:00, PM 13:00-17:30)";
+$WAKUPATTERN[1]['StartTime'][0] = "09:00";
+$WAKUPATTERN[1]['EndTime'][0] = "12:00";
+$WAKUPATTERN[1]['AMPM'][0] = "AM";
+$WAKUPATTERN[1]['WD60min'][0] = "3";
+$WAKUPATTERN[1]['WE60min'][0] = "2";
+$WAKUPATTERN[1]['StartTime'][1] = "13:00";
+$WAKUPATTERN[1]['EndTime'][1] = "17:30";
+$WAKUPATTERN[1]['AMPM'][1] = "PM";
+$WAKUPATTERN[1]['WD60min'][1] = "4";
+$WAKUPATTERN[1]['WE60min'][1] = "3";
+
+
+$WAKUPATTERN[2]['Name'] = "2枠( AM 9:00-12:00, PM 13:00-18:00)";
+$WAKUPATTERN[2]['StartTime'][0] = "09:00";
+$WAKUPATTERN[2]['EndTime'][0] = "12:00";
+$WAKUPATTERN[2]['AMPM'][0] = "AM";
+$WAKUPATTERN[2]['WD60min'][0] = "3";
+$WAKUPATTERN[2]['WE60min'][0] = "2";
+$WAKUPATTERN[2]['StartTime'][1] = "13:00";
+$WAKUPATTERN[2]['EndTime'][1] = "18:00";
+$WAKUPATTERN[2]['AMPM'][1] = "PM";
+$WAKUPATTERN[2]['WD60min'][1] = "5";
+$WAKUPATTERN[2]['WE60min'][1] = "4";
+
+
+$WAKUPATTERN[3]['Name'] = "3枠( AM 9:00-12:00, PM1 13:00-15:00, PM2 15:00-17:00)";
+$WAKUPATTERN[3]['StartTime'][0] = "09:00";
+$WAKUPATTERN[3]['EndTime'][0] = "12:00";
+$WAKUPATTERN[3]['AMPM'][0] = "AM";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[3]['StartTime'][1] = "13:00";
+$WAKUPATTERN[3]['EndTime'][1] = "15:00";
+$WAKUPATTERN[3]['AMPM'][1] = "PM1";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[3]['StartTime'][2] = "15:00";
+$WAKUPATTERN[3]['EndTime'][2] = "17:00";
+$WAKUPATTERN[3]['AMPM'][2] = "PM2";
+$WAKUPATTERN[3]['WD60min'][2] = "3";
+$WAKUPATTERN[3]['WE60min'][2] = "2";
+
+$WAKUPATTERN[4]['Name'] = "3枠( AM 9:00-12:00, PM1 13:00-15:00, PM2 15:00-17:30)";
+$WAKUPATTERN[4]['StartTime'][0] = "09:00";
+$WAKUPATTERN[4]['EndTime'][0] = "12:00";
+$WAKUPATTERN[4]['AMPM'][0] = "AM";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[4]['StartTime'][1] = "13:00";
+$WAKUPATTERN[4]['EndTime'][1] = "15:00";
+$WAKUPATTERN[4]['AMPM'][1] = "PM1";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[4]['StartTime'][2] = "15:00";
+$WAKUPATTERN[4]['EndTime'][2] = "17:30";
+$WAKUPATTERN[4]['AMPM'][2] = "PM2";
+$WAKUPATTERN[3]['WD60min'][2] = "3";
+$WAKUPATTERN[3]['WE60min'][2] = "2";
+
+$WAKUPATTERN[5]['Name'] = "3枠( AM 9:00-12:00, PM1 13:00-15:00, PM2 15:00-18:00)";
+$WAKUPATTERN[5]['StartTime'][0] = "09:00";
+$WAKUPATTERN[5]['EndTime'][0] = "12:00";
+$WAKUPATTERN[5]['AMPM'][0] = "AM";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[5]['StartTime'][1] = "13:00";
+$WAKUPATTERN[5]['EndTime'][1] = "15:00";
+$WAKUPATTERN[5]['AMPM'][1] = "PM1";
+$WAKUPATTERN[3]['WD60min'][1] = "3";
+$WAKUPATTERN[3]['WE60min'][1] = "2";
+$WAKUPATTERN[5]['StartTime'][2] = "15:00";
+$WAKUPATTERN[5]['EndTime'][2] = "18:00";
+$WAKUPATTERN[5]['AMPM'][2] = "PM2";
+$WAKUPATTERN[3]['WD60min'][2] = "3";
+$WAKUPATTERN[3]['WE60min'][2] = "2";
+
+
+
+$SHUKUJITULIST = array(
+"2018-1-1",
+,"2018-1-8",
+,"2018-2-11",
+,"2018-2-12",
+,"2018-3-21",
+,"2018-4-29",
+,"2018-4-30",
+,"2018-5-3",
+,"2018-5-4",
+,"2018-5-5",
+,"2018-7-16",
+,"2018-8-11",
+,"2018-9-17",
+,"2018-9-23",
+,"2018-9-24",
+,"2018-10-8",
+,"2018-11-3",
+,"2018-11-23",
+,"2018-12-23",
+,"2018-12-24",
+,"2019-1-1",
+,"2019-1-14",
+,"2019-2-11",
+,"2019-3-21",
+,"2019-4-29",
+,"2019-5-3",
+,"2019-5-4",
+,"2019-5-5",
+,"2019-5-6",
+,"2019-7-15",
+,"2019-8-11",
+,"2019-8-12",
+,"2019-9-16",
+,"2019-9-23",
+,"2019-10-14",
+,"2019-11-3",
+,"2019-11-4",
+,"2019-11-23",
+,"2019-12-23",
+,"2020-1-1",
+,"2020-1-13",
+,"2020-2-11",
+,"2020-3-20",
+,"2020-4-29",
+,"2020-5-3",
+,"2020-5-4",
+,"2020-5-4",
+,"2020-5-5",
+,"2020-7-20",
+,"2020-8-11",
+,"2020-9-21",
+,"2020-9-22",
+,"2020-10-12",
+,"2020-11-3",
+,"2020-11-23",
+,"2020-12-23",
+,"2021-1-1",
+,"2021-1-11",
+,"2021-2-11",
+,"2021-3-20",
+,"2021-4-29",
+,"2021-5-3",
+,"2021-5-4",
+,"2021-5-5",
+,"2021-7-19",
+,"2021-8-11",
+,"2021-9-20",
+,"2021-9-23",
+,"2021-10-11",
+,"2021-11-3",
+,"2021-11-23",
+,"2021-12-23",
+,"2022-1-1",
+,"2022-1-10",
+,"2022-2-11",
+,"2022-3-21",
+,"2022-4-29",
+,"2022-5-3",
+,"2022-5-4",
+,"2022-5-5",
+,"2022-7-18",
+,"2022-8-11",
+,"2022-9-19",
+,"2022-9-23",
+,"2022-10-10",
+,"2022-11-3",
+,"2022-11-23",
+,"2022-12-23"
+);
+
+?>

@@ -1,0 +1,159 @@
+@charset "UTF-8";
+ 
+#emojiPalette {
+	width: 357px;
+	top: 0px;
+	border: solid 1px #666666;
+	visibility: hidden;
+	position: absolute;
+}
+#emojiPalette span {
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	background-color: #ffffff;
+	border-right: dotted 1px #cccccc;
+	border-bottom: dotted 1px #cccccc;
+	cursor: pointer;
+}
+#emojiPalette span:hover {
+	background-color: #99ff99;
+}
+#emojiPalette:after {
+	content:  ".";
+	display: block;
+	visibility: hidden;
+	height: 0.1px;
+	font-size: 0.1em;
+	line-height: 0;
+	clear: both;
+}
+ 
+#cmdEmojiPalet {
+	cursor: pointer;
+}
+
+#emojiPalette1 {
+	width: 357px;
+	top: 0px;
+	border: solid 1px #666666;
+	visibility: hidden;
+	position: absolute;
+}
+#emojiPalette1 span {
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	background-color: #ffffff;
+	border-right: dotted 1px #cccccc;
+	border-bottom: dotted 1px #cccccc;
+	cursor: pointer;
+}
+#emojiPalette1 span:hover {
+	background-color: #99ff99;
+}
+#emojiPalette1:after {
+	content:  ".";
+	display: block;
+	visibility: hidden;
+	height: 0.1px;
+	font-size: 0.1em;
+	line-height: 0;
+	clear: both;
+}
+ 
+#cmdEmojiPalet {
+	cursor: pointer;
+}
+
+#emojiPalette2 {
+	width: 357px;
+	top: 0px;
+	border: solid 1px #666666;
+	visibility: hidden;
+	position: absolute;
+}
+#emojiPalette2 span {
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	background-color: #ffffff;
+	border-right: dotted 1px #cccccc;
+	border-bottom: dotted 1px #cccccc;
+	cursor: pointer;
+}
+#emojiPalette2 span:hover {
+	background-color: #99ff99;
+}
+#emojiPalette2:after {
+	content:  ".";
+	display: block;
+	visibility: hidden;
+	height: 0.1px;
+	font-size: 0.1em;
+	line-height: 0;
+	clear: both;
+}
+
+#emojiPalette3 {
+	width: 357px;
+	top: 0px;
+	border: solid 1px #666666;
+	visibility: hidden;
+	position: absolute;
+}
+#emojiPalette3 span {
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	background-color: #ffffff;
+	border-right: dotted 1px #cccccc;
+	border-bottom: dotted 1px #cccccc;
+	cursor: pointer;
+}
+#emojiPalette3 span:hover {
+	background-color: #99ff99;
+}
+#emojiPalette3:after {
+	content:  ".";
+	display: block;
+	visibility: hidden;
+	height: 0.1px;
+	font-size: 0.1em;
+	line-height: 0;
+	clear: both;
+}
+
+#emojiPalette4 {
+	width: 357px;
+	top: 0px;
+	border: solid 1px #666666;
+	visibility: hidden;
+	position: absolute;
+}
+#emojiPalette4 span {
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	background-color: #ffffff;
+	border-right: dotted 1px #cccccc;
+	border-bottom: dotted 1px #cccccc;
+	cursor: pointer;
+}
+#emojiPalette4 span:hover {
+	background-color: #99ff99;
+}
+#emojiPalette4:after {
+	content:  ".";
+	display: block;
+	visibility: hidden;
+	height: 0.1px;
+	font-size: 0.1em;
+	line-height: 0;
+	clear: both;
+}

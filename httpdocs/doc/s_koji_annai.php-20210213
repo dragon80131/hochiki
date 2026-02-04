@@ -1,0 +1,192 @@
+<?php
+	include_once "setting.properties";
+	include_once _INC_DIR . "carrier.inc";
+	include_once _INC_DIR . "global.inc";
+
+	include_once _CLS_DIR . "SPFWDatabase.cls";
+	include_once _CLS_DIR . "SPFWLog.cls";
+	include_once _CLS_DIR . "SPFWTemplate.cls";
+	include_once _CLS_DIR . "SPFWListObject.cls";
+	include_once _CLS_DIR . "SPFWDate.cls";
+	include_once _CLS_DIR . "SPFWInputCheck.cls";
+	include_once _CLS_DIR . "SPFWParameter.cls";
+	include_once _CLS_DIR . "SPUSUser.cls";
+	include_once _CLS_DIR . "SPUSBukken.cls";
+	include_once _CLS_DIR . "SPUSKoji.cls";
+
+	include_once  "../include/common.php";
+
+
+	// データベースコネクト
+	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+	if (!$myDB->Connection)
+		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
+
+
+	########################################################
+	# 認証動作
+	########################################################
+	$rKey = SPFWParameter::getValues('rKey');
+
+	$myUser = new User($myDB);
+
+	if ($rKey == NULL)
+		showSorryPage(_ILLEGAL_ACCESS);
+
+	if (!$myUser->doAuthenticationByRegistKey($rKey))
+		trigger_error("doAuthentication Failed.", E_USER_ERROR);
+
+	if ($myUser->UserCD == -1)
+		showSorryPage(_ILLEGAL_ACCESS);
+
+	$UserCD = $myUser->UserCD;
+	$ID = $myUser->ID;
+
+	unset($myUser);
+
+
+	########################################################
+	# 設定情報
+	########################################################
+	$ShiteiVestLoop = count( $SHITEIVEST );
+	for( $i=0; $i< $ShiteiVestLoop ; $i++){
+		$ShiteiVestName[$i] = $SHITEIVEST[$i];
+		$ShiteiVestNo[$i] = $i;
+	}
+
+
+	########################################################
+	# 物件情報表示
+	########################################################
+	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
+
+	$myBukken = new Bukken($myDB);
+
+	if (!$myBukken->executeSelect("MukouFlg = FALSE AND BukkenCD = ".$editBukkenCD , "") || $myBukken->RecCnt != 1)
+		trigger_error("Getting tFileF Failed.", E_USER_ERROR);
+
+	$BukkenName = $myBukken->BukkenName;
+	$KanriGaisya = $myBukken->KanriGaisya;
+	$KenmeiNo = $myBukken->KenmeiNo;
+
+	unset($myBukken);
+
+
+	########################################################
+	# 工事情報抽出
+	########################################################
+
+	$myKoji = new Koji($myDB);
+
+	if (!$myKoji->executeSelect(" BukkenCD = ".$editBukkenCD ." AND MukouFlg = FALSE", ""))
+		trigger_error("Getting tFileF Failed.", E_USER_ERROR);
+
+	if ($myKoji->RecCnt != 1) {
+		#工事情報登録がまだ
+		$ErrorString = array();
+		$ErrorString[] = "工事情報を登録してください。";
+		$ErrorLoop = count($ErrorString);
+		$myTemplate = new SPFWTemplate(_ERROR_TPL, $MyCarrier, TRUE);
+		exit;
+
+	} else {
+
+		// 20190909add 物件基本情報を登録したかどうか 1:登録
+		if ($myKoji->BukkenTourokuStatus != 1) {
+			#物件基本情報登録がまだ
+			$ErrorString = array();
+			$ErrorString[] = "物件基本情報登録を完了させてください。";
+			$ErrorLoop = count($ErrorString);
+			$myTemplate = new SPFWTemplate(_ERROR_TPL, $MyCarrier, TRUE);
+			exit;
+		}
+
+
+		// 資料右上に記載する会社
+		if ($myKoji->DispCompanyTop == "" or is_null($myKoji->DispCompanyTop)) {
+			// 工事案内初回登録時 myKoji->DispCompanyTopがNULLのとき
+
+			// 施工主体がアイホンさん（元請け）の場合
+			if ($myKoji->SekoShutai == "アイホン株式会社") {
+				$DispCompanyTop1 = $BukkenName."管理組合"; #マンション名+管理組合
+			} else {
+				$DispCompanyTop1 = $KanriGaisya; #管理会社
+			}
+#			$DispCompanyTop2 = "アイホン株式会社"; #アイホン固定 
+
+		} else {
+			// 工事案内を一度でも作成していたら、DBの値を取得
+			$DispCompanyTop_array = SPFWTools::decodePluralValue($myKoji->DispCompanyTop);
+
+			$DispCompanyTop1 = $DispCompanyTop_array[0];
+			$DispCompanyTop2 = $DispCompanyTop_array[1];
+			$DispCompanyTop3 = $DispCompanyTop_array[2];
+		}
+
+
+		// 工事に関するお問い合わせ先に記載する会社
+		if(!empty($myKoji->ToiawasewakiDisp)){
+			$ToiawasewakiDispArr = SPFWTools::decodePluralValue($myKoji->ToiawasewakiDisp);#パイプつなぎを配列に変換
+			if(count($ToiawasewakiDispArr) == 7){
+				if($ToiawasewakiDispArr[0] == '管理会社'){
+					$DispCompanyChecked1 = 'checked';
+				}
+				if($ToiawasewakiDispArr[1] == 1){
+					$DispCompanyBottom1FLGchecked1 = 'checked';
+				}else{
+					$DispCompanyBottom1FLGchecked0 = 'checked';
+				}
+				if($ToiawasewakiDispArr[2] == 'アイホン'){
+					$DispCompanyChecked2 = 'checked';
+				}
+				if($ToiawasewakiDispArr[3] == 1){
+					$DispCompanyBottom2FLGchecked1 = 'checked';
+				}else{
+					$DispCompanyBottom2FLGchecked0 = 'checked';
+				}
+				if(!empty($ToiawasewakiDispArr[4])){
+					$DispCompanyBottom3 = $ToiawasewakiDispArr[4];
+					$DispCompanyChecked3 = 'checked';
+				}
+				if($ToiawasewakiDispArr[5] == 1){
+					$DispCompanyBottomTEL3 = $ToiawasewakiDispArr[6];
+					$DispCompanyBottom3FLGchecked1 = 'checked';
+				}else{
+					$DispCompanyBottom3FLGchecked0 = 'checked';
+				}
+			}
+		}
+
+
+		#作業員着用するもの
+		if (strpos($myKoji->Sagyoin,"ベスト")) $wSagyoinChecked1 = "checked";
+		if (strpos($myKoji->Sagyoin,"腕章"))   $wSagyoinChecked2 = "checked";
+
+
+		// 施工主体指定の着用着
+		$ShiteiVestCD = $myKoji->ShiteiVestCD;
+		for( $i=0; $i< $ShiteiVestLoop ; $i++){
+			$ShiteiVestName[$i] = $SHITEIVEST[$i];
+			if ( $ShiteiVestCD == $ShiteiVestNo[$i] ) $SelectedShiteiVest[$i] = "selected";
+		}
+		$ShiteiVestOther = $myKoji->ShiteiVestOther;
+
+	}
+	unset($myKoji);
+
+
+	########################################################
+	# コンテンツ表示
+	########################################################
+
+	$CNT_FILE = "s_koji_annai.tpl";
+
+	$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
+	$HiddenValues = $myTemplate->getValuesToPass();
+
+	$myTemplate->convertTags();
+	$myTemplate->outputTemplate();
+
+	unset($myTemplate);
+	unset($myLog);
+?>

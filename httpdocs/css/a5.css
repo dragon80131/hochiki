@@ -1,0 +1,25 @@
+.container{
+	width: 100%;
+}
+.main{
+	width:100%;
+}
+
+.sampleTable {
+    border-collapse: collapse;
+}
+.sampleTable th,
+.sampleTable td {
+    border: 1px solid #CCCCCC;
+    padding: 2px 5px;
+    table-layout: fixed;
+    line-height: 1.5em
+}
+.sampleTable th {
+    border: 1px solid #0000CD;
+}
+
+a {
+    text-decoration: none;
+}
+.break { page-break-before: always; }

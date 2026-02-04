@@ -1,0 +1,134 @@
+@charset "utf-8";
+
+/*全体*/
+body {
+	margin           : 0px;
+  	padding: 15px;
+	font-family      : "Osaka", "MS P Gothic", Lucida Grande, Lucida Sans Unicode, Lucida, Verdana, Trebuchet MS, sans-serif;
+	font-size        : x-small;
+	color            : #000000;
+	background-color : #ffffff;
+}
+
+/*ボタンの外枠*/
+input[type="submit"],[type="reset"] {
+    background-color : #eeeeee;
+	background-repeat:repeat-x;
+    font-size        : 10pt;
+	font-family      : "Osaka", "MS P Gothic", Lucida Grande, Lucida Sans Unicode, Lucida, Verdana, Trebuchet MS, sans-serif;
+    padding          : 1px 10px 1px 10px;
+}
+
+/*セレクトボックス*/
+select {
+    font-size        : 95%;
+	font-family      : "Osaka", "MS P Gothic", Lucida Grande, Lucida Sans Unicode, Lucida, Verdana, Trebuchet MS, sans-serif;
+    margin-top       : 2px;
+    margin-bottom    : 2px;
+    height           : 1.7em;
+    color            : #000000;
+    background-color : #ffffff;
+    border           : 1px solid #999999;
+}
+
+/*一覧部分*/
+table.common-list-kanri {
+    clear            : both;
+    text-align       : center;
+    font-family      : "Osaka", "MS P Gothic", Lucida Grande, Lucida Sans Unicode, Lucida, Verdana, Optima, Arial, sans-serif;
+    line-height      : 160%;
+    width            : 100%;
+ 	border-collapse  : collapse;
+ 	empty-cells      : show;
+}
+
+
+/*日付と曜日*/
+td.common-list-value2 {
+	text-align: left;
+	font-size: 80%;
+	line-height: 160%;
+	margin: 0px;
+	border: 1px solid #888888;
+	border-collapse: collapse;
+	empty-cells: show;
+}
+
+	/*専有部の色分け表示説明*/
+.kojibox {
+	color: #000000;
+	background: #b4e6ff;
+	border: 1.5px solid #999999;
+}
+
+	/*期間外の色分け表示説明*/
+.kojigaibox {
+	color: #000000;
+	background: #ffc0cb;
+	border: 1.5px solid #999999;
+}
+
+/*物件名、営業所、工事店、年月*/
+th.common-list-title2 {
+	text-align: left;
+	font-size: 80%;
+	color: #000000;
+	line-height: 160%;
+	margin: 20px;
+	border: 1px solid #888888;
+	background-color: #bbbbbb;
+	font-weight:normal;
+}
+
+/*日付と曜日*/
+th.common-list-value2 {
+	text-align: left;
+	font-size: 80%;
+	line-height: 160%;
+	margin: 0px;
+	border: 1px solid #888888;
+	border-collapse: collapse;
+	empty-cells: show;
+	font-weight:normal;
+}
+
+/*工事日色づく部分*/
+.zandate-box td{
+	width:25px;
+}
+
+/*曜日部分*/
+.weekLoop th{
+	width:25px;
+}
+
+/*マンション名 幅*/
+.zandate-box .mansionname,
+.common-list-kanri tr.list-box th:nth-child(1){
+	width:250px;
+}
+
+/*営業所 幅*//*
+.zandate-box .eigyoname,
+.common-list-kanri tr.list-box th:nth-child(2){
+	width:100px;
+}*/
+
+/*工事店 幅*/
+.zandate-box .sekosyozoku,
+.common-list-kanri tr.list-box th:nth-child(2){
+	width:200px;
+}
+
+/*スクロール部分*/
+.common-list-kanri thead,
+.common-list-kanri tbody {
+	display: block;
+}
+
+/*スクロール部分2*/
+.common-list-kanri tbody {
+	overflow-x: hidden;
+	overflow-y: scroll;
+	height: 500px;
+}

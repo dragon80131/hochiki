@@ -1,0 +1,52 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<title>ログイン</title>
+</head>
+<body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
+__SHeader__
+
+<hr size="__HRSize__" color="__HRColor__">
+<center>《ログイン》</center>
+<hr size="__HRSize__" color="__HRColor__">
+
+<!--
+<br>
+ユーザー名とパスワードを入力し、ログインしてください。<br>-->
+
+<br>
+
+システムのご利用はパソコンからのみ可能です。<br>
+アプリインストールは「アプリインストールはこちら」をクリック
+<br>
+
+<hr size="__HRSize__" color="__HRColor__">
+<br>
+__IfError__<font color="red">__ErrorMessage__</font><br>__IfError__
+
+
+<form method="POST" action="login_finish2.php">
+
+
+<!--
+ユーザー名:(半角入力)<br>
+<input type="text" name="wID" value="__wID__"  istyle="3" style="ime-mode:disabled;"><br>
+パスワード:(半角入力)<br>
+<input type="password" name="wPasswd" value="__wPasswd__"  istyle="3" style="ime-mode:disabled;"><br>
+<br>
+
+__HiddenValues__
+__COMMON_POST_QUERY__
+<input type="submit" value="ログインする">
+</form>
+-->
+
+<hr size="__HRSize__" color="__HRColor__">
+<a href="top.php__QUERY__">トップ</a>
+<br><br><br>
+<a href="app_install_sf.php">アプリインストールはこちら＞＞</a>
+<hr size="__HRSize__" color="__HRColor__">
+__SFooter__
+__SCopyright__
+</body>
+</html>

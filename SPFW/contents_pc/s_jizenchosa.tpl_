@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リニューアル支援</title>
+
+<!-- BootstrapのCSS読み込み -->
+<link href="../include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery読み込み -->
+<script src="../include/js/jquery-3.2.1.min.js"></script>
+
+<!-- BootstrapのJS読み込み -->
+<script src="../include/bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/rnsien.css">
+<script type="text/javascript" src="../tools.js"></script>
+
+</head>
+
+<body>
+__SHeader__
+
+<div class="content-all"><!--content-all-->
+
+<div class="left-yose">
+<a href="../s_koji_annai.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__">＜戻る</a>
+</div>
+
+
+<div class="top-menu left-yose">
+
+<h6>事前調査案内</h6>
+
+
+
+<br>
+
+<form action="#" method="POST" name="mainform" >
+<input type="hidden" name="editBukkenCD" >
+
+<a href="#" onclick="javascript:moveWithKey('./s_jizenchosa_Excel.php?rKey=__rKey__&format=1' , __editBukkenCD__ )" class="square_btn">②【事前調査案内】入室なし</a>
+<br><br>
+
+<a href="#" onclick="javascript:moveWithKey('./s_jizenchosa_Excel.php?rKey=__rKey__&format=2' , __editBukkenCD__ )" class="square_btn">②【事前調査案内】一部入室あり</a>
+<br><br>
+
+<a href="#" onclick="" class="square_btn">②【事前調査案内】一部入室あり・1対1</a>
+<br><br>
+
+<a href="#" onclick="" class="square_btn">②【事前調査案内】場合によって入室あり（2018/10/31 必要かどうか要確認）</a>
+<br><br>
+
+</form>
+
+
+
+</div><!--content-all-->
+
+<hr>
+
+__SFooter__
+__SCopyright__
+
+</body>
+</html>

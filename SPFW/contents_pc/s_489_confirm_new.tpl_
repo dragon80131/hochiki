@@ -1,0 +1,712 @@
+<html>
+<head>
+<titleリニューアル支援</title>
+<LINK REL="stylesheet" TYPE="text/css" HREF="./css/a5.css">
+
+<script type="text/javascript" src="tools.js"></script>
+<link href="css/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" />
+<script src="js/jquery-1.4.2.js" type="text/javascript"></script>
+<script src="js/jquery.ui.core.js" type="text/javascript"></script>
+<script src="js/jquery.ui.datepicker.js" type="text/javascript"></script>
+<script src="js/jquery.ui.datepicker-ja.js" type="text/javascript"></script>
+<script src="js/jquery.numberPicker.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(function() {
+	$("#YoteTekyoDate").datepicker({});
+	$("#YoteDate").datepicker({});
+	$("#YoyakuEnd").datepicker({});
+	$("#TekyoDate").datepicker({});
+	$("#KeteiDate").datepicker({});
+	$("#PhotoTekyoDate").datepicker({});
+});
+</script>
+<script type="text/javascript" src="js/tools_ajax.js"></script>
+<script type="text/javascript" src="js/ConnectedSelect.js"></script>
+
+</head>
+
+<body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
+__SHeader__
+
+
+<hr size="__HRSize__" color="__HRColor__">
+<center>《予約センター受付依頼 確認》</center>
+<hr size="__HRSize__" color="__HRColor__">
+
+<!--<a href="s_search.php__QUERY__&editBukkenCD=__editBukkenCD__ ">トップ</a><br>-->
+__IfModify__
+<a href="s_menu.php__QUERY__&editBukkenCD=__editBukkenCD__ ">メニュー</a>
+__IfModify__
+
+
+__IfError__
+<br><br>
+<font color="red" >ログインしたユーザの所属以外の物件を登録・編集することはできません。所属を確認ください。<br></font>
+__IfError__
+
+__IfOK__
+<br><br>
+<font color="red" >予約センターへ依頼が完了しました。受付準備が整いましたらご連絡いたします。<br></font>
+__IfOK__
+
+
+<form action="s_489_finish.php" method="POST" >
+
+<b>予約センター依頼内容　確認画面</b><br>
+
+
+__IfFileErrorMessage__<!--関連資料　エラー文言-->
+<span style="background-color:yellow" >
+<font size=5><b>__FileErrorMessage__</b></font>
+</span><br><br>
+__IfFileErrorMessage__
+
+
+
+<font color="red" size=4><b>　入力内容をご確認ください。</b></font>
+<table border=1>
+<tr><td bgcolor="lightgrey" colspan=4 >1．受付依頼ステータス</td></tr>
+<tr><td rowspan=5 bgcolor="lightgrey" ></td>
+	<td bgcolor="lemonchiffon" colspan=2>件名No</td>
+	<td colspan=2 bgcolor="lightyellow">__wMitumoriNo__</td></tr>
+<tr><td bgcolor="lemonchiffon" colspan=2>物件CD</td>
+	<td colspan=2 bgcolor="lightyellow">__editBukkenCD__</td></tr>
+<tr><td bgcolor="lemonchiffon" colspan=2>物件名</td>
+	<td colspan=2 bgcolor="lightyellow">__wBukkenName__</td></tr>
+<tr><td bgcolor="lemonchiffon" colspan=2>所属支店</td>
+	<td colspan=2 bgcolor="lightyellow">__wSitenName__</td></tr>
+<tr><td bgcolor="lemonchiffon" colspan=2 >受付依頼ステータス</td>
+	<td colspan=2 bgcolor="lightyellow">__wwIraiRenkeiStatus__</td></tr>
+<!--<tr><td bgcolor="lemonchiffon" colspan=2 >受付依頼日</td>
+	<td colspan=2 >__wIraiDate__</td></tr>-->
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5 >2．物件基本情報</td></tr>
+
+<!--2行目-->
+<tr><td bgcolor="lightgrey" rowspan=17 >
+	<td colspan=2 bgcolor="lemonchiffon">住所</td>
+	<td colspan=2 bgcolor="lightyellow">__wAddress__</td></tr>
+
+<!--3行目 IR01は元請けチェック -->
+<tr><td colspan=2 bgcolor="lemonchiffon">施工主体</td>
+	<td colspan=2 >__wwIR01__ __wSekoShutai__</td></tr>
+
+<!--4行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">マンション販売形態</td>
+	<td colspan=2 bgcolor="lightyellow">__wwBunjyo__</td></tr>
+
+<!--5行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">総戸数</td>
+	<td colspan=2 bgcolor="lightyellow">__wKosu__</td></tr>
+
+<!--6行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">専有部工事日時変更受付方法</td>
+	<td colspan=2 >__wAnswer__</td></tr>
+
+<!--7行目-->
+<tr><td rowspan=3 bgcolor="lemonchiffon">利用様式</td>
+	<td bgcolor="lemonchiffon">予定案内</td>
+	<td>__wYoshikiYotei__</td></tr>
+
+<!--8行目-->
+<tr><td bgcolor="lemonchiffon">確定案内</td>
+	<td>__wYoshikiKakutei__</td></tr>
+
+<!--9行目-->
+<tr><td bgcolor="lemonchiffon">オプション案内</td>
+	<td>__wYoshikiOP__</td></tr>
+
+<!--10行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">確定案内 記載社名</td>
+	<td colspan=2 >__wKakuteiCompanyName__</td></tr>
+
+<!--11行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">工事写真管理アプリ</td>
+	<td>__wwPicStatus__</td></tr>
+<tr><td colspan=2 bgcolor="lemonchiffon">電子看板アプリ用　施工会社名</td>
+	<td>__wPicAppSekoName__</td></tr>
+
+<!--12行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">ポスティング業務依頼</td>
+	<td>__wwPostingFlg__ 　__wwIR02__<font size=2 color="blue">(腕章：ポスティングありの場合のみ有効)</font></td></tr>
+
+<!--13行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">管理員様封書の差出名</td>
+	<td>__wPostingName__</td></tr>
+
+<!--14行目-->
+<tr><td colspan=2 bgcolor="lemonchiffon">タブレット確認書アプリ利用</td>
+	<td>__wwKakuninFlg__</td></tr>
+<tr><td rowspan="2" bgcolor="lemonchiffon">確認書アプリ</td>
+	<td bgcolor="lemonchiffon">タイトル</td><td>__wKakuninTitle__</td></tr>
+<tr><td bgcolor="lemonchiffon">フッター</td><td>__wKakuninFooter__</td></tr>
+
+<tr><td colspan=2 bgcolor="lemonchiffon">スマートボード利用</td>
+	<td>__wwSmartFlg__</td></tr>
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5 >3．日程</td></tr>
+
+<!--2行目-->
+<tr><td bgcolor="lightgrey" rowspan=5 ></td><td bgcolor="lemonchiffon" >予定案内提供日</td>
+	<td>__wYoteTekyoDate__</td>
+	<td colspan=2 bgcolor="lightyellow"><font size="2" color="dimgray">ネスペ⇒担当者に資料を提供する日</font></td></tr>
+
+<tr><td bgcolor="lemonchiffon">工事説明資料配布日</td>
+	<td>__wYoteDate__</td>
+	<td bgcolor="lightyellow"><font size="2" color="dimgray">予約システム受付サービス開始日</font></td></tr>
+
+<tr><td bgcolor="lemonchiffon">変更受付締切日</td>
+	<td>__wYoyakuEnd__</td>
+	<td bgcolor="lightyellow"><font size="2" color="dimgray">受付を一旦終了し、工事日時調整開始</font></td></tr>
+
+<tr><td bgcolor="lemonchiffon">専有部決定案内提供日</td>
+	<td>__wTekyoDate__</td>
+	<td bgcolor="lightyellow"><font size="2" color="dimgray">ネスペ⇒担当者に資料を提供する日(AM中)</font></td></tr>
+
+<tr><td bgcolor="lemonchiffon">専有部決定案内配布日</td>
+	<td>__wKeteiDate__</td>
+	<td bgcolor="lightyellow"><font size="2" color="dimgray">以後の専有部工事日時変更は、メールにて報告</font></td></tr>
+
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5 >4．工事施工会社情報</td></tr>
+
+<!--2行目-->
+<tr><td bgcolor="lightgrey" rowspan=6 ></td>
+	<td bgcolor="gainsboro" colspan=4>アイホン担当者情報</td></tr>
+
+<!--3行目-->
+<tr><td bgcolor="lemonchiffon">アイホン担当者１</td>
+	<td colspan=3 >__TantoName1__</td></tr>
+
+<!--4行目-->
+<tr><td bgcolor="lemonchiffon">アイホン担当者２</td>
+	<td colspan=3 >__TantoName2__</td></tr>
+
+<!--5行目-->
+<tr><td bgcolor="gainsboro" colspan=4 >施工業者情報</td></tr>
+
+<!--6行目-->
+<tr><td bgcolor="lemonchiffon">施工業者担当者１</td>
+	<td colspan=3>__GyosyaName1__  __GyosyaTantoName1__</td></tr>
+
+<!--7行目-->
+<tr><td bgcolor="lemonchiffon">施工業者担当者２</td>
+	<td colspan=3 >__GyosyaName2__ __GyosyaTantoName2__</td></tr>
+
+
+
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5>5．工事可能戸数</td></tr>
+
+<!--2行目-->
+<tr><td bgcolor="lightgrey" rowspan=3 ></td><td rowspan=3 bgcolor="lemonchiffon">作業時間帯区分</td>
+<td bgcolor="lemonchiffon">午前</td>
+	<td colspan=2 >__wTimeAStart__ ～ __wTimeAEnd__  ( __wTimeASu__ 戸 )</td></tr>
+<tr><td bgcolor="lemonchiffon">午後１</td>
+	<td colspan=2 >__wTimeBStart__ ～ __wTimeBEnd__  ( __wTimeBSu__ 戸 )</td></tr>
+<tr><td bgcolor="lemonchiffon">午後２</td>
+	<td colspan=2 >__wTimeCStart__ ～ __wTimeCEnd__  ( __wTimeCSu__ 戸 )</td></tr>
+
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5 >6．施工方法情報</td></tr>
+<tr><td bgcolor="lightgrey" rowspan=14 ></td><td bgcolor="lemonchiffon">居室親機型番</td>
+	<td colspan=3>__OyaKataban__  __OyaDeviceName__</td></tr>
+<tr><td bgcolor="lemonchiffon">玄関子機型番</td>
+	<td colspan=3 >__KokiKataban__  __KokiDeviceName__</td></tr>
+<tr><td bgcolor="lemonchiffon">玄関子機パネル型番</td>
+	<td colspan=3>__wKokiPanelKataban__</td></tr>
+<tr><td rowspan=4 bgcolor="lemonchiffon">オプション機器<br>販売価格</td>
+	<td colspan=3>__OP1Kataban__　__OP1DeviceName__　(\__wOPPrice1__)</td></tr>
+<tr><td colspan=3>__OP2Kataban__　__OP2DeviceName__　(\__wOPPrice2__)</td></tr>
+<tr><td colspan=3>__OP3Kataban__　__OP3DeviceName__　(\__wOPPrice3__)</td></tr>
+<tr><td colspan=3>__OP4Kataban__　__OP4DeviceName__　(\__wOPPrice4__)</td></tr>
+
+
+<tr><td bgcolor="lemonchiffon">オプション支払方法</td>
+	<td colspan=3>__wShiharai__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">1日の基本班体制数</td>
+	<td colspan=3>__wHansu__ 班</td></tr>
+
+<tr><td bgcolor="lemonchiffon">1戸あたりの標準作業時間</td>
+	<td colspan=3>__wConstTime__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">住戸工事期間中の休工日</td>
+	<td colspan=3>__wKyukoDate__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">工事期間中の集玄開錠方法</td>
+	<td colspan=3>__wwKaijyo__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">居室端末の移動対応</td>
+	<td colspan=3>__wIsetu__</td></tr>
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5>7．写真撮影方法</td></tr>
+
+<tr><td bgcolor="lightgrey" rowspan=18 ></td><td bgcolor="lemonchiffon">写真台帳提供日</td>
+	<td>__wPhotoTekyoDate__</td><td colspan=2 bgcolor="lightyellow">写真台帳の提供日(以降の写真はアイホンメンテ)</td></tr>
+
+<tr><td bgcolor="lemonchiffon">台帳選択</td>
+	<td>__wPhotoPattern__</td>
+	<td colspan=2 bgcolor="lightyellow">写真台帳【選択】シートより確認</td></tr>
+
+<tr><td bgcolor="gainsboro">専有部</td>
+	<td bgcolor="gainsboro">機器名　</td>
+	<td colspan=2 bgcolor="gainsboro">撮影シーン</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目1</td>
+	<td>__wwPhotoSenyu1__</td>
+	<td colspan=2>__wwPSScene1__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目2</td>
+	<td>__wwPhotoSenyu2__</td>
+	<td colspan=2>__wwPSScene2__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目3</td>
+	<td>__wwPhotoSenyu3__</td>
+	<td colspan=2>__wwPSScene3__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目4</td>
+	<td>__wwPhotoSenyu4__</td>
+	<td colspan=2>__wwPSScene4__</td></tr>
+
+<tr><td bgcolor="gainsboro">共用部</td>
+	<td bgcolor="gainsboro">機器名　</td>
+	<td colspan=2 bgcolor="gainsboro">撮影数</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目1</td>
+	<td>__wwPhotoKyoyo1__</td>
+	<td colspan=2 >__wwPKScene1__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目2</td>
+	<td>__wwPhotoKyoyo2__</td>
+	<td colspan=2 >__wwPKScene2__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目3</td>
+	<td>__wwPhotoKyoyo3__</td>
+	<td colspan=2 >__wwPKScene3__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目4</td>
+	<td>__wwPhotoKyoyo4__</td>
+	<td colspan=2 >__wwPKScene4__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目5</td>
+	<!--<td>__wPhotoKyoyoText1__</td>-->
+	<td>__wPhotoKyoyo5__</td>
+	<td colspan=2 >__wwPKScene5__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目6</td>
+	<!--<td>__wPhotoKyoyoText2__</td>-->
+	<td>__wPhotoKyoyo6__</td>
+	<td colspan=2 >__wwPKScene6__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目7</td>
+	<!--<td>__wPhotoKyoyoText3__</td>-->
+	<td>__wPhotoKyoyo7__</td>
+	<td colspan=2 >__wwPKScene7__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目8</td>
+	<!--<td>__wPhotoKyoyoText4__</td>-->
+	<td>__wPhotoKyoyo8__</td>
+	<td colspan=2 >__wwPKScene8__</td></tr>
+
+<tr><td bgcolor="lemonchiffon">項目9</td>
+	<td>__wPhotoKyoyo9__</td>
+	<td colspan=2 >__wwPKScene9__</td></tr>
+
+
+
+<!--1行目-->
+<tr><td bgcolor="lightgrey" colspan=5 >8．その他（注意事項等）</td></tr>
+<tr><td bgcolor="lightgrey" ></td><td colspan=4>__wwNotes__</td></tr>
+</table>
+
+<br>
+
+<table border=1>
+<tr><td bgcolor="lightgrey">関連資料</td>
+	<td colspan=4>
+		__FileName1__<br>
+		__FileName2__<br>
+		__FileName3__<br>
+		__FileName4__<br>
+		__FileName5__
+	</td>
+</tr>
+
+
+<tr><td colspan=5>
+		<br><b>施工業者指示内容</b><br>
+		施工業者様へ下記内容を予約センターから通知いたします。</td></tr>
+
+<!--1行目-->
+<tr><td bgcolor="palegreen" colspan=5 >施工業者指示内容</td></tr>
+
+<!--2行目-->
+<tr><td rowspan=10  bgcolor="palegreen" >　</td>
+	<td bgcolor="palegreen" colspan=1 >リニューアル方式</td>
+	<td colspan=3 >__wwRenewalType__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >配線</td>
+	<td colspan=3 >__wwHaisenType__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >管理室呼び出し</td>
+	<td colspan=3 >__wwKanrishituCall__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >写真撮影件数（共用部）</td>
+	<td colspan=3 >__wwPicKSu__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >写真撮影枚数（共用部）</td>
+	<td colspan=3 >__wwPicKType__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >写真撮影件数（専有部）</td>
+	<td colspan=3 >__wwPicSu__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >写真撮影枚数（専有部）</td>
+	<td colspan=3 >__wwPicType__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >消防申請</td>
+	<td colspan=3 >__wwShobo__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >工事完了後の提出書類</td>
+	<td colspan=3 >__wwTeishutuDoc1__ __wwTeishutuDoc2__ __wwTeishutuDoc3__</td></tr>
+
+<tr><td bgcolor="palegreen" colspan=1 >その他指示事項</td>
+	<td colspan=3 >__wwSonotaShiji__</td></tr>
+</table>
+<!--施工会社様向け依頼事項End-->
+
+
+
+
+
+
+<br>
+<input type=hidden name="rKey" value="__rKey__" > 
+<input type=hidden name="editBukkenCD" value="__editBukkenCD__" > 
+<input type=hidden name="wBukkenName" value="__wBukkenName__" > 
+<input type=hidden name="wSitenName" value="__wSitenName__" > 
+
+<input type=hidden name="wIraiRenkeiStatus" value="__wIraiRenkeiStatus__" > 
+<input type=hidden name="wIraiDate" value="__wIraiDate__" > 
+<input type=hidden name="wAddress" value="__wAddress__" > 
+<input type=hidden name="wSekoShutai" value="__wSekoShutai__" > 
+<input type=hidden name="wBunjyo" value="__wBunjyo__" > 
+<input type=hidden name="wKosu" value="__wKosu__" > 
+<input type=hidden name="wAnswer" value="__wAnswer__" > 
+<input type=hidden name="wYoshikiYotei" value="__wYoshikiYotei__" > 
+<input type=hidden name="wYoshikiKakutei" value="__wYoshikiKakutei__" > 
+<input type=hidden name="wYoshikiOP" value="__wYoshikiOP__" >
+<input type=hidden name="wKakuteiCompanyName" value="__wKakuteiCompanyName__" >
+<input type=hidden name="wPicStatus" value="__wPicStatus__" > 
+<input type=hidden name="wPicAppSekoName" value="__wPicAppSekoName__" > 
+<input type=hidden name="wPostingFlg" value="__wPostingFlg__" > 
+<input type=hidden name="wPostingName" value="__wPostingName__" > 
+<input type=hidden name="wKakuninFlg" value="__wKakuninFlg__" > 
+<input type=hidden name="wKakuninTitle" value="__wKakuninTitle__" > 
+<input type=hidden name="wKakuninFooter" value="__wKakuninFooter__" > 
+<input type=hidden name="wSmartFlg" value="__wSmartFlg__" > 
+<input type=hidden name="wYoteTekyoDate" value="__wYoteTekyoDate__" > 
+<input type=hidden name="wYoteDate" value="__wYoteDate__" > 
+<input type=hidden name="wYoyakuEnd" value="__wYoyakuEnd__" > 
+<input type=hidden name="wTekyoDate" value="__wTekyoDate__" > 
+<input type=hidden name="wKeteiDate" value="__wKeteiDate__" > 
+<input type=hidden name="wTantoCD1" value="__wTantoCD1__" > 
+<input type=hidden name="wTantoCD2" value="__wTantoCD2__" > 
+<input type=hidden name="wGyosyaTantoCD1" value="__wGyosyaTantoCD1__" > 
+<input type=hidden name="wGyosyaTantoCD2" value="__wGyosyaTantoCD2__" > 
+<input type=hidden name="wTimeAStart" value="__wTimeAStart__" > 
+<input type=hidden name="wTimeAEnd" value="__wTimeAEnd__" > 
+<input type=hidden name="wTimeASu" value="__wTimeASu__" > 
+<input type=hidden name="wTimeBStart" value="__wTimeBStart__" > 
+<input type=hidden name="wTimeBEnd" value="__wTimeBEnd__" > 
+<input type=hidden name="wTimeBSu" value="__wTimeBSu__" > 
+<input type=hidden name="wTimeCStart" value="__wTimeCStart__" > 
+<input type=hidden name="wTimeCEnd" value="__wTimeCEnd__" > 
+<input type=hidden name="wTimeCSu" value="__wTimeCSu__" > 
+<input type=hidden name="wOyaDeviceCD" value="__wOyaDeviceCD__" > 
+<input type=hidden name="wKokiDeviceCD" value="__wKokiDeviceCD__" > 
+<input type=hidden name="wKokiPanelKataban" value="__wKokiPanelKataban__" > 
+<input type=hidden name="wOP1DeviceCD" value="__wOP1DeviceCD__" > 
+<input type=hidden name="OP1DeviceName" value="__OP1DeviceName__" > 
+<input type=hidden name="OP1Kataban" value="__OP1Kataban__" > 
+<input type=hidden name="wOPPrice1" value="__wOPPrice1__" > 
+<input type=hidden name="wOP2DeviceCD" value="__wOP2DeviceCD__" > 
+<input type=hidden name="OP2DeviceName" value="__OP2DeviceName__" > 
+<input type=hidden name="OP2Kataban" value="__OP2Kataban__" > 
+<input type=hidden name="wOPPrice2" value="__wOPPrice2__" > 
+<input type=hidden name="wOP3DeviceCD" value="__wOP3DeviceCD__" > 
+<input type=hidden name="OP3DeviceName" value="__OP3DeviceName__" > 
+<input type=hidden name="OP3Kataban" value="__OP3Kataban__" > 
+<input type=hidden name="wOPPrice3" value="__wOPPrice3__" > 
+<input type=hidden name="wOP4DeviceCD" value="__wOP4DeviceCD__" > 
+<input type=hidden name="OP4DeviceName" value="__OP4DeviceName__" > 
+<input type=hidden name="OP4Kataban" value="__OP4Kataban__" > 
+<input type=hidden name="wOPPrice4" value="__wOPPrice4__" > 
+<input type=hidden name="wShiharai" value="__wShiharai__" > 
+<input type=hidden name="wHansu" value="__wHansu__" > 
+<input type=hidden name="wConstTime" value="__wConstTime__" > 
+<input type=hidden name="wKyukoDate" value="__wKyukoDate__" > 
+<input type=hidden name="wKaijyo" value="__wKaijyo__" > 
+<input type=hidden name="wIsetu" value="__wIsetu__" > 
+<input type=hidden name="wPhotoTekyoDate" value="__wPhotoTekyoDate__" > 
+<input type=hidden name="wPhotoPattern" value="__wPhotoPattern__" > 
+<input type=hidden name="wPhotoSenyu1" value="__wPhotoSenyu1__" > 
+<input type=hidden name="wPSScene1" value="__wPSScene1__" > 
+<input type=hidden name="wPhotoSenyu2" value="__wPhotoSenyu2__" > 
+<input type=hidden name="wPSScene2" value="__wPSScene2__" > 
+<input type=hidden name="wPhotoSenyu3" value="__wPhotoSenyu3__" > 
+<input type=hidden name="wPSScene3" value="__wPSScene3__" > 
+<input type=hidden name="wPhotoSenyu4" value="__wPhotoSenyu4__" > 
+<input type=hidden name="wPSScene4" value="__wPSScene4__" > 
+<input type=hidden name="wPhotoKyoyo1" value="__wPhotoKyoyo1__" > 
+<input type=hidden name="wPKScene1" value="__wPKScene1__" > 
+<input type=hidden name="wPhotoKyoyo2" value="__wPhotoKyoyo2__" > 
+<input type=hidden name="wPKScene2" value="__wPKScene2__" > 
+<input type=hidden name="wPhotoKyoyo3" value="__wPhotoKyoyo3__" > 
+<input type=hidden name="wPKScene3" value="__wPKScene3__" > 
+<input type=hidden name="wPhotoKyoyo4" value="__wPhotoKyoyo4__" > 
+<input type=hidden name="wPKScene4" value="__wPKScene4__" > 
+<input type=hidden name="wPhotoKyoyo5" value="__wPhotoKyoyo5__" > 
+<input type=hidden name="wPKScene5" value="__wPKScene5__" > 
+<input type=hidden name="wPhotoKyoyo6" value="__wPhotoKyoyo6__" > 
+<input type=hidden name="wPKScene6" value="__wPKScene6__" > 
+<input type=hidden name="wPhotoKyoyo7" value="__wPhotoKyoyo7__" > 
+<input type=hidden name="wPKScene7" value="__wPKScene7__" > 
+<input type=hidden name="wPhotoKyoyo8" value="__wPhotoKyoyo8__" > 
+<input type=hidden name="wPKScene8" value="__wPKScene8__" > 
+<input type=hidden name="wPhotoKyoyo9" value="__wPhotoKyoyo9__" > 
+<input type=hidden name="wPKScene9" value="__wPKScene9__" > 
+<input type=hidden name="wNotes" value="__wNotes__" > 
+<input type=hidden name="editIraiRenkeiCD" value="__editIraiRenkeiCD__" > 
+
+<input type=hidden name="wIraiDate" value="__wIraiDate__" > 
+
+
+<input type=hidden name="wRenewalType" value="__wRenewalType__" > 
+<input type=hidden name="wHaisenType" value="__wHaisenType__" > 
+<input type=hidden name="wKanrishituCall" value="__wKanrishituCall__" > 
+<input type=hidden name="wPicKSu" value="__wPicKSu__" > 
+<input type=hidden name="wPicKType" value="__wPicKType__" > 
+<input type=hidden name="wPicSu" value="__wPicSu__" > 
+<input type=hidden name="wPicType" value="__wPicType__" > 
+<input type=hidden name="wShobo" value="__wShobo__" > 
+
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc1__" > 
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc2__" > 
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc3__" > 
+
+<input type=hidden name="wTeishutuDoc1" value="__wTeishutuDoc1__" >
+<input type=hidden name="wTeishutuDoc2" value="__wTeishutuDoc2__" >
+<input type=hidden name="wTeishutuDoc3" value="__wTeishutuDoc3__" >
+
+<input type=hidden name="wSonotaShiji" value="__wSonotaShiji__" > 
+<input type=hidden name="wIR01" value="__wIR01__" > 
+<input type=hidden name="wIR02" value="__wIR02__" >
+
+
+
+<input type=hidden name="wwRenewalType" value="__wwRenewalType__" > 
+<input type=hidden name="wwHaisenType" value="__wwHaisenType__" > 
+<input type=hidden name="wwKanrishituCall" value="__wwKanrishituCall__" > 
+<input type=hidden name="wwPicKSu" value="__wwPicKSu__" > 
+<input type=hidden name="wwPicKType" value="__wwPicKType__" > 
+<input type=hidden name="wwPicSu" value="__wwPicSu__" > 
+<input type=hidden name="wwPicType" value="__wwPicType__" > 
+<input type=hidden name="wwShobo" value="__wwShobo__" > 
+
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc1__" > 
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc2__" > 
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc3__" > 
+
+<input type=hidden name="wwTeishutuDoc1" value="__wwTeishutuDoc1__" >
+<input type=hidden name="wwTeishutuDoc2" value="__wwTeishutuDoc2__" >
+<input type=hidden name="wwTeishutuDoc3" value="__wwTeishutuDoc3__" >
+
+<input type=hidden name="wwSonotaShiji" value="__wwSonotaShiji__" > 
+<input type=hidden name="wwIR01" value="__wwIR01__" > 
+<input type=hidden name="wwIR02" value="__wwIR02__" >  
+
+
+
+__FileLoop__
+<input type="hidden" name="image_name[]" value="__image_name__" >
+<input type="hidden" name="image_name_kakuchoshi[]" value="__image_name_kakuchoshi__" >
+__FileLoop__
+
+<font size=5 color="navy"><b>※依頼内容に間違いがないかご確認お願いします。</b></font><br>
+__CautionMessage__
+<br>
+<input type=submit value=" 送信 " >
+</form>
+<br>
+
+<form action="s_489.php" method="POST" >
+
+<input type=hidden name="rKey" value="__rKey__" > 
+<input type=hidden name="editBukkenCD" value="__editBukkenCD__" > 
+<input type=hidden name="wBukkenName" value="__wBukkenName__" > 
+<input type=hidden name="wSitenName" value="__wSitenName__" > 
+
+<input type=hidden name="wIR01[]" value="__wIR01__" > 
+<input type=hidden name="wIR02[]" value="__wIR02__" > 
+
+<input type=hidden name="wIraiRenkeiStatus" value="__wIraiRenkeiStatus__" > 
+<input type=hidden name="wIraiDate" value="__wIraiDate__" > 
+<input type=hidden name="wAddress" value="__wAddress__" > 
+<input type=hidden name="wSekoShutai" value="__wSekoShutai__" > 
+<input type=hidden name="wBunjyo" value="__wBunjyo__" > 
+<input type=hidden name="wKosu" value="__wKosu__" > 
+<input type=hidden name="wAnswer" value="__wAnswer__" > 
+<input type=hidden name="wYoshikiYotei" value="__wYoshikiYotei__" > 
+<input type=hidden name="wYoshikiKakutei" value="__wYoshikiKakutei__" > 
+<input type=hidden name="wYoshikiOP" value="__wYoshikiOP__" >
+<input type=hidden name="wKakuteiCompanyName" value="__wKakuteiCompanyName__" >
+<input type=hidden name="wPicStatus" value="__wPicStatus__" > 
+<input type=hidden name="wPicAppSekoName" value="__wPicAppSekoName__" > 
+<input type=hidden name="wPostingFlg" value="__wPostingFlg__" > 
+<input type=hidden name="wPostingName" value="__wPostingName__" > 
+<input type=hidden name="wKakuninFlg" value="__wKakuninFlg__" > 
+<input type=hidden name="wKakuninTitle" value="__wKakuninTitle__" > 
+<input type=hidden name="wKakuninFooter" value="__wKakuninFooter__" > 
+<input type=hidden name="wSmartFlg" value="__wSmartFlg__" > 
+<input type=hidden name="wYoteTekyoDate" value="__wYoteTekyoDate__" > 
+<input type=hidden name="wYoteDate" value="__wYoteDate__" > 
+<input type=hidden name="wYoyakuEnd" value="__wYoyakuEnd__" > 
+<input type=hidden name="wTekyoDate" value="__wTekyoDate__" > 
+<input type=hidden name="wKeteiDate" value="__wKeteiDate__" > 
+<input type=hidden name="wTantoCD1" value="__wTantoCD1__" > 
+<input type=hidden name="wTantoCD2" value="__wTantoCD2__" > 
+<input type=hidden name="wGyosyaTantoCD1" value="__wGyosyaTantoCD1__" > 
+<input type=hidden name="wGyosyaTantoCD2" value="__wGyosyaTantoCD2__" > 
+<input type=hidden name="wTimeAStart" value="__wTimeAStart__" > 
+<input type=hidden name="wTimeAEnd" value="__wTimeAEnd__" > 
+<input type=hidden name="wTimeASu" value="__wTimeASu__" > 
+<input type=hidden name="wTimeBStart" value="__wTimeBStart__" > 
+<input type=hidden name="wTimeBEnd" value="__wTimeBEnd__" > 
+<input type=hidden name="wTimeBSu" value="__wTimeBSu__" > 
+<input type=hidden name="wTimeCStart" value="__wTimeCStart__" > 
+<input type=hidden name="wTimeCEnd" value="__wTimeCEnd__" > 
+<input type=hidden name="wTimeCSu" value="__wTimeCSu__" > 
+<input type=hidden name="wOyaDeviceCD" value="__wOyaDeviceCD__" > 
+<input type=hidden name="wKokiDeviceCD" value="__wKokiDeviceCD__" > 
+<input type=hidden name="wKokiPanelKataban" value="__wKokiPanelKataban__" > 
+<input type=hidden name="wOP1DeviceCD" value="__wOP1DeviceCD__" > 
+<input type=hidden name="OP1DeviceName" value="__OP1DeviceName__" > 
+<input type=hidden name="OP1Kataban" value="__OP1Kataban__" > 
+<input type=hidden name="wOPPrice1" value="__wOPPrice1__" > 
+<input type=hidden name="wOP2DeviceCD" value="__wOP2DeviceCD__" > 
+<input type=hidden name="OP2DeviceName" value="__OP2DeviceName__" > 
+<input type=hidden name="OP2Kataban" value="__OP2Kataban__" > 
+<input type=hidden name="wOPPrice2" value="__wOPPrice2__" > 
+<input type=hidden name="wOP3DeviceCD" value="__wOP3DeviceCD__" > 
+<input type=hidden name="OP3DeviceName" value="__OP3DeviceName__" > 
+<input type=hidden name="OP3Kataban" value="__OP3Kataban__" > 
+<input type=hidden name="wOPPrice3" value="__wOPPrice3__" > 
+<input type=hidden name="wOP4DeviceCD" value="__wOP4DeviceCD__" > 
+<input type=hidden name="OP4DeviceName" value="__OP4DeviceName__" > 
+<input type=hidden name="OP4Kataban" value="__OP4Kataban__" > 
+<input type=hidden name="wOPPrice4" value="__wOPPrice4__" > 
+<input type=hidden name="wShiharai" value="__wShiharai__" > 
+<input type=hidden name="wHansu" value="__wHansu__" > 
+<input type=hidden name="wConstTime" value="__wConstTime__" > 
+<input type=hidden name="wKyukoDate" value="__wKyukoDate__" > 
+<input type=hidden name="wKaijyo" value="__wKaijyo__" > 
+<input type=hidden name="wIsetu" value="__wIsetu__" > 
+<input type=hidden name="wPhotoTekyoDate" value="__wPhotoTekyoDate__" > 
+<input type=hidden name="wPhotoPattern" value="__wPhotoPattern__" > 
+<input type=hidden name="wPhotoSenyu1" value="__wPhotoSenyu1__" > 
+<input type=hidden name="wPSScene1" value="__wPSScene1__" > 
+<input type=hidden name="wPhotoSenyu2" value="__wPhotoSenyu2__" > 
+<input type=hidden name="wPSScene2" value="__wPSScene2__" > 
+<input type=hidden name="wPhotoSenyu3" value="__wPhotoSenyu3__" > 
+<input type=hidden name="wPSScene3" value="__wPSScene3__" > 
+<input type=hidden name="wPhotoSenyu4" value="__wPhotoSenyu4__" > 
+<input type=hidden name="wPSScene4" value="__wPSScene4__" > 
+<input type=hidden name="wPhotoKyoyo1" value="__wPhotoKyoyo1__" > 
+<input type=hidden name="wPKScene1" value="__wPKScene1__" > 
+<input type=hidden name="wPhotoKyoyo2" value="__wPhotoKyoyo2__" > 
+<input type=hidden name="wPKScene2" value="__wPKScene2__" > 
+<input type=hidden name="wPhotoKyoyo3" value="__wPhotoKyoyo3__" > 
+<input type=hidden name="wPKScene3" value="__wPKScene3__" > 
+<input type=hidden name="wPhotoKyoyo4" value="__wPhotoKyoyo4__" > 
+<input type=hidden name="wPKScene4" value="__wPKScene4__" > 
+<input type=hidden name="wPhotoKyoyo5" value="__wPhotoKyoyo5__" > 
+<input type=hidden name="wPKScene5" value="__wPKScene5__" > 
+<input type=hidden name="wPhotoKyoyo6" value="__wPhotoKyoyo6__" > 
+<input type=hidden name="wPKScene6" value="__wPKScene6__" > 
+<input type=hidden name="wPhotoKyoyo7" value="__wPhotoKyoyo7__" > 
+<input type=hidden name="wPKScene7" value="__wPKScene7__" > 
+<input type=hidden name="wPhotoKyoyo8" value="__wPhotoKyoyo8__" > 
+<input type=hidden name="wPKScene8" value="__wPKScene8__" > 
+<input type=hidden name="wPhotoKyoyo9" value="__wPhotoKyoyo9__" > 
+<input type=hidden name="wPKScene9" value="__wPKScene9__" > 
+<input type=hidden name="wNotes" value="__wNotes__" > 
+<input type=hidden name="editIraiRenkeiCD" value="__editIraiRenkeiCD__" > 
+
+<input type=hidden name="wIraiDate" value="__wIraiDate__" > 
+
+
+<input type=hidden name="wRenewalType" value="__wRenewalType__" > 
+<input type=hidden name="wHaisenType" value="__wHaisenType__" > 
+<input type=hidden name="wKanrishituCall" value="__wKanrishituCall__" > 
+<input type=hidden name="wPicKSu" value="__wPicKSu__" > 
+<input type=hidden name="wPicKType" value="__wPicKType__" > 
+<input type=hidden name="wPicSu" value="__wPicSu__" > 
+<input type=hidden name="wPicType" value="__wPicType__" > 
+<input type=hidden name="wShobo" value="__wShobo__" > 
+
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc1__" > 
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc2__" > 
+<input type=hidden name="wTeishutuDoc[]" value="__wTeishutuDoc3__" > 
+
+<input type=hidden name="wSonotaShiji" value="__wSonotaShiji__" > 
+
+<input type=hidden name="wwRenewalType" value="__wwRenewalType__" > 
+<input type=hidden name="wwHaisenType" value="__wwHaisenType__" > 
+<input type=hidden name="wwKanrishituCall" value="__wwKanrishituCall__" > 
+<input type=hidden name="wwPicKSu" value="__wwPicKSu__" > 
+<input type=hidden name="wwPicKType" value="__wwPicKType__" > 
+<input type=hidden name="wwPicSu" value="__wwPicSu__" > 
+<input type=hidden name="wwPicType" value="__wwPicType__" > 
+<input type=hidden name="wwShobo" value="__wwShobo__" > 
+
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc1__" > 
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc2__" > 
+<input type=hidden name="wwTeishutuDoc[]" value="__wwTeishutuDoc3__" > 
+
+<input type=hidden name="wwTeishutuDoc1" value="__wwTeishutuDoc1__" >
+<input type=hidden name="wwTeishutuDoc2" value="__wwTeishutuDoc2__" >
+<input type=hidden name="wwTeishutuDoc3" value="__wwTeishutuDoc3__" >
+
+<input type=hidden name="wwSonotaShiji" value="__wwSonotaShiji__" > 
+<input type=hidden name="wwIR01" value="__wwIR01__" > 
+<input type=hidden name="wwIR02" value="__wwIR02__" >  
+
+
+<input type=hidden name="Modota" value="1" > <!--もどったら制御-->
+
+<input type=submit value=" 戻る " >
+
+</form>
+
+<br>
+<hr size="__HRSize__" color="__HRColor__">
+<a href="s_menu.php__QUERY__&editBukkenCD=__editBukkenCD__ ">メニュー</a><br><br>
+<a href="s_search.php__QUERY__">トップ</a><br>
+<hr size="__HRSize__" color="__HRColor__">
+__SFooter__
+__SCopyright__
+<br>
+</body>
+</html>

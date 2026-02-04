@@ -1,0 +1,212 @@
+<?php
+	include_once "setting.properties";
+	include_once _INC_DIR . "carrier.inc";
+	include_once _INC_DIR . "global.inc";
+
+	include_once _CLS_DIR . "SPFWDatabase.cls";
+	include_once _CLS_DIR . "SPFWLog.cls";
+	include_once _CLS_DIR . "SPFWTemplate.cls";
+	include_once _CLS_DIR . "SPFWListObject.cls";
+	include_once _CLS_DIR . "SPFWDate.cls";
+	include_once _CLS_DIR . "SPFWInputCheck.cls";
+	include_once _CLS_DIR . "SPFWParameter.cls";
+	include_once _CLS_DIR . "SPUSUser.cls";
+	include_once _CLS_DIR . "SPUSBukken.cls";
+	include_once _CLS_DIR . "SPUSIraiRenkei.cls";
+	include_once _CLS_DIR . "SPUSKoji.cls";
+
+	// データベースコネクト
+	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+	if (!$myDB->Connection)
+		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
+
+
+	########################################################
+	# 認証動作
+	########################################################
+	$rKey = SPFWParameter::getValues('rKey');
+
+	$myUser = new User($myDB);
+
+	if (!$myUser->doAuthenticationByRegistKey($rKey))
+		trigger_error("doAuthentication Failed.", E_USER_ERROR);
+
+	if ($myUser->UserCD == -1)
+		showSorryPage(_ILLEGAL_ACCESS);
+
+#	$Extra1 = $myUser->Extra1 ;#所属CD
+#	$MyZokusei = $myUser->Extra3 ;		#管理ユーザ２一般ユーザ１
+	unset($myUser);
+
+
+	########################################################
+	# パラメータ取得
+	########################################################
+
+	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
+
+	$wKyoyoStartDate = SPFWParameter::getValues('wKyoyoStartDate');	#共用部開始日
+	$wKyoyoEndDate = SPFWParameter::getValues('wKyoyoEndDate');		#共用部終了日
+	$wSenyuStartDate = SPFWParameter::getValues('wSenyuStartDate');	#専有部開始日
+	$wSenyuEndDate = SPFWParameter::getValues('wSenyuEndDate');		#専有部終了日
+	$wKoteiBiko = SPFWParameter::getValues('wKoteiBiko');			#備考欄
+
+
+	########################################################
+	# 入力チェック
+	########################################################
+
+	if($wKyoyoStartDate == "")
+		$ErrorStrings[]="共用部開始日を入力してください。";
+	if($wSenyuStartDate == "")
+		$ErrorStrings[]="専有部開始日を入力してください。";
+
+	$ErrorLoop = count($ErrorStrings);
+	if($ErrorStrings > 0){
+		$IfError = TRUE;
+		include_once("s_zentaikoteihyo_form.php");
+		exit;
+	}
+
+	$OtherwiseLoop = count($OTHERWISEDATE);
+	for($i = 0; $i < $OtherwiseLoop; $i++){
+		$OtherwiseCD[$i] = $i;
+	}
+
+
+	########################################################
+	# 物件名取得
+	########################################################
+
+	$myBukken = new Bukken($myDB);
+
+	if (!$myBukken->executeSelect("BukkenCD = ".$editBukkenCD , "")) {
+		trigger_error("Getting tFileF Failed.", E_USER_ERROR);
+	}
+
+	$BukkenName = $myBukken->BukkenName;
+
+	unset($myBukken);
+
+
+
+
+
+
+
+
+
+
+
+	#既に登録されていればそれを表示
+/*
+	$myIraiRenkei = new IraiRenkei($myDB);
+
+	if ($editBukkenCD > 0){ 
+		if (!$myIraiRenkei->executeSelect("BukkenCD = " . $editBukkenCD, "") || $myIraiRenkei->RecCnt != 1){
+			$ErrorString = array();
+			$ErrorString[] = "tIraiRenkeiF情報の抽出に失敗しました。";
+			showAdminSorryPage($ErrorString);
+		}
+
+	}
+	if( $myIraiRenkei->RecCnt == 1){//すでに登録があれば
+		$wKakuteiDate = $myIraiRenkei->KeteiDate ;
+		$wReceptionDate = $myIraiRenkei->YoyakuEnd ;
+		$wAnnaiDate = $myIraiRenkei->YoteDate  ;
+
+		if($myIraiRenkei->Otherwise6) $OtherwiseSelect1[ $myIraiRenkei->Otherwise6 ] = "selected" ;
+		if($myIraiRenkei->DateS6 and $myIraiRenkei->DateS6 != "0000-00-00" ) $wDateS6 = $myIraiRenkei->DateS6 ;
+		if($myIraiRenkei->DateE6 and $myIraiRenkei->DateE6 != "0000-00-00" ) $wDateE6 = $myIraiRenkei->DateE6 ;
+
+		if($myIraiRenkei->Otherwise7) $OtherwiseSelect2[ $myIraiRenkei->Otherwise7 ] = "selected" ;
+		if($myIraiRenkei->DateS7 and $myIraiRenkei->DateS7 != "0000-00-00" ) $wDateS7 = $myIraiRenkei->DateS7 ;
+		if($myIraiRenkei->DateE7 and $myIraiRenkei->DateE7 != "0000-00-00" ) $wDateE7 = $myIraiRenkei->DateE7 ;
+
+		if($myIraiRenkei->Otherwise8) $OtherwiseSelect3[ $myIraiRenkei->Otherwise8 ] = "selected" ;
+		if($myIraiRenkei->DateS8 and $myIraiRenkei->DateS8 != "0000-00-00" ) $wDateS8 = $myIraiRenkei->DateS8 ;
+		if($myIraiRenkei->DateE8 and $myIraiRenkei->DateE8 != "0000-00-00" ) $wDateE8 = $myIraiRenkei->DateE8 ;
+
+		if($myIraiRenkei->Otherwise9) $OtherwiseSelect4[ $myIraiRenkei->Otherwise9 ] = "selected" ;
+		if($myIraiRenkei->DateS9 and $myIraiRenkei->DateS9 != "0000-00-00" ) $wDateS9 = $myIraiRenkei->DateS9 ;
+		if($myIraiRenkei->DateE9 and $myIraiRenkei->DateE9 != "0000-00-00" ) $wDateE9 = $myIraiRenkei->DateE9 ;
+
+		if($myIraiRenkei->Otherwise10) $OtherwiseSelect5[ $myIraiRenkei->Otherwise10 ] = "selected" ;
+		if($myIraiRenkei->DateS10 and $myIraiRenkei->DateS10 != "0000-00-00" ) $wDateS10 = $myIraiRenkei->DateS10 ;
+		if($myIraiRenkei->DateE10 and $myIraiRenkei->DateE10 != "0000-00-00" ) $wDateE10 = $myIraiRenkei->DateE10 ;
+
+
+	}
+
+*/
+
+
+	$myKoji = new Koji($myDB);
+
+	if (!$myKoji->executeSelect("BukkenCD = " . $editBukkenCD, "") || $myKoji->RecCnt != 1){
+		trigger_error("Getting myKoji Failed.", E_USER_ERROR);
+	}
+
+	if ($myKoji->RecCnt != 1) {
+
+		#工事情報登録がまだ
+		$ErrorString = array();
+		$ErrorString[] = "工事情報を登録してください。";
+		$ErrorLoop = count($ErrorString);
+		$myTemplate = new SPFWTemplate(_ERROR_TPL, $MyCarrier, TRUE);
+		exit;
+
+	} else {
+
+		$wAnnaiDate = $myKoji->YoteDate;
+		$wReceptionDate = $myKoji->YoyakuEnd;
+		$wKakuteiDate = $myKoji->KeteiDate;
+
+
+		#初期表示
+		if(!$wAnnaiDate) $wAnnaiDate = date( 'Y-m-d', strtotime("-2 week", strtotime($wKyoyoStartDate) ) ); // 案内配布日
+		if(!$wReceptionDate) $wReceptionDate = date( 'Y-m-d', strtotime("-11 day", strtotime($wKyoyoStartDate) ) ); // 受付締切日
+		if(!$wKakuteiDate) $wKakuteiDate = date( 'Y-m-d', strtotime( "-7 day", strtotime($wKyoyoStartDate) ) ); // 確定案内配布日
+
+
+
+		// その他、工程表に記載する日程 5項目
+		if($myKoji->Otherwise6) $OtherwiseSelect6[ $myKoji->Otherwise6 ] = "selected";
+		if($myKoji->DateS6 and $myKoji->DateS6 != "0000-00-00" ) $wDateS6 = $myKoji->DateS6;
+		if($myKoji->DateE6 and $myKoji->DateE6 != "0000-00-00" ) $wDateE6 = $myKoji->DateE6;
+
+		if($myKoji->Otherwise7) $OtherwiseSelect7[ $myKoji->Otherwise7 ] = "selected";
+		if($myKoji->DateS7 and $myKoji->DateS7 != "0000-00-00" ) $wDateS7 = $myKoji->DateS7;
+		if($myKoji->DateE7 and $myKoji->DateE7 != "0000-00-00" ) $wDateE7 = $myKoji->DateE7;
+
+		if($myKoji->Otherwise8) $OtherwiseSelect8[ $myKoji->Otherwise8 ] = "selected";
+		if($myKoji->DateS8 and $myKoji->DateS8 != "0000-00-00" ) $wDateS8 = $myKoji->DateS8;
+		if($myKoji->DateE8 and $myKoji->DateE8 != "0000-00-00" ) $wDateE8 = $myKoji->DateE8;
+
+		if($myKoji->Otherwise9) $OtherwiseSelect9[ $myKoji->Otherwise9 ] = "selected";
+		if($myKoji->DateS9 and $myKoji->DateS9 != "0000-00-00" ) $wDateS9 = $myKoji->DateS9;
+		if($myKoji->DateE9 and $myKoji->DateE9 != "0000-00-00" ) $wDateE9 = $myKoji->DateE9;
+
+		if($myKoji->Otherwise10) $OtherwiseSelect10[ $myKoji->Otherwise10 ] = "selected";
+		if($myKoji->DateS10 and $myKoji->DateS10 != "0000-00-00" ) $wDateS10 = $myKoji->DateS10;
+		if($myKoji->DateE10 and $myKoji->DateE10 != "0000-00-00" ) $wDateE10 = $myKoji->DateE10;
+
+	}
+	unset($myKoji);
+
+
+	########################################################
+	# コンテンツ表示
+	########################################################
+
+	$CNT_FILE = "s_zentaikoteihyo_form_next.tpl";
+
+	$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
+	$HiddenValues = $myTemplate->getValuesToPass();
+
+	$myTemplate->convertTags();
+	$myTemplate->outputTemplate();
+
+	unset($myTemplate);
+	unset($myLog);
+?>

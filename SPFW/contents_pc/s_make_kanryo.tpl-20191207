@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リニューアル支援</title>
+
+<!-- BootstrapのCSS読み込み -->
+<link href="../include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery読み込み -->
+<script src="../include/js/jquery-3.2.1.min.js"></script>
+
+<!-- BootstrapのJS読み込み -->
+<script src="../include/bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/rnsien.css">
+<script type="text/javascript" src="../tools.js"></script>
+
+<link href="../css/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" >
+<script type="text/javascript" src="../js/tools_ajax.js"></script>
+<script type="text/javascript" src="../js/ConnectedSelect.js"></script>
+<script src="../js/jquery-1.4.2.js" type="text/javascript"></script>
+<script src="../js/jquery.ui.core.js" type="text/javascript"></script>
+<script src="../js/jquery.ui.datepicker.js" type="text/javascript"></script>
+<script src="../js/jquery.ui.datepicker-ja.js" type="text/javascript"></script>
+<script type="text/javascript" src="tools.js"></script>
+
+
+<script type="text/javascript">
+$(function() {
+	$("#wHoliday1").datepicker({
+		numberOfMonths: 1,
+		minDate: new Date(__DateStart__),
+		maxDate: new Date(__DateEnd__)
+	});
+	$("#wHoliday2").datepicker({
+		numberOfMonths: 1,
+		minDate: new Date(__DateStart__),
+		maxDate: new Date(__DateEnd__)
+	});
+	$("#wHoliday3").datepicker({
+		numberOfMonths: 1,
+		minDate: new Date(__DateStart__),
+		maxDate: new Date(__DateEnd__)
+	});
+	$("#wHoliday4").datepicker({
+		numberOfMonths: 1,
+		minDate: new Date(__DateStart__),
+		maxDate: new Date(__DateEnd__)
+	});
+});
+</script>
+
+<script>
+function modorumove(val){
+	document.mainform.action = val;
+	document.mainform.submit(true);
+}
+
+function sakuzyo(work,val){
+	document.mainform.work.value = work;
+	document.mainform.action = val;
+	document.mainform.submit(true);
+	document.mainform.work.value = '';
+}
+</script>
+
+<script >
+function checkWakuSelect(){
+	var frm = document.mainform;
+	var obj = document.getElementById("wakupattern");
+	var index = obj.selectedIndex;
+
+	a1 = document.getElementById("asuu");
+	a2 = document.getElementById("a2");
+	a3 = document.getElementById("a3");
+	p1 = document.getElementById("psuu");
+	p2 = document.getElementById("p2");
+	p3 = document.getElementById("p3");
+	p4 = document.getElementById("p4");
+
+	if( index < 4 && index !==0){
+		p1.style.visibility ="hidden";
+		p2.style.display ="none";
+	}else{
+		p1.style.visibility ="visible";
+		p2.style.display ="block";
+	}
+	if( index < 7 && index !==0){
+		a1.style.visibility ="hidden";
+		a2.style.display ="none";
+	}else{
+		p1.style.visibility ="visible";
+		a2.style.display ="block";
+	}
+	if( index < 8 && index !==0){
+		p3.style.display ="none";
+	}else{
+		p3.style.display ="block";
+	}
+	if( index < 9 && index !==0){
+		a3.style.display ="none";
+		p4.style.display ="none";
+	}else{
+		a3.style.display ="block";
+		p4.style.display ="block";
+	}
+  
+	if('__DateSum__'>1){
+		if(document.getElementById("wakupattern").value > 2){
+			document.getElementById("OverError").innerHTML = "※最大工事枠数の合計を__MinWakuSum__以下に設定してください。<br> 　ただし、休工日・初日考慮選択時は少し多めに設定してください。";
+		}else{
+			document.getElementById("OverError").innerHTML = "※最大工事枠数の合計を__MinWakuSum2__以下に設定してください。<br> 　ただし、休工日・初日考慮選択時は少し多めに設定してください。";
+		}
+	}else{
+		if(document.getElementById("wakupattern").value > 2){
+			document.getElementById("OverError").innerHTML = "※最大工事枠数の合計を__MinWakuSum3__以下に設定してください。<br> 　ただし、休工日・初日考慮選択時は少し多めに設定してください。";
+		}else{
+			document.getElementById("OverError").innerHTML = "※最大工事枠数の合計を__MinWakuSum3__以下に設定してください。<br> 　ただし、休工日・初日考慮選択時は少し多めに設定してください。";
+		}
+	}
+
+}
+function checkmove(page){
+	var frm = document.mainform;
+	var error_flg = "";
+	//班数の入力チェック
+	if(frm.wHansu.value == ""){
+		document.getElementById("HansuError").innerHTML = "<br>※班数を選択してください";
+		error_flg = "1";
+	}else{
+		document.getElementById("HansuError").innerHTML = "";
+	}
+	
+	//
+	if(frm.wWakuPattern.value == ""){
+		document.getElementById("WakuPatternError").innerHTML = "<br>※工事枠パターンを選択してください";
+		error_flg = "1";
+	}else{
+		document.getElementById("WakuPatternError").innerHTML = "";
+	}
+
+	if(frm.wWakuPattern.value <= 2){
+
+		if(frm.wWakuAM.value == "" || frm.wWakuPM1.value == ""){
+			document.getElementById("WakuAMPMError").innerHTML = "※最大工事枠数が入力されていません";
+			error_flg = "1";
+		}else if(frm.wWakuAM.value < 1 || frm.wWakuPM1.value < 1 ){
+			document.getElementById("WakuAMPMError").innerHTML = "※入力内容が正しくありません";
+			error_flg = "1";
+		}else{
+			document.getElementById("WakuAMPMError").innerHTML = "";
+		}
+	}else if(frm.wWakuPattern.value <= 5){
+
+		if(frm.wWakuAM.value == "" || frm.wWakuPM1.value == "" || frm.wWakuPM2.value == ""){
+			document.getElementById("WakuAMPMError").innerHTML = "※最大工事枠数が入力されていません";
+			error_flg = "1";
+		}else if(frm.wWakuAM.value < 1 || frm.wWakuPM1.value < 1 || frm.wWakuPM2.value < 1){
+			document.getElementById("WakuAMPMError").innerHTML = "※入力内容が正しくありません";
+			error_flg = "1";
+		}else{
+			document.getElementById("WakuAMPMError").innerHTML = "";
+		}
+	}else if(frm.wWakuPattern.value <= 6){
+		if(frm.wWakuAM.value == "" ||frm.wWakuAM2.value == "" || frm.wWakuPM1.value == "" || frm.wWakuPM2.value == ""){
+			document.getElementById("WakuAMPMError").innerHTML = "※最大工事枠数が入力されていません";
+			error_flg = "1";
+		}else if(frm.wWakuAM.value < 1 || frm.wWakuAM2.value < 1 || frm.wWakuPM1.value < 1 || frm.wWakuPM2.value < 1){
+			document.getElementById("WakuAMPMError").innerHTML = "※入力内容が正しくありません";
+			error_flg = "1";
+		}else{
+			document.getElementById("WakuAMPMError").innerHTML = "";
+		}
+
+	}else if(frm.wWakuPattern.value <= 7){
+		if(frm.wWakuAM.value == "" ||frm.wWakuAM2.value == "" || frm.wWakuPM1.value == "" || frm.wWakuPM2.value == "" || frm.wWakuPM3.value == ""){
+			document.getElementById("WakuAMPMError").innerHTML = "※最大工事枠数が入力されていません";
+			error_flg = "1";
+		}else if(frm.wWakuAM.value < 1 || frm.wWakuAM2.value < 1 || frm.wWakuPM1.value < 1 || frm.wWakuPM2.value < 1 || frm.wWakuPM3.value < 1){
+			document.getElementById("WakuAMPMError").innerHTML = "※入力内容が正しくありません";
+			error_flg = "1";
+		}else{
+			document.getElementById("WakuAMPMError").innerHTML = "";
+		}
+
+	}else if(frm.wWakuPattern.value <= 8){
+
+		if(frm.wWakuAM.value == "" ||frm.wWakuAM2.value == "" || frm.wWakuAM3.value == "" || frm.wWakuPM1.value == "" || frm.wWakuPM2.value == "" || frm.wWakuPM3.value == "" || frm.wWakuPM4.value == ""){
+			document.getElementById("WakuAMPMError").innerHTML = "※最大工事枠数が入力されていません";
+			error_flg = "1";
+		}else if(frm.wWakuAM.value < 1 || frm.wWakuAM2.value < 1  || frm.wWakuAM3.value < 1 || frm.wWakuPM1.value < 1 || frm.wWakuPM2.value < 1 || frm.wWakuPM3.value < 1 || frm.wWakuPM4.value < 1){
+			document.getElementById("WakuAMPMError").innerHTML = "※入力内容が正しくありません";
+			error_flg = "1";
+		}else{
+			document.getElementById("WakuAMPMError").innerHTML = "";
+		}
+
+	}
+
+	if(frm.wKojijun.value == ""){
+		document.getElementById("KojijunError").innerHTML = "※工事順を選択してください";
+		error_flg = "1";
+	}else{
+		document.getElementById("KojijunError").innerHTML = "";
+	}
+	var a = frm.wWakuAM.value;
+	var b = frm.wWakuPM1.value;
+	var c = frm.wWakuPM2.value;
+	if(a !== ""|| b !== ""){
+
+		if(frm.wWakuPattern.value <= 2){
+			if(frm.wFirstDateFeature.value==0){
+				var d = '__MinWakuSum2__';
+				var e = '__MaxWakuSum2__';
+				var f = parseInt(a)+parseInt(b);
+			}else{
+				var d = '__MinWakuSum3__';
+				var e = '__MaxWakuSum2__';
+				var f = parseInt(a)+parseInt(b);
+			}
+		}else{//3枠
+			if(frm.wFirstDateFeature.value==0){
+				var d = '__MinWakuSum__';
+				var e = '__MaxWakuSum__';
+				var f = parseInt(a)+parseInt(b)+parseInt(c);
+			}else{
+				var d = '__MinWakuSum3__';
+				var e = '__MaxWakuSum__';
+				var f = parseInt(a)+parseInt(b)+parseInt(c);
+			}
+		}
+
+		if(f > d && frm.wFirstDateFeature.value==0 && '__HolidayFlg__'==false){//入力した工事枠　が　MinWakuSumより小さくなければならない　
+	//		error_flg = "1";
+			document.getElementById("OverError").style.color = "red";
+		}else{
+			document.getElementById("OverError").style.color = "";
+		}
+	}
+
+	if(error_flg == ""){
+		document.mainform.action = page;
+		document.mainform.submit(true);
+	}
+}
+</script>
+
+
+</head>
+
+<body>
+__SHeader__
+
+<div class="content-all2"><!--content-all-->
+
+<div class="left-yose">
+<a href="../s_menu.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__">＜戻る</a>
+</div>
+
+<form action=# method="POST" name="mainform">
+<div class="top-menu left-yose">
+<h5>__wBukkenName__</h5>
+<h6>詳細工程表 </h6>
+<!--import工事日程を表示する-->
+
+登録されているファイルの内容<br>
+<table border="1">
+<tr bgcolor="lightgray"><th></th>
+	<th>部屋番号</th><th>日程</th><th>開始時間</th></tr>
+__CellLoop__
+<tr><th bgcolor="lightgray">__No__</th>
+
+<td>__RoomID__
+	<!--<input type="hidden" name="wUserCD__No__" value="__wUserCD__" >-->
+</td>
+
+<td>
+	<!--<input type="text" name="wTimeFromDate__No__" value="__wTimeFromDate__" >-->
+	__wTimeFromDate__
+</td>
+<td>
+	<!--<input type="text" name="wTimeFromTime__No__" value="__wTimeFromTime__" >-->
+	__wTimeFromTime__
+</td>
+</tr>
+__CellLoop__
+</table>
+<br>
+<input type="button" value="削除" onclick="sakuzyo(2,'s_make_kanryo.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__');">
+
+__IfKoji__
+
+
+<br>
+__HiddenValues__
+
+<hr>
+
+
+
+
+
+__IfKoji__
+__IfNotKoji__
+	
+
+
+__IfNotKoji__
+■詳細工程表作成<br>
+
+Excel日程データ読み込み（ネスぺ用）<input type="button" value="Excel日程データ読み込み" onclick="modorumove('d_csvUpload.php?editBukkenCD=__editBukkenCD__');" class="btn btn-primary"><br>
+
+__IfRoomOK__
+
+<br>
+
+<hr>
+
+</div><!--content-all-->
+
+	<input type="hidden" name="work">
+	<input type="hidden" name="editBukkenCD" value="__editBukkenCD__">
+	<input type="hidden" name="rKey" value="__rKey__">
+
+</form>
+	
+__SFooter__
+__SCopyright__
+
+</body>
+</html>

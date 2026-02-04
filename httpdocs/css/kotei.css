@@ -1,0 +1,410 @@
+@charset "utf-8";
+
+/* ▽tplこぴー▽ */
+div.menu_box {
+    margin: 0 10px 0 10px;
+    text-align: left;
+    display: inline-block;
+    vertical-align: top;
+    width: 200px;
+    font-size:15px;
+}
+div.menu_box.set {
+    width:450px;
+    margin-right: -4px;
+}
+div.menu_midashi {
+    padding-left: 10px;
+    text-align: left;
+    margin-top: 18px;
+    margin-bottom: 8px;
+}
+
+div.menu_box.set .menu_midashi {
+    display:inline-block;
+    width:200px;
+    margin:18px 10px 4px 10px;
+}
+
+.menu_midashi {
+    position: relative;
+    background-color: #4db1df;
+    color: #fff;
+    overflow: hidden;
+    padding: .3em;
+    width: 250px;
+}
+
+
+
+/*リストメニュー*/
+
+ul.menu_list {
+  padding: 0;
+  position: relative;
+  height: 100%;
+}
+ul.menu_list > li {
+  border-left: solid 6px #2d8fdd;/*左側の線*/
+  background: #f1f8ff;
+  line-height: 1.5;
+}
+
+div.menu_box.set ul.menu_list{
+  width:200px;
+  display:inline-block;
+  vertical-align:top;
+  margin:0 10px 0 10px;
+}
+
+div.menu_box.set ul.menu_list.set{
+  width:425px;
+}
+
+
+/*
+ul.menu_list > li.orange {
+  border-left: solid 6px #dd7b2d;
+  background: #fff3f1;
+}
+*/
+ul.menu_list li {
+  list-style:none;/*ポチ消す*/
+}
+/*
+ul.menu_list a {
+  color: #007bff;
+  display: table;
+  width: 100%;
+  text-decoration: none;
+}
+*/
+
+/*リストメニュー サブメニュー*/
+/*
+ul.menu_list li ul li {
+  height: 0;
+  overflow: hidden;
+  transition: all 0.3s linear 0.3s;
+}
+*/
+/*
+ul.menu_list li:hover ul li{
+  height: auto;
+  overflow: visible;
+  margin-top: 3px;
+  transition: all 0.3s linear;
+}
+ul.menu_list li ul li a {
+  display: block;
+  padding: 0;
+  height: 0;
+  transition: all 0.3s linear 0.3s;
+}
+ul.menu_list > li:hover li a {
+  display: table;
+  width: 100%;
+  height: 10px;
+  transition: all 0.3s linear;
+}
+ul.menu_list li ul li a:hover {
+  color: #0033cc;
+}
+*/
+.menu_detail {
+  padding-top: 0px;
+  padding-left: 0px;
+}
+
+/* https://techmemo.biz/css/acordion-css/ */
+
+.menu_list li a {
+    display: table;
+    margin-top: 1px;
+    width: 100%;
+    text-decoration: none;
+    text-align: left;
+    vertical-align: middle;
+    overflow: hidden;
+    transition: all .5s ease-out;
+}
+/*
+.menu_list > li:first-child a {
+   margin-top: 0;
+}
+.menu_list li li a {
+    display: block;
+    margin-top: 0;
+    padding: 0 10px;
+    height: 0;
+    transition: all .5s ease-out;
+}
+*/
+/* △tplこぴーここまで△ */
+
+
+body{
+    font-family: "Hiragino Kaku Gothic ProN","メイリオ", sans-serif;
+}
+
+li.menu_item div.drop{
+    position: relative;
+    display: block;
+    color: #FFF;
+    padding-left:10px;
+    padding-bottom:5px;
+    margin-bottom:2px;
+    border-bottom:1px solid #bccbdc;
+}
+
+li.menu_item div.drop{
+    position: relative;
+    display: block;
+    color: #FFF;
+    padding-left:10px;
+    padding-bottom:5px;
+    margin-bottom:2px;
+    border-bottom:1px solid #bccbdc;
+}
+
+
+
+ul.menu_list a{
+    color: #FFF;
+}
+
+li.menu_item a:nth-child(1){
+    padding-left:25px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+ul.menu_list > li {
+    margin-bottom: 9px;
+    border-radius: 7px;
+    border-left: 0;
+    background: #dd7e6b;
+}
+
+ul.menu_list > li.menu_single.green {
+    margin-bottom: 9px;
+    border-radius: 7px;
+    border-left: 0;
+    background: #43bd76;
+}
+
+
+.menu_single{
+      padding:8px 0 8px 10px;
+}
+
+.menu_list a{
+    display:block;
+    width:100%;
+}
+ul.menu_list > li.orange {
+    border-left: 0;
+    background: #FD8716;
+    padding:8px 0 8px 10px;
+}
+
+ul.menu_list > li.orange:hover {
+    background: #ff9a38;
+}
+
+ul.menu_list > li.green{
+  background: #f4cccc;
+}
+ul.menu_list > li.green:hover {
+    background: #f5d7d7;
+}
+
+
+li.orange a:before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url("../images/check.png");
+  margin-right:3px;
+  background-size: contain;
+  vertical-align: top;
+}
+
+li.orange a.no-check:before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url("../images/no-check.png");
+  margin-right:3px;
+  background-size: contain;
+  vertical-align: top;
+}
+
+ul.menu_list > li.menu_single:hover {
+    background: #e68c7a;
+}
+
+ul.menu_list > li.menu_single.green:hover {
+    background: #53ca84;
+}
+
+.box5 ul.menu_list > li.menu_single:hover {
+    background: #4ed1ea;
+}
+
+ul.menu_list > li.menu_item a:hover {
+    background: #078AC7;
+}
+
+.box5 ul.menu_list > li {
+    margin-bottom: 9px;
+    border-radius: 7px;
+    background: #43c2da;
+}
+
+li.menu_item{
+  padding-top:10px;
+  padding-bottom:5px;
+}
+
+ul.menu_list li:hover{
+    background: #0768B4;
+}
+
+.menu_list > li li a {
+    display: block;
+    margin-top: 0px;
+    width: 100%;
+    transition:all .5s ease-out;
+    font-size:12px;
+}
+
+.menu_detail > li a::before {
+    content:  '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 7px;
+    border-color: transparent transparent transparent #bccbdc;
+    display:  inline-block;
+    vertical-align:  middle;
+    position:  relative;
+    top: -2px;
+    margin-right: 5px;
+}
+
+.menu_midashi {
+     color:#0768B4;
+     background: none;
+}
+
+.menu_box .menu_midashi {
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 8px;
+  padding-left: 0;
+  margin-bottom:10px;
+  font-weight: bold;
+  width:200px;
+  font-size:15.5px;
+}
+
+.menu_box .menu_midashi:before {
+  content: "";
+  border-bottom: 3px solid #dd7e6b;
+  bottom: 0;
+  height: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 0;
+}
+
+.menu_box.box5 .menu_midashi:before {
+  border-bottom: 3px solid #dd7e6b;
+}
+
+.menu_box .menu_midashi:after {
+  border-bottom: 3px solid #ddd;
+  bottom: 0;
+  content: "";
+  position: absolute;
+  width: 500px;
+  z-index: 1;
+  display: none;
+}
+
+.DL{
+  color:#ffffff;
+  border:1px solid #fff;
+  background-color:#0768b4;
+  font-size:8px;
+  border-radius: 2px;
+  padding:0px 2px 0px 2px;
+  margin-left:4px;
+}
+
+.box5 .DL{
+  background-color:#43c2da;
+  color:#ffffff;
+}
+
+.icon1{
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background-image: url("../images/menu_midashi01.png");
+  background-repeat: no-repeat;
+  margin:0px 0px 0px 5px;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+.icon2{
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background-image: url("../images/menu_midashi02.png");
+  background-repeat: no-repeat;
+  margin:0px 0px 0px 5px;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+.icon3{
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background-image: url("../images/menu_midashi03.png");
+  background-repeat: no-repeat;
+  margin:0px 4px 0px 5px;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+.icon4{
+  display: inline-block;
+  width: 29px;
+  height: 25px;
+  background-image: url("../images/menu_midashi04.png");
+  background-repeat: no-repeat;
+  margin:0px 4px 0px 5px;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+.icon5{
+  display: inline-block;
+  width: 26px;
+  height: 25px;
+  background-image: url("../images/menu_midashi05.png");
+  background-repeat: no-repeat;
+  margin:0px 4px 0px 5px;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+.fa-file-excel{
+  margin-right:2.5px;
+}

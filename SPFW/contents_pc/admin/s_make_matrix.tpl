@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リニューアル支援</title>
+
+<!-- BootstrapのCSS読み込み -->
+<link href="../include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery読み込み -->
+<script src="../include/js/jquery-3.2.1.min.js"></script>
+<script src="../js/jquery.shiftcheckbox.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$('.checkboxgroup').shiftcheckbox();
+});
+
+</script>
+<!-- BootstrapのJS読み込み -->
+<script src="../include/bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/rnsien.css">
+<script type="text/javascript" src="../tools.js"></script>
+
+<link href="../css/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/tools_ajax.js"></script>
+<script type="text/javascript" src="../js/ConnectedSelect.js"></script>
+<script src="../js/jquery-1.4.2.js" type="text/javascript"></script>
+<script src="../js/jquery.ui.core.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+function RoomCheck(){
+	var RoomSuu = 0;
+	for(i=0 ; i<__TemporaryRoom__ ;i++){
+		if( document.mainform.elements[i].checked ){
+			RoomSuu += 1;
+		}
+	}
+	document.getElementById('RoomSuu').innerHTML = RoomSuu;
+}
+function moveandCheck(page){
+	var RoomSuu = 0;
+	for(i=0 ; i<__TemporaryRoom__ ;i++){
+		if( document.mainform.elements[i].checked ){
+			RoomSuu += 1;
+		}
+	}
+	if(RoomSuu == __wKosu__){
+		document.mainform.action = page;
+		document.mainform.submit(true);
+	}else{
+		document.getElementById('ErrorString').innerHTML = "部屋数が違います。";
+	}
+}
+
+
+</script>
+</head>
+
+<body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
+
+
+<div class="content-all"><!--content-all-->
+
+<hr size="__HRSize__" color="__HRColor__">
+<center>《詳細工程表セット》</center>
+<hr size="__HRSize__" color="__HRColor__">
+
+
+__IfError__
+<br><br>
+<font color="red" >ログインしたユーザの所属以外の物件を登録・編集することはできません。所属を確認ください。<br></font>
+__IfError__
+
+__IfOK__
+<br><br>
+<font color="red" >予約センターへ依頼が完了しました。受付準備が整いましたらご連絡いたします。<br></font>
+__IfOK__
+
+
+部屋構成を作成しますので、以下の項目を入力し、「確定」ボタンをクリックしてください。<br>
+<form action="s_make_kanryo.php" method="POST" name="mainform" >
+<font color="red"><span id="ErrorString"></span></font><br>
+<table border="1" >
+	<tr>
+		<th width="200" style="text-align:center" bgcolor="#CCFF99">
+			戸数
+		</th>
+		<th width="200" style="text-align:center" bgcolor="#CCFF99">
+			チェックしている部屋数
+		</th>
+	</tr>
+	<tr>
+		<td width="200" style="text-align:center">
+			__wKosu__
+		</td>
+		<td width="200" style="text-align:center">
+			<span id="RoomSuu">__wRoomSuu__</span>
+		</td>
+	</tr>
+</table>
+<!--
+	__ColsLoop__
+		<td >__Pic__ 
+		</td>
+	__ColsLoop__ 
+--><br>
+<table border=1 >
+	__RowsLoop__
+	<tr>__ColsBlock__</tr>
+	__RowsLoop__
+</table>
+
+<br>
+<!--
+<table>
+<tr><td rowspan=3 bgcolor="palegreen" >工事順(詳細工程表の並び順）</td>
+	<td align=right ><input type="radio" name="KojiJun" value="1" ></td><td><img src="../images/kojijun1.png" width="50"><br>下から横へ</td>
+	<td align=right ><input type="radio" name="KojiJun" value="2" ></td><td><img src="../images/kojijun2.png" width="50"><br>上から横へ</td></tr>
+<tr><td align=right ><input type="radio" name="KojiJun" value="3" ></td><td><img src="../images/kojijun3.png" width="50"><br>下から縦へ</td>
+	<td align=right ><input type="radio" name="KojiJun" value="4" ></td><td><img src="../images/kojijun4.png" width="50"><br>上から縦へ</td></tr>
+<tr><td>　</td>
+	<td colspan=4 >
+		<br>
+		<img src="../images/kojijun5.png" width="50"><br>
+		建物が分離しているなど特殊なケースの場合は、詳細工程表（Excel）出力後、<br>
+		編集するもしくは、予約受付センターにご相談ください。　
+	</td></tr>
+</table>-->
+
+<input type="hidden" name="rKey" value="__rKey__" >
+<input type="hidden" name="editBukkenCD" value="__editBukkenCD__" >
+<input type="hidden" name="work" value="1"><br>
+<input type="button" value="確定" class="btn btn-primary" onclick="moveandCheck('s_make_kanryo.php')">
+<br><br>
+<input type="button" value="もどる" class="btn btn-primary" onclick="javascript:history.back();">
+</form>
+<br>
+
+
+</div><!--content-all-->
+
+<hr>
+
+__SFooter__
+__SCopyright__
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+.sampleTable {
+    border-collapse: collapse;
+}
+.sampleTable th,
+.sampleTable td {
+    border: 2px solid #696969;
+    padding: 10px;
+
+     margin : 10px ;
+width: 70px;
+height: 35px;
+
+font-size: 20px;
+    table-layout: fixed;
+
+line-height: 1.5em
+}
+.sampleTable th {
+    border: 2px solid #0000CD;
+}
+
+
+
+.noticeTable{
+  border-collapse: collapse;
+}
+
+.noticeTable td{
+  border-top: solid 1px #65666c;
+  border-bottom: solid 1px #65666c;
+ border-right: solid 1px #65666c;
+  border-left: solid 1px #65666c;
+}
+
+.noticeTable tr:hover{
+  background-color: #a0d2ff;
+}
+
+.noticememo {
+    margin-top       : 5px;
+    margin-bottom    : 5px;
+    margin-left      : 15px;
+}
+
+
+.break { page-break-before: always; }
+
+
+
+/* ここはメニューには直接関係ない基本スタイル */
+body {
+background: #fff;
+color: #333;
+font-family: sans-serif;
+font-size: small;
+line-height: 1.5;
+margin: 0;
+padding: 0;
+}
+
+a {
+color: #22aacc;
+text-decoration: underline;
+}
+
+a:visited {
+color: #009999;
+}
+
+a:hover,
+a:active {
+color: #ff3366;
+text-decoration: underline;
+}
+
+.siteTitle {
+background: #000;
+font-size: 1em;
+height: 50px;
+margin: 0;
+overflow: hidden;
+padding: 10px;
+text-align: center;
+}
+
+.backEntry {
+background: #eee;
+border: 1px solid #ccc;
+border-radius: 10px;
+margin: 1em auto;
+padding: 2px 0;
+text-align: center;
+width: 15em;
+}
+
+.backEntry a {
+display: block;
+}
+
+article {
+padding: 0 1em 50px;
+}
+
+h1 {
+font-size: 1em;
+}
+
+.entry-title {
+font-size: 1.2em;
+}
+
+/* ここからサンプルのスタイル */
+
+.sample {
+margin: 20px auto;
+width: 850px;
+}
+
+.sample ul#tab {
+list-style: none;
+margin: 0;
+overflow: hidden;
+padding: 0;
+width: 100%;
+}
+
+.sample ul#tab li {
+border: 1px solid #333;
+border-bottom: none;
+display: inline-block;
+margin: 0 0 0 .5em;
+padding: 0;
+text-align: center;
+}
+
+.sample ul#tab li a {
+display: block;
+padding: .2em 2em;
+}
+
+.sample .contents {
+position: relative;
+}
+
+.sample .contents div {
+background: #fff;
+margin: 0;
+padding: 0;
+position: absolute;
+top: 0;
+}
+
+.sample .contents div section {
+border: 1px solid #333;
+margin-bottom: 20px;
+padding: 1em;
+}
+
+.sample .contents div h1 {
+border-bottom: 1px dotted #333;
+margin-bottom: 1em;
+padding-bottom: .5em;
+}
+
+.sample .contents div p {
+margin-bottom: 1em;
+}
+
+.sample #tab a:hover {
+background: #333;
+color: #fff;
+-webkit-transition: background .5s;
+transition: background .5s;
+}
+
+/* タブの表示切替関連 */
+
+.sample .contents div {
+z-index: 1;
+opacity: 0;
+}
+
+.sample #tab li:first-child a {
+background: #333;
+color: #fff;
+}
+
+.sample .contents div:first-child {
+opacity: 1;
+z-index: 2;
+}
+
+.sample #tab01:target .contents .tab01,
+.sample #tab02:target .contents .tab02,
+.sample #tab03:target .contents .tab03 {
+opacity: 1;
+-webkit-transition: opacity .5s;
+transition: opacity .5s;
+z-index: 2;
+}
+
+.sample #tab01:target .contents div:not([class="tab01"]),
+.sample #tab02:target .contents div:not([class="tab02"]),
+.sample #tab03:target .contents div:not([class="tab03"]) {
+opacity: 0;
+-webkit-transition: opacity .5s;
+transition: opacity .5s;
+z-index: 1;
+}
+
+.sample #tab01:target #tab li a[href$="tab01"],
+.sample #tab02:target #tab a[href$="tab02"],
+.sample #tab03:target #tab a[href$="tab03"] {
+background: #333;
+color: #fff;
+-webkit-transition: background .5s;
+transition: background .5s;
+}
+
+.sample :not([id="tab01"]):target #tab li a[href$="tab01"] {
+background: #fff;
+color: #22aacc;
+}

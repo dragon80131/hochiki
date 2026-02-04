@@ -1,0 +1,73 @@
+﻿iframe {
+  border: none;
+}
+
+.tab-content input[type="radio"] {
+  display: none;
+}
+
+.tab-content label {
+  display: inline-block;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #3852ff;
+  background-color: #e0ffff;
+  cursor: pointer;
+  box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-radius: 5px 5px 0 0;
+  box-sizing: border-box;
+  margin:20px 0 0 0;
+}
+
+.tab-content label:hover,
+.tab-content input[type="radio"]:checked + label {
+  color: #FFF;
+  background-color: #3852ff;
+}
+
+.tab-content .tab-box {
+  width: 1090px;
+ /*height: 2000px;*/
+  padding: 10px;
+  border: 2px solid #3852ff;
+  border-radius: 0px 5px 5px 5px;
+  box-sizing: border-box;
+}
+
+.tab-content > .tab-box > div {
+  display: none;
+}
+
+#tab1:checked ~ .tab-box > #tabView1 {
+  display: block;
+}
+
+#tab2:checked ~ .tab-box > #tabView2 {
+  display: block;
+}
+
+#tab3:checked ~ .tab-box > #tabView3 {
+  display: block;
+}
+#tab4:checked ~ .tab-box > #tabView4 {
+  display: block;
+}
+#tab5:checked ~ .tab-box > #tabView5 {
+  display: block;
+}
+#tab6:checked ~ .tab-box > #tabView6 {
+  display: block;
+}
+#tab7:checked ~ .tab-box > #tabView7 {
+  display: block;
+}
+#tab8:checked ~ .tab-box > #tabView8 {
+  display: block;
+}
+#tab9:checked ~ .tab-box > #tabView9 {
+  display: block;
+}
+#tabA:checked ~ .tab-box > #tabViewA {
+  display: block;
+}

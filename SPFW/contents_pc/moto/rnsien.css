@@ -1,0 +1,152 @@
+﻿@charset "utf-8";
+
+body {
+    scrollbar-base-color: ;
+}
+
+.content-all{
+	width:800px;
+	margin:0 auto;
+}
+
+.top-news {
+	border:1px solid #F00;
+	padding:10px;
+	border-radius:10px;
+	text-align:left;
+}
+
+.top-menu {
+	border:none;
+	padding:10px;
+	border-radius:10px;
+	text-align:left;
+}
+
+.left-yose {
+	text-align:left;
+}
+
+/*489依頼*/
+.left-yose#yoyakuirai td {
+	padding-left:20px;
+}
+
+#bukkensearch{
+	margin:10px;
+}
+
+.table-kintou {
+	table-layout: fixed;
+}
+
+.login{
+	text-align:right;
+	margin-top:20px;
+}
+
+.news-box{ 
+	text-align:left;
+	margin:5px 0px 10px 0px;
+	position: relative; 
+	padding: .85em 1.2em .4em 1.2em; 
+	border: 2px solid #2aacde;
+	margin:10px;
+}
+
+.news-box:after{
+	content: "お知らせ";
+	position: absolute;
+	top: -.7em;
+	left: 13px;
+	background: #fff;
+	font-size: 1.4em;
+	color: #2aacde;
+	padding: 0 10px;
+}
+
+span.time{
+	letter-spacing:2px;
+	color:#c9c9c9;
+	font-size:13.5px;
+}
+
+.news-list dt{
+	margin:9px 10px 0px 10px;
+	font-size:14px;
+}
+
+.news-list dd{
+	margin:0px 10px 0px 10px;
+	font-size:13px;
+}
+
+
+
+h1.menu-title {
+	border-bottom: 4px solid #00469b;
+
+}
+ 
+h1.menu-title span {
+	color: #fff;
+	line-height: 20px;
+	position: relative;
+	background: #00469b;
+	display: inline-block;
+	padding: 12px 20px;
+	font-size:.5em;
+}
+ 
+ 
+h1.menu-title span:after {
+	content: " ";
+	position: absolute;
+	top: 0;
+	left: 100%;
+	border-width: 0 30px 48px 0;
+	border-style: solid;
+	border-color: transparent;
+	border-bottom-color: #00469b;
+}
+
+
+
+
+
+
+
+h6 {
+    font-size: 1.2em;
+    background-color: #e0ffff;
+    background-repeat: repeat-y;
+    line-height: 30px;
+    margin: 0px 0px 25px 0px;
+    padding-top: 3px;
+    padding-left: 15px;
+    border-bottom: 1px dotted #001bcf;
+}
+.square_btn{
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #f7f7f7;
+    border-left: solid 6px #3852ff;/*左線*/
+    color: #3852ff;/*文字色*/
+    font-weight: bold;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.29);
+}
+.square_btn:active {
+    box-shadow: inset 0 0 2px rgba(128, 128, 128, 0.1);
+    transform: translateY(2px);
+}
+
+
+
+
+
+
+
+
+
+

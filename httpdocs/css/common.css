@@ -1,0 +1,326 @@
+body {
+   margin: 0;
+   color: #292929;
+   font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+}
+
+table {
+   width: 680px;
+   background-color: #ffffff;
+   border-collapse: collapse;
+}
+@media screen and (max-width:480px) {
+table {
+   width: 100%;
+   background-color: #ffffff;
+   border-collapse: collapse;}
+}
+
+td {
+    padding: 0;
+}
+
+
+@media screen and (max-width:480px) {
+    img {
+        max-width:100%; 
+        width:auto;
+        height:auto;
+    }
+}
+
+hr {
+   display:none
+}
+
+.formyohakiu {
+    margin: 0;
+}
+
+@media print{
+
+.nopuri{display:none;}
+
+}
+
+.kaigyou {
+    display:block;}
+
+
+/*���o��****************/
+h1 {
+    background-color: #EFF7FF;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-left: 10px;
+    padding-top: 5px;
+    line-height: 33px;
+    font-size: 1.3em;
+}
+
+h1.login {
+    background-color: #EFF7FF;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-top: 5px;
+    line-height: 33px;
+    font-size: 1.3em;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin: 0px 0px 30px 0px;
+    padding-left: 10px;
+    padding-bottom: 3px;
+    padding-top: 5px;
+    line-height: 20px;
+    background-color: #eff7ff;
+   
+}
+
+h2.tophaba {
+    font-size: 1.2em;
+    margin: 0px 0px 10px 0px;
+    padding-left: 10px;
+    padding-bottom: 3px;
+    padding-top: 5px;
+    line-height: 20px;
+    background-color: #eff7ff;
+   
+}
+
+h3 {
+    font-size: 1.2em;
+    background-image: url("../images/h2.gif");
+    background-repeat: repeat-y;
+    line-height: 30px;
+    margin: 0px 0px 25px 0px;
+    padding-top: 3px;
+    padding-left: 15px;
+    border-bottom:1px dotted #0c39da;
+}
+
+h4 {
+    background-color: #0c39da;
+    margin: 0px 20px;
+    line-height: 27px;
+    color: #FFFFFF;
+    padding-left: 15px;
+    padding-top: 3px;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+@media screen and (max-width:480px) {
+h4 {
+    margin: 0px 10px;}
+}
+
+h5 {
+    font-size: 1.4em;
+    margin: 0px 20px;
+}
+
+/*�i�r�Q�[�V����****************/
+#navi {
+    width: 680px;
+    margin: auto;
+    text-align: right;
+    padding: 10px 10px 0 0;
+}
+@media screen and (max-width:480px) { 
+#navi {
+    width: auto;
+    margin: auto;
+    text-align: right;}
+} 
+
+.gengo {
+    font-size: 0.8em;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #78afff;
+    padding: 5px;
+    border: none;
+}
+
+.bar {
+/*    
+    font-size: 0.8em;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #0c39da;
+    padding: 5px;
+*/
+    line-height: 1.4;
+    text-decoration: none;
+    margin: 0 5px;
+}
+.bar:hover{
+    text-decoration: underline;
+}
+
+.bar-migi {
+/*    
+    font-size: 0.8em;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #0c39da;
+    padding: 5px;
+    margin-right: 1px;
+*/
+    line-height: 1.4;
+    text-decoration: none;    
+    margin: 0 5px;
+}
+.bar-migi:hover {
+    text-decoration: underline;
+}
+
+/*input�₶�邵****************/
+input[type="submit"], input[type="reset"], input[type="button"], button{
+  cursor: pointer;
+}
+
+/* aiportal.tpl ****************/
+p.syamei {
+    font-size: 1em;
+    margin: 0px;
+    text-align: right;
+    background-color: #EFF7FF;
+    font-weight: bold; 
+} 
+
+/*���O�C���y�[�W****************/
+h4.login {
+    background-color: #0c39da;
+    margin: 0px 30px;
+    line-height: 27px;
+    color: #FFFFFF;
+    padding-left: 15px;
+    padding-top: 3px;
+    font-size: 1.1em;
+    font-weight: 500;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+@media screen and (max-width:480px) {
+h4.login {
+    margin: 0px 10px;}
+}
+
+#login-btn {
+    color: #FFFFFF;
+    font-size: 1.2em;
+    margin-top: 25px;
+    padding: 5px 15px;
+    border-radius: 3px;
+    background-color: #0c39da;
+    border: none;
+}
+@media screen and (max-width:480px) {
+#login-btn {
+    background-color: #19497F;}
+}
+
+.block {
+    padding: 30px 30px 30px 30px;
+    margin: 0px 30px 80px 30px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background: #EFF7FF;
+    border: 1px #b1b1b1 solid;
+    box-shadow: 0 2px 3px 0 #ddd;
+    -moz-box-shadow: 0 2px 3px 0 #ddd; /* Firefox?p */ 
+    -webkit-box-shadow: 0 2px 3px 0 #ddd;/* Safari,Google Chrome?p */ 
+}
+@media screen and (max-width:480px) {
+    .block {
+        padding: 25px 20px 25px 20px;
+        margin: 0px 10px 40px 10px;  
+    }
+}   
+
+/*a,p****************/
+a {
+    font-size: 0.9em;
+}  
+
+p {
+    margin: 20px 0px;
+    padding: 0px 20px;
+}
+@media screen and (max-width:480px) {
+p {
+    padding: 0px 10px;}
+}
+
+p.naka {
+    margin: 0px;
+    padding: 0px;
+    font-size: 1em;
+}
+
+p.logout {
+    margin: 20px 0px 150px 0px;
+    padding: 0px 20px;
+
+}
+
+.pass {
+    width: 180px;
+    height: 35px;
+    font-size: 1.4em;
+    border-radius: 2px;
+    box-shadow:-1px -1px 0px 1px #9e9e9e;
+    -moz-box-shadow:-1px -1px 0px 1px #9e9e9e;
+    -webkit-box-shadow:-1px -1px 0px 1px #9e9e9e;
+    border:1px solid #c7c7c7;
+    background-color: #fff;
+}
+
+.pass2 {
+    width: 180px;
+    height: 35px;
+    font-size: 1.4em;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    box-shadow:-1px -1px 0px 1px #9e9e9e;
+    -moz-box-shadow:-1px -1px 0px 1px #9e9e9e;
+    -webkit-box-shadow:-1px -1px 0px 1px #9e9e9e;
+    border:1px solid #c7c7c7;
+    background-color: #fff;
+}
+
+.manu {
+   text-align: right;
+   margin-bottom: 10px;
+}
+
+.schedule-btn{
+    display: block;
+    width: 100%;
+    height: 140px;
+    background-color: #3393ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+}
+.schedule-btn:hover{
+    opacity: 0.9;
+}
+
+@media screen and (max-width: 480px){
+    .menu-btn-noop{
+       margin: 0px auto !important;
+    }
+    .schedule-btn{
+        font-size: 1.8rem;
+        height: 120px;
+    }
+}

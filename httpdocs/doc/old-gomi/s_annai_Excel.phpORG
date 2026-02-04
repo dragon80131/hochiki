@@ -1,0 +1,439 @@
+<?php
+#外部オーナー用案内Excel出力
+
+	include_once "setting.properties";
+	include_once _INC_DIR . "carrier.inc";
+	include_once _INC_DIR . "global.inc";
+
+	include_once _CLS_DIR . "SPFWDatabase.cls";
+	include_once _CLS_DIR . "SPFWLog.cls";
+	include_once _CLS_DIR . "SPFWTemplate.cls";
+	include_once _CLS_DIR . "SPFWListObject.cls";
+	include_once _CLS_DIR . "SPFWDate.cls";
+	include_once _CLS_DIR . "SPFWInputCheck.cls";
+	include_once _CLS_DIR . "SPFWParameter.cls";
+	include_once _CLS_DIR . "SPUSUser.cls";
+	include_once _CLS_DIR . "SPUSBukken.cls";
+	include_once _CLS_DIR . "SPUSShiryo.cls";
+	include_once _CLS_DIR . "SPUSIraiRenkei.cls";
+	include_once _CLS_DIR . "SPUSKoji.cls";
+
+
+
+	include_once  "../include/common.php";
+
+
+
+	// データベースコネクト
+	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+	if (!$myDB->Connection)
+		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
+
+	$rKey = SPFWParameter::getValues('rKey');
+	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
+	########################################################
+	# 認証動作
+	########################################################
+
+
+	$myUser = new User($myDB);
+
+	if ($rKey == NULL) 
+		showSorryPage(_ILLEGAL_ACCESS);
+
+	if (!$myUser->doAuthenticationByRegistKey($rKey)) 
+		trigger_error("doAuthentication Failed.", E_USER_ERROR);
+
+	if ($myUser->UserCD == -1) 
+		showSorryPage(_ILLEGAL_ACCESS);
+
+	$UserCD = $myUser->UserCD;
+	$ID = $myUser->ID;
+	unset($myUser);
+	$TantoTEL = getTantoData($myDB, $UserCD )['TEL'];
+
+
+	#必要な項目
+/*
+物件名、管理会社名、工事名、連絡先所属名、連絡先担当名、連絡先TEL
+全体工期、共用部工期、専有部工期、予備日（開始、終了）、作業時間（開始時刻～終了時刻）
+自火報交換工事有無、作業所要時間（60分）、
+火災感知器入室有無　なしかキッチンか全居室
+ガス漏れ警報器有無
+防犯センサー有無
+漏水センサー有無
+
+*/
+
+
+	#Postデータ取得
+	$wConstTime = SPFWParameter::getValues('wConstTime');
+	$wKirikaehoho = SPFWParameter::getValues('wKirikaehoho');
+	$wJikaho = SPFWParameter::getValues('wJikaho');				#0:なし　1:あり
+	$wKasaiHeya = SPFWParameter::getValues('wKasaiHeya');
+	$wKansenKoji = SPFWParameter::getValues('wKansenKoji');
+	$wGasKoji = SPFWParameter::getValues('wGasKoji');
+	$wBohanKoji = SPFWParameter::getValues('wBohanKoji');
+	$wRosuiKoji = SPFWParameter::getValues('wRosuiKoji');
+	$wTagKoji = SPFWParameter::getValues('wTagKoji');
+
+
+	########################################################
+	# 物件情報抽出
+	########################################################
+	$myBukken = new Bukken($myDB);
+
+	if (!$myBukken->executeSelect("BukkenCD = " . $editBukkenCD . " AND MukouFlg = FALSE", "")){
+		trigger_error("Getting Bukken Failed.", E_USER_ERROR);
+	}
+
+	if ($myBukken->RecCnt != 1) {
+		trigger_error("Getting myBukken List Failed.", E_USER_ERROR);
+
+	} else {
+
+		$BukkenName = $myBukken->BukkenName;
+		$KanriGaisya = $myBukken->KanriGaisya;
+		$AutoLock = $myBukken->AutoLock;#1:あり　2:なし
+		if($AutoLock == 1 ){
+			$DispAutoLock = "エントランス・";
+			$DispAutoLock2 = "オートロック解錠機能、";
+			$DispAutoLock3 = "オートロック解錠・";
+		}
+		$ShoboTokurei = $myBukken->ShoboTokurei;#0:なし　1:170　2:220　3:220
+
+	}
+
+	########################################################
+	# 工事情報抽出
+	########################################################
+
+
+
+	$myKoji = new Koji($myDB);
+
+	if (!$myKoji->executeSelect("BukkenCD = " . $editBukkenCD . " AND MukouFlg = FALSE", "")){
+		trigger_error("Getting Koji Failed.", E_USER_ERROR);
+	}
+
+
+	if ($myKoji->RecCnt != 1) {
+#		trigger_error("Getting myKoji List Failed.", E_USER_ERROR);
+
+		#工事情報登録がまだ
+		include_once("s_koji.php?rKey=$rKey&editBukkenCD=$editBukkenCD&$ErrData=1");
+		exit;
+
+	#新規
+	} else {
+	#登録済み
+		if( $myKoji->OP1DeviceCD ) $IfOP = TRUE ;
+		$KojiName = $myKoji->KojiName; 
+		$KojiShozokuName = $myKoji->KojiShozokuName; 
+		$KojiTantoName = $myKoji->KojiTantoName; 
+		$GyosyaTantoCD1 = $myKoji->GyosyaTantoCD1; 
+
+		$GyosyaData = getGyosyaData($myDB, $GyosyaTantoCD1 );
+		$GyosyaName = $GyosyaData['GyosyaName'];
+
+		$weekarray = array("(日)","(月)","(火)","(水)","(木)","(金)","(土)");
+		$ZentaiStartDate = date('Y年m月d日',strtotime( $myKoji->ZentaiStartDate ));
+		$ZentaiStartDate .= $weekarray[ date('w',strtotime( $myKoji->ZentaiStartDate ) ) ];
+		$ZentaiEndDate =  date('Y年m月d日',strtotime( $myKoji->ZentaiEndDate ));
+		$ZentaiEndDate .= $weekarray[ date('w',strtotime( $myKoji->ZentaiEndDate ) ) ];
+		$SenyuStartDate =  date('Y年m月d日',strtotime( $myKoji->SenyuStartDate ));
+		$SenyuStartDate .= $weekarray[ date('w',strtotime( $myKoji->SenyuStartDate ) ) ];
+		$SenyuEndDate =  date('Y年m月d日',strtotime( $myKoji->SenyuEndDate )); 
+		$SenyuEndDate .= $weekarray[ date('w',strtotime( $myKoji->SenyuEndDate ) ) ];
+		$KyoyoStartDate =  date('Y年m月d日',strtotime( $myKoji->KyoyoStartDate )); 
+		$KyoyoStartDate .= $weekarray[ date('w',strtotime( $myKoji->KyoyoStartDate ) ) ];
+		$KyoyoEndDate =  date('Y年m月d日',strtotime( $myKoji->KyoyoEndDate )); 
+		$KyoyoEndDate .= $weekarray[ date('w',strtotime( $myKoji->KyoyoEndDate ) ) ];
+		$YobiStartDate =  date('Y年m月d日',strtotime( $myKoji->YobiStartDate )); 
+		$YobiStartDate .= $weekarray[ date('w',strtotime( $myKoji->YobiStartDate ) ) ];
+		$YobiEndDate =  date('Y年m月d日',strtotime( $myKoji->YobiEndDate )); 
+		$YobiEndDate .= $weekarray[ date('w',strtotime( $myKoji->YobiEndDate ) ) ];
+
+
+		$WakuPattern = $myKoji->WakuPattern; 
+	}
+
+
+	#入力値をDB格納
+	$myKoji->ConstTime = $wConstTime;
+	$myKoji->Kirikaehoho = $wKirikaehoho;
+	$myKoji->Jikaho = $wJikaho;
+	$myKoji->KasaiHeya = $wKasaiHeya;
+	$myKoji->KansenKoji = $wKansenKoji;
+	$myKoji->GasKoji = $wGasKoji;
+	$myKoji->BohanKoji = $wBohanKoji;
+	$myKoji->RosuiKoji = $wRosuiKoji;
+	$myKoji->TagKoji = $wTagKoji;
+
+	if (!$myKoji->executeUpdate()){
+		$ErrorString = array();
+		$ErrorString[] = "依頼連携情報の更新に失敗しました。";
+		showAdminSorryPage($ErrorString);
+	}else{
+	#	$IfOK = TRUE;
+	}
+	unset($myKoji);
+
+	########################################################
+	# Excelファイル生成
+	########################################################
+	require 'vendor/autoload.php';
+
+	use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
+	use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
+	$reader = new XlsxReader();
+	$spreadsheet = $reader->load('./template/annai3.xlsx'); //template.xlsx 読込
+	#表紙
+	$sheet = $spreadsheet->getSheetByName('表紙'); //weatherシート取得
+		#$sheet->setCellValue('A1', '東京');
+		$sheet->setCellValue('AM1', date('Y年m月')."吉日");
+		$sheet->setCellValue('A2', $BukkenName.'にお住まいの皆様へ');
+		$sheet->setCellValue('AM3', $KanriGaisya);
+
+		$KojiDisp =  ($wJikaho == 1)?"インターホン・自火報設備更改工事":"インターホン設備更改工事";
+		$sheet->setCellValue('A8', "拝啓　時下ますますご清祥の段、お慶び申し上げます \n この度、".$KojiDisp."を、本紙内容にて実施させて頂く運びとなりました。\n工事の際はお立会いのお願いや音等でご不便・ご迷惑をおかけしますが、細心の注意を払い施工実施致します。 \n 皆様のご理解・ご協力を賜ります様、何卒宜しくお願い申し上げます。");
+
+		$sheet->setCellValue('D6', $KojiDisp."に関するご案内");
+		$sheet->setCellValue('A18', "1ページ：".$KojiDisp."に関するご案内（本ページ）");
+
+		if($IfOP){
+			$OP =  ($IfOP)?"・オプション":"";
+			$sheet->setCellValue('A26', "別紙②：オプション工事のご案内");
+			$OPDisp = "オプションあり";
+		}
+		$sheet->setCellValue('A23', "6ページ：専有部工事の日程変更".$OP."お申し込みの連絡先・期限");
+
+		if( $ShoboTokurei > 1) {#220号
+			$sheet->setCellValue('A24', "7ページ：工事期間中の「近隣火災」警報の鳴動について・試験の流れ");
+			$ShoboTokureiDisp = "220号";
+		}
+
+		#署名部分
+		$sheet->setCellValue('B33', "■アイホン株式会社　".$KojiShozokuName );
+		$sheet->setCellValue('B34', "（".$GyosyaName."　協力業者）" );
+		$sheet->setCellValue('B35', "担当：".$KojiTantoName );
+		$sheet->setCellValue('B36', "電話：".$TantoTEL."（9時～17時30分　土日祝休み）" );
+
+
+	#工事概要
+	$sheet = $spreadsheet->getSheetByName('工事概要'); //weatherシート取得
+		$sheet->setCellValue('B6', "●工事名称：".$KojiDisp );
+		$sheet->setCellValue('B7', "●全体工期：".$ZentaiStartDate."～".$ZentaiEndDate );
+		$sheet->setCellValue('B9', "①共用部工事：".$KyoyoStartDate."～".$KyoyoEndDate );
+		$sheet->setCellValue('B10', "②専有部工事：".$SenyuStartDate."～".$SenyuEndDate );
+		if( $YobiStartDate ){
+			if($YobiEndDate){
+				$YobiDate = $YobiStartDate."～".$YobiEndDate ;
+			}else{
+				$YobiDate = $YobiStartDate ;
+			}
+		}
+		$sheet->setCellValue('B11', "③予備日：".$YobiDate );
+		if( count( $WAKUPATTERN[$WakuPattern]['StartTime'] ) == 2 ){
+			$SagyoTime = $WAKUPATTERN[$WakuPattern]['StartTime'][0]."～".$WAKUPATTERN[$WakuPattern]['EndTime'][1];
+		}else{
+			$SagyoTime = $WAKUPATTERN[$WakuPattern]['StartTime'][0]."～".$WAKUPATTERN[$WakuPattern]['EndTime'][2];
+		}
+		$sheet->setCellValue('B12', "●作業時間帯：".$SagyoTime."（状況により前後する場合がございます）");
+		#自火報の文言を非表示に
+		if( $wJikaho == 0 ){
+			$sheet->getRowDimension('22')->setVisible(false);
+			$sheet->getRowDimension('23')->setVisible(false);
+			$sheet->getRowDimension('24')->setVisible(false);
+			$sheet->getRowDimension('30')->setVisible(false);
+			$sheet->getRowDimension('31')->setVisible(false);
+			$sheet->getRowDimension('32')->setVisible(false);
+		}
+		$sheet->setCellValue('A35', "※1部屋の作業時間は、約".$wConstTime."分です。（状況により前後する場合がございます）");
+
+	#工事概要２
+	$sheet = $spreadsheet->getSheetByName('工事概要2'); //weatherシート取得
+
+		#共用部工事場所
+		$sheet->setCellValue('I5', "●".$DispAutoLock."管理室・共用廊下");
+
+
+		#火災感知器の文言を非表示に　※火災感知器交換のためリビング・寝室などにも入室させて頂きます。
+		if( $wKasaiHeya == 0 ){
+			$sheet->getRowDimension('8')->setVisible(false);
+			$sheet->getRowDimension('12')->setVisible(false);
+			$sheet->getRowDimension('16')->setVisible(false);
+			$sheet->getRowDimension('17')->setVisible(false);
+			$sheet->getRowDimension('18')->setVisible(false);
+			$sheet->getRowDimension('19')->setVisible(false);
+		}elseif( $wKasaiHeya == 1 ){
+			$sheet->setCellValue('I14', "※火災感知器交換のためキッチンなどにも入室させて頂きます。");
+			#画像はる
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setPath("images/kasai.jpg");
+			$drawing->setCoordinates('G16');
+			$drawing->setWorksheet($sheet);
+		}else{
+			$sheet->setCellValue('I14', "※火災感知器交換のためリビング・寝室などにも入室させて頂きます。");
+		}
+		#ガス漏れの文言を非表示に
+		if( $wGasKoji == 0 ){
+			$sheet->getRowDimension('13')->setVisible(false);
+			$sheet->getRowDimension('21')->setVisible(false);
+			$sheet->getRowDimension('22')->setVisible(false);
+			$sheet->getRowDimension('23')->setVisible(false);
+		}else{
+			#画像はる
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setPath("images/gas.jpg");
+			$drawing->setCoordinates('G21');
+			$drawing->setWorksheet($sheet);
+		}
+		#防犯センサーの文言を非表示に
+		if( $wBohanKoji == 0 ){
+			$sheet->getRowDimension('14')->setVisible(false);
+			$sheet->getRowDimension('25')->setVisible(false);
+			$sheet->getRowDimension('26')->setVisible(false);
+			$sheet->getRowDimension('27')->setVisible(false);
+		}else{
+			if( $wBohanKoji == 1 ){
+				$sheet->setCellValue('I14', "●防犯センサーの設置場所：動作試験（1ヶ所）※1F住戸のみ");
+			}else{
+				$sheet->setCellValue('I14', "●防犯センサーの設置場所：動作試験（1ヶ所）");
+			}
+			#画像はる
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setPath("images/bohan.jpg");
+			$drawing->setCoordinates('G25');
+			$drawing->setWorksheet($sheet);
+		}
+		#漏水センサーの文言を非表示に
+		if( $wRosuiKoji == 0 ){
+			$sheet->getRowDimension('29')->setVisible(false);
+			$sheet->getRowDimension('30')->setVisible(false);
+		}else{
+			#画像はる
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setPath("images/rosui.jpg");
+			$drawing->setCoordinates('G29');
+			$drawing->setWorksheet($sheet);
+			#画像はる
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setPath("images/rosui2.jpg");
+			$drawing->setCoordinates('M31');
+			$drawing->setWorksheet($sheet);
+		}
+
+
+
+	#工事の際のご注意
+	$sheet = $spreadsheet->getSheetByName('工事の際のご注意'); //weatherシート取得
+		$sheet->setCellValue('B4',"共用部工事開始（".$KyoyoStartDate."）");
+		$sheet->setCellValue('C6',"①".$DispAutoLock."管理室からお部屋への呼出し・通話機能");
+		$sheet->setCellValue('C7',"②お部屋からの".$DispAutoLock2."管理室への呼出機能");
+		$sheet->setCellValue('A12',"※居住者様の入館につきましては、従来通り鍵での".$DispAutoLock3."入館が可能です。");
+		$sheet->setCellValue('B16',$DispAutoLock3."管理室（緊急センター）への警報通報機能などがご使用頂けます。");
+
+
+
+		#近隣鳴動を非表示に
+		if( $ShoboTokurei < 2 ){#220号でない
+			$sheet->getRowDimension('20')->setVisible(false);
+			$sheet->getRowDimension('21')->setVisible(false);
+		}
+
+		#並行稼働の文言調整★★
+
+
+
+
+	#工事後のお願い
+	$sheet = $spreadsheet->getSheetByName('工事後のお願い'); //weatherシート取得
+	$sheet->setCellValue('A1', '　');
+
+	#連絡先
+	$sheet = $spreadsheet->getSheetByName('連絡先'); //weatherシート取得
+	$sheet->setCellValue('A1', '東京');
+
+		#近隣鳴動を非表示に
+		if( !$IfOP ){#220号
+			$sheet->getRowDimension('22')->setVisible(false);
+			$sheet->getRowDimension('23')->setVisible(false);
+			$sheet->getRowDimension('24')->setVisible(false);
+			$sheet->getRowDimension('29')->setVisible(false);
+			$sheet->getRowDimension('31')->setVisible(false);
+			$sheet->getRowDimension('32')->setVisible(false);
+			$sheet->getRowDimension('33')->setVisible(false);
+		}
+
+	#火災警報 近接鳴動
+	$sheet = $spreadsheet->getSheetByName('火災警報'); //weatherシート取得
+	$sheet->setCellValue('A1', '　');
+
+#$sheet->removeSheetByIndex($sheet);
+
+
+
+#	$sheet = $spreadsheet->getActiveSheet();
+#	$sheet->setCellValue('A1', '東京');
+#	$sheet->setCellValue('D1', '晴れ');
+
+/*
+$sheet->setCellValue('AM1', date('Y年m月').'吉日');
+$sheet->setCellValue('A2', $BukkenName.' 　にお住まいの皆様へ');
+$sheet->setCellValue('D6', $KojiName.' に関するご案内');
+
+if( $IfOP ){#オプションあり
+
+	$sheet->setCellValue('B21', "●"."オプション工事をご希望される"."オーナー様へ" );
+	$sheet->getStyle('B2')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+
+	$sheet->setCellValue('B22', " ・『オプション工事のご案内（別紙②）』をご確認下さい。" );
+
+	$sheet->setCellValue('B23', " ・オプション販売は、".$SekoCompany."（アイホン㈱代理店）にて行わせて頂きます。");
+	$sheet->setCellValue('B24', " ・オプション工事の代金は、".$SekoCompany."よりご請求書を発行させて頂きます。");
+
+	$sheet->setCellValue('B25', " お手数ですが、ご請求書記載の口座まで、お振込みをお願い申し上げます。" );
+	$sheet->setCellValue('B26', " ※お申込みの際、ご請求書送付先をお伝え下さい。");
+	$sheet->setCellValue('B27', " ※オプション代金・振込み手数料は、希望される区分所有者様の個人負担となります。");
+	$sheet->setCellValue('B28', " （専有部工事にお立会い頂ける場合は、工事当日に現金でのお支払いも可能です）");
+
+
+}else{#オプションなし
+
+}
+	$sheet->setCellValue('B33', "■アイホン株式会社　".$KojiShozokuName );
+	$sheet->setCellValue('B34', "（".$KanriGaisya."　協力業者）" );
+
+
+
+
+
+	$sheet->setCellValue('B35', "担当：".$KojiTantoName."　電話：".$TantoTEL."（9時～17時30分　土日祝休み）" );
+
+*/
+
+
+
+
+	//ダウンロード用
+	//MIMEタイプ：https://technet.microsoft.com/ja-jp/ee309278.aspx
+	header("Content-Description: File Transfer");
+	$wFileName = "工事案内".date('Ymd').".xlsx" ;
+	header("Content-Disposition: attachment; filename=".$wFileName );
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	header('Content-Transfer-Encoding: binary');
+	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+	header('Expires: 0');
+	ob_end_clean(); //バッファ消去
+	   
+	$writer = new XlsxWriter($spreadsheet);
+	$writer->save('php://output');
+
+
+
+
+
+
+
+?>

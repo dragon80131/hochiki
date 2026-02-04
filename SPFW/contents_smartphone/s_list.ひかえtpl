@@ -1,0 +1,102 @@
+<html>
+<head>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="./css/a5.css">
+<script type="text/javascript" src="tools.js"></script>
+</head>
+<title>営業活動支援システム</title>
+<body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
+__SHeader__
+<hr size="__HRSize__" color="__HRColor__">
+<center>《物件一覧》</center>
+<hr size="__HRSize__" color="__HRColor__">
+<br>
+__IfKanri__
+
+<form action="s_form.php" method="POST">
+<input type=hidden name="rKey" value="__rKey__" >
+
+<!--
+<a href="#" onclick="javascript:move('s_plan.php')">＞＞＞　作業工程表</a> <br>
+<a href="#" onclick="javascript:move('s_list_comp.php')">＞＞＞　完了物件</a> <br>
+<br>
+-->
+
+<a href="#" onclick="javascript:move('s_form.php?rKey=__rKey__')">＞＞＞　新規物件登録</a> <br>
+<a href="#" onclick="javascript:move('s_tanto_list.php')">＞＞＞　営業担当登録管理</a> 
+</form>
+
+
+<form action="s_list.php" method=POST name=mainform >
+ 
+<input type="hidden" name="rKey" value="__rKey__">
+物件名検索（部分一致）<input type="text" name="wKensaku" value="__wKensaku__" >
+<input type="submit" value=" 検 索 " >
+
+
+
+
+
+
+
+
+</form>
+
+
+
+
+<table border=1><tr style="color:#ffffff" bgcolor="#4169E1">
+
+<td>物件CD</td>
+<td>詳細</td>
+<td>物件名</td>
+<td>営業担当</td>
+<!--td>手書き入力</td-->
+<td>物件写真等</td>
+<td>削除</td>
+
+</tr>
+
+<form action="s_form.php" name="mainform" method="POST" >
+<input type="hidden" name="editBukkenCD" value="">
+<input type="hidden" name="work" value="">
+<input type="hidden" name="rKey" value="__rKey__">
+
+__BukkenLoop__
+<tr>
+<td>__BukkenCD__</td>
+<td><input type="button" value="詳細" class="button" onclick="javascript:moveWithKey('s_form.php', __BukkenCD__ )"</td-->
+<td>__BukkenName__</td>
+<td>__TantoName__</td>
+
+<!--td><input type="button" value="入力" onClick="location.href='s_canvas.html?bukkenCD=__BukkenCD__'"></td-->
+<td></td>
+<td><!--input type="button" value="削除" class="button" onclick="javascript:moveWithKeyAndWork( 's_finish.php', __BukkenCD__ , 2 ,__BukkenCD__ )"--></td>
+</tr>
+__BukkenLoop__
+
+</tr></table>
+
+</form>
+__IfKanri__
+
+
+<!--
+<form action="./upfile/s_pic_file_OK.php" method="post">
+<input type=hidden name=editPictureCD value=__editPictureCD__>
+__HiddenValues__
+<input type=submit value="全写真ダウンロード">
+</form>
+-->
+
+
+<hr size="__HRSize__" color="__HRColor__">
+<a href="top.php__QUERY__">トップ</a><br>
+<br>
+<a href="s_app_install.php__QUERY__">写真アプリ</a><br>
+__SFooter__
+<hr size="__HRSize__" color="__HRColor__">
+__SCopyright__
+<br>
+</body>
+</html>

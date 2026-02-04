@@ -1,0 +1,26 @@
+.sampleTable {
+    border-collapse: collapse;
+}
+.sampleTable th,
+.sampleTable td {
+    border: 1px solid #CCCCCC;
+    padding: 2px 5px;
+    table-layout: fixed;
+    line-height: 1.5em;
+}
+.sampleTable th {
+    border: 1px solid #0000CD;
+}
+
+
+
+.pagebreak{
+    page-break-before: always;
+}
+
+@media print{
+.sampleTxt02 {
+    display: none;
+    font-size: 18pt;
+}
+}

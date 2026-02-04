@@ -1,0 +1,33 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body{
+
+}
+
+td {
+ font-size:9pt
+}
+.sampleTxt01 {
+        top:0 !IMPORTANT;
+        left:0 !IMPORTANT;
+        width:251mm !IMPORTANT;
+        height:172mm !IMPORTANT;
+
+
+ font-size:9pt
+
+
+}
+
+.sampleTxt02 {
+	display: none;
+ font-size:18pt
+}
+
+
+.pagebreak{page-break-before:always;}
+
+

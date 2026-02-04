@@ -1,0 +1,1039 @@
+﻿/*
+2017.03.31
+ポータルサイト改修
+*/
+
+/*
+お客様ページstyle***************
+*/
+
+/* top.tpl */
+form{
+    margin: 0;
+}
+p.kiki {
+    font-size: 1em;
+    margin: 20px 0px 0px 0px;
+    padding: 0px 20px;
+    clear:both;
+}
+
+p.menu {
+    margin-top: 3px;
+    margin-bottom: 15px;
+    padding: 0px 20px;
+    font-size: 1.2em;
+}
+@media screen and (max-width:480px) {
+p.menu {
+    margin-bottom: 10px;
+    padding: 0px 10px;;
+    font-size: 1.1em;
+    }
+}
+.menu-saigo {
+    margin-bottom: 80px;
+    padding: 0px 20px;
+    font-size: 0.9em;
+}
+
+.menu-btn {
+    width: 580px;
+    margin: 0px auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+@media screen and (max-width:480px) {
+.menu-btn {
+    width: 100%;
+    height: auto;
+    margin-bottom: 2px;
+    text-align:center;
+    }
+}
+
+.menu-btn-noop {
+    width: 580px;
+    margin: 0px auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+@media screen and (max-width:480px) {
+.menu-btn-noop {
+    width: 96.5%;
+    height: auto;
+    margin-left:0;
+    margin-bottom: 20px;
+}
+.menu-btn-noop img{
+    width: 100%;
+    height: auto;}
+}
+
+.nittei-btn{
+    width: 270px;
+    height: 140px;
+    padding-right: 5px;
+    padding-left: 10px;
+}
+
+@media screen and (max-width:480px) {
+.nittei-btn{
+    width: 47%;
+    height: auto;
+    padding-right: 0px;
+    padding-left: 0px;
+    }
+}
+
+.nittei-btn-dai{
+    width: 554px;
+    height: 140px;
+    padding-right: 5px;
+    padding-left: 10px;
+}
+@media screen and (max-width:480px) {
+.nittei-btn-dai{
+    padding-left: 6px;}
+}
+
+.op-btn{
+    width: 270px;
+    height: 140px;
+    padding-left: 5px;
+}
+@media screen and (max-width:480px) {
+.op-btn{
+    width: 47%;
+    height: auto;
+    }
+}
+
+#sonotamenu-btn,.sonotamenu-btn {
+    width: 580px;
+    margin: 0px auto;
+    margin-bottom: 30px;
+}
+
+.sonotamenu-btn2{
+    margin-left : 60px;
+    margin-bottom : 10px;
+}
+
+@media screen and (max-width:480px) {
+    #sonotamenu-btn,.sonotamenu-btn {
+        width: 100%;
+        text-align:center;
+        margin-bottom: 30px;
+    }
+
+    #sonotamenu-btn img,.sonotamenu-btn img{
+        width: 30.5%;
+	}
+
+    .sonotamenu-btn2 {
+        margin:7px;
+    }
+}
+
+.siryou-btn{
+    padding-left: 10px;
+}
+@media screen and (max-width:480px) {
+.siryou-btn{
+     padding-left: 0px;
+    }
+}
+
+.kiki-btn , .faq-btn{
+    padding-left: 4px;
+}
+
+.kanryou {/* 完了確認書 */
+    margin: 20px 20px 80px 20px;
+}
+
+#kaigyo {
+    display: inline-block;
+    _display: inline;
+    margin: 10px;
+}
+
+#past {
+    display: none;
+}
+
+.filemei {
+    text-align: center;
+    margin: 10px;
+}
+
+div.mae_waku,
+div.naka_waku,
+div.ato_waku
+{/* 施工写真 */
+	display:inline-block;
+	float:left;
+}
+
+div.sekowaku {/* 施工写真 */
+	width: 640px;
+	margin: auto;
+	margin-bottom: 30px;
+	border-collapse: collapse;
+	text-align: left;
+	line-height: 1.5;
+}
+
+@media screen and (max-width:480px) {
+div.sekowaku{
+    width:100%;
+    }
+}
+div.mae_midasi,
+div.naka_midasi,
+div.ato_midasi {
+    width:191px;
+	padding: 5px 10px;
+	font-weight: bold;
+	vertical-align: top;
+	border: 1px solid #b1b1b1;
+	border-bottom: none;
+	background-color: #EFF7FF;
+}
+
+div.mae_midasi,
+div.naka_midasi{
+	border-right: none;
+}
+
+div.mae1,
+div.mae2,
+div.naka1,
+div.naka2,
+div.ato1,
+div.ato2 {
+    width:85px;
+    height:80px;
+    padding: 10px 10px;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+    float:left;
+}
+
+div.mae1,
+div.mae2,
+div.naka1,
+div.naka2,
+div.ato1{
+	border-right: none;
+}
+
+div.mae1 img,
+div.mae2 img,
+div.naka1 img,
+div.naka2 img,
+div.ato1 img,
+div.ato2 img{
+    width:90%;
+    heighe: auto;}
+
+@media screen and (max-width:480px) {
+div.mae1 img,
+div.mae2 img,
+div.naka1 img,
+div.naka2 img,
+div.ato1 img,
+div.ato2 img{
+    width:60%;
+    heighe: auto;}
+}
+
+
+.kaizyo{
+    clear:both;
+}
+
+@media screen and (max-width:480px) {
+div.mae_waku,
+div.naka_waku,
+div.ato_waku{
+	width:100%;
+	float:left;
+	margin-bottom:20px;
+}
+
+div.mae_midasi,
+div.naka_midasi,
+div.ato_midasi {
+	width:100%;
+	box-sizing: border-box;
+	padding-left: 10px;
+	font-weight: bold;
+	vertical-align: top;
+	border: 1px solid #b1b1b1;
+	border-bottom: none;
+	background-color: #EFF7FF;
+}
+
+div.mae1,
+div.mae2,
+div.naka1,
+div.naka2,
+div.ato1,
+div.ato2 {
+    width:50%;
+    box-sizing: border-box;
+    margin:0 auto;
+    padding: 10px 10px;
+    height:100px;
+    padding: 10px auto;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+    float:left;
+
+}
+p.kiki {
+    padding-left: 10px;
+    clear:both;
+}
+}
+
+
+
+/* form.tpl confirm.tpl finish.tpl */
+
+p.hissu {
+    margin: 0px;
+    padding: 0px 20px;
+    font-size: 0.9em;
+}
+
+.op-moushikomi { /* 次へ枠、他反映あり */
+    margin: 30px 0px 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.finish-btn { /* 次へ装飾、他反映あり */
+    font-size: 1em;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #78afff;
+    padding: 12px 30px;
+    min-width: 100px;
+    border-radius: 3px;
+    border: none;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: fit-content;
+    margin: 10px;
+}
+@media screen and (max-width:480px) {
+.op-moushikomi{
+    flex-direction: column;
+}
+.finish-btn{
+    min-width: 150px;
+    background-color: #19497F;
+}
+}
+
+.tophe { /* 戻る枠、他反映あり */
+    margin: 60px 0px 80px 20px;
+}
+
+.tophe-btn { /* 戻る装飾、他反映あり */
+    font-size: 1em;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #2f75b5;
+    padding: 12px 30px;
+    border-radius: 3px;
+    border: none;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: fit-content;
+    margin: 10px;
+}
+@media screen and (max-width:480px) {
+.tophe-btn
+{
+    min-width: 150px;
+    background-color: #2f75b5;
+}
+}
+
+#step {
+    width: 362px;
+    margin: 30px auto;
+}
+@media screen and (max-width:480px) {
+#step {
+    width: 80%;}
+}
+
+#step4 {
+    padding: 0 10px;
+    /* width: 362px; */
+}
+table.formwaku {
+	width: 640px;
+	margin: auto;
+	margin-bottom: 40px;
+	border-collapse: collapse;
+	text-align: left;
+	line-height: 1.5;
+        border: 1px solid #b1b1b1;
+}
+
+table.formwaku th {
+	width: 170px;
+	padding: 15px 10px;
+	font-weight: bold;
+	vertical-align: top;
+	border: 1px solid #b1b1b1;
+	background-color: #EFF7FF;
+}
+
+table.formwaku td {
+	width: 470px;
+	padding: 15px 10px;
+	vertical-align: top;
+	border: 1px solid #b1b1b1;
+}
+@media screen and (max-width:480px) {
+table.formwaku {
+	width: 95%;
+	margin: auto;
+	border-collapse: collapse;
+}
+
+table.formwaku th {
+	width: 30%;
+}
+
+table.formwaku td {
+	width: 70%;}
+}
+
+.form {
+    width: 180px;
+    height: 30px;
+    font-size: 1.2em;
+    border-radius: 2px;
+    border:1px solid #a0a0a0;
+    background-color: #fff;
+}
+@media screen and (max-width:480px) {
+.form {
+    width: 60%;}
+}
+
+.form2 {
+    width: 300px;
+    height: 30px;
+    font-size: 1.2em;
+    border-radius: 2px;
+    border:1px solid #a0a0a0;
+    background-color: #fff;
+}
+@media screen and (max-width:480px) {
+.form2 {
+    width: 80%;}
+}
+
+/* reserve_form */
+.block-form {
+    padding: 30px 30px 20px 30px;
+    margin: 0px 20px 0px 20px;
+    background: #EFF7FF;
+    border: 1px #b1b1b1 solid;
+    box-shadow: 0 2px 3px 0 #ddd;
+    -moz-box-shadow: 0 2px 3px 0 #ddd; /* Firefox?p */
+    -webkit-box-shadow: 0 2px 3px 0 #ddd;/* Safari,Google Chrome?p */
+    margin-bottom: 50px;
+}
+@media screen and (max-width:480px) {
+.block-form {
+    padding: 20px 20px 10px 20px;
+    margin: 0px 10px 35px 10px;}
+}
+
+.block-formsaigo {
+    padding: 30px 30px 30px 30px;
+    margin: 0px 20px 0px 20px;
+    background: #EFF7FF;
+    border: 1px #b1b1b1 solid;
+    box-shadow: 0 2px 3px 0 #ddd;
+    -moz-box-shadow: 0 2px 3px 0 #ddd; /* Firefox?p */
+    -webkit-box-shadow: 0 2px 3px 0 #ddd;/* Safari,Google Chrome?p */
+    margin-bottom: 80px;
+}
+@media screen and (max-width:480px) {
+.block-formsaigo {
+    padding: 20px 20px 30px 20px;
+    margin: 0px 10px 60px 10px;}
+}
+
+.block-formsaigo textarea {
+    width: 100%;
+    height: 80px;
+}
+
+.jikan {
+    margin-top: 10px;
+    padding: 0px;
+    font-size: 1.2emx;
+}
+@media screen and (max-width:480px) {
+.jikan {
+    font-size: 1em;}
+}
+
+.jikan2 {
+    margin-top: 15px;
+    margin-bottom: 0px;
+    padding: 0px;
+    font-size: 1.2em;
+}
+@media screen and (max-width:480px) {
+.jikan2 {
+    font-size: 1em;}
+}
+
+.jikan3 {
+    margin-top: 0px;
+    margin-bottom: 15px;
+    padding: 0px;
+    font-size: 1.2em;
+}
+@media screen and (max-width:480px) {
+.jikan3 {
+    font-size: 1em;}
+}
+
+table.calendar {/* カレンダーtable */
+    width: 560px;
+    margin: auto;
+    margin-bottom: 3px;
+    border-collapse: collapse;
+    text-align: left;
+    line-height: 1.5;
+}
+
+table.calendar tr {
+    vertical-align: top;
+    text-align: center;
+    background-color: #EEE8EE;
+}
+
+table.calendar th {
+    width: 80px;
+    padding: 5px 5px;
+    vertical-align: top;
+    text-align: center;
+    border: 1px solid #a7a7a7;
+}
+
+table.calendar td {
+    width: 80px;
+    padding: 5px 5px;
+    vertical-align: top;
+    text-align: center;
+    border: 1px solid #a7a7a7;
+}
+@media screen and (max-width:480px) {
+table.calendar {
+    width: 100%;
+}
+
+table.calendar tr {
+    vertical-align: top;
+    text-align: center;
+    background-color: #EEE8EE;
+}
+
+table.calendar th {
+    width: 10%;
+    padding: 3px 5px;
+}
+
+table.calendar td {
+    width: 10%;
+    padding: 5px 5px;}
+}
+
+p.hissu2 {
+    text-align: right;
+    margin: 0px;
+    padding: 0px 20px;
+    font-size: 0.9em;
+}
+
+.mikata {
+    width: 560;
+    margin-bottom: 0px;
+}
+
+@media screen and (max-width:480px) {
+.mikata {
+    width: 100%;
+    margin-bottom: 0px;
+}
+}
+
+
+textarea {
+    font-size: 1.3em;
+    margin-top: 15px;
+}
+
+.box {
+    margin-top: 10px;
+}
+
+select {
+    font-size: 1.2em;
+}
+
+.daini {
+    margin-top: 12px;
+    padding: 0px;
+    font-size: 1.2em;
+    float: left;
+}
+
+p.naka3 {
+    margin-top: 15px;
+    margin-bottom: 0px;
+    padding: 0px;
+}
+
+/* reserve_confirm.tpl */
+
+table.n-kakunin {
+    width: 540px;
+    margin: auto;
+    margin-bottom: 3px;
+    border-collapse: collapse;
+    text-align: left;
+    line-height: 1.5;
+}
+@media screen and (max-width:480px) {
+table.n-kakunin {
+	width: 95%;
+	background-color:#EFF7FF;
+}
+}
+
+table.n-kakunin th {
+    padding: 10px 10px;
+    font-weight: bold;
+    vertical-align: middle;
+    background-color: #EFF7FF;
+    vertical-align: top;
+}
+
+table.n-kakunin td {
+    padding: 10px 10px;
+    font-size: 1.2em;
+    vertical-align: middle;
+    background-color: #EFF7FF;
+}
+
+@media screen and (max-width:480px) {
+table.n-kakunin tr,
+table.n-kakunin th,
+table.n-kakunin td{
+	display: block;}
+}
+
+/* reserve_finish.tpl */
+
+.yoyakutop {
+    margin: 60px 0px 50px 20px;
+}
+
+.out {
+    margin: 0px 0px 80px 20px;
+    clear:both;
+}
+
+/* reserve_list.tpl */
+
+p.menu2 {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding: 0px 20px;
+    font-size: 1.2em;
+}
+
+/* reserve_formOP.tpl */
+
+table.devicewaku2 {/* OP申込みtable */
+    width: 640px;
+    margin: auto;
+    border-collapse: collapse;
+    text-align: left;
+    line-height: 1.5;
+}
+@media screen and (max-width:480px) {
+table.devicewaku2 {
+	width: 95%;}
+}
+
+table.devicewaku2 th {
+    padding: 5px 10px;
+    font-weight: bold;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+    background-color: #EFF7FF;
+}
+
+table.devicewaku2 td {
+    padding: 15px 10px;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+}
+
+table.devicewaku2 td input[type=checkbox] {
+    transform: scale(1.5);
+}
+
+table.shiharai {/* 支払方法table */
+    width: 640px;
+    margin: 0px 20px 80px 20px;
+    border-collapse: collapse;
+    text-align: left;
+    line-height: 1.5;
+}
+@media screen and (max-width:480px) {
+table.shiharai{
+	width: 95%;
+	margin-left: 10px;}
+}
+
+table.shiharai th {
+    padding: 5px 10px;
+    font-weight: bold;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+    background-color: #EFF7FF;
+}
+
+table.shiharai td {
+    padding: 15px 10px;
+    vertical-align: top;
+    border: 1px solid #b1b1b1;
+}
+
+table.shiharai td input[type=radio] {
+    transform: scale(1.5);
+}
+
+table.shiharai td textarea {
+	width: 350px;
+    margin-top: 5px;
+}
+@media screen and (max-width:480px) {
+table.shiharai td textarea{
+	width: 95%;}
+}
+
+
+p.opcancel {
+    font-size: 0.8em;
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+p.opcancel2 {
+    font-size: 0.8em;
+    margin-top: 0px;
+    margin-bottom: 30px;
+}
+
+/* ↓　English ******************************************/
+
+/* top_eng.tpl */
+p.peng {
+   font-size: 1.2em;
+   margin: 20px 10px;
+}
+
+.out_eng {
+    margin: 80px 0px 80px 20px;
+    clear:both;
+}
+
+/* ↑　English ******************************************/
+
+/* device.tpl */
+
+table.devicewaku {/* 取付機器table */
+	width: 640px;
+	margin: auto;
+	margin-bottom: 30px;
+	border-collapse: collapse;
+	text-align: left;
+	line-height: 1.5;
+}
+@media screen and (max-width:480px) {
+table.devicewaku {
+	width: 95%;}
+}
+
+table.devicewaku th {
+	padding: 5px 10px;
+	font-weight: bold;
+	vertical-align: middle;
+	border: 1px solid #b1b1b1;
+	background-color: #EFF7FF;
+}
+
+table.devicewaku td {
+	padding: 10px 10px;
+	vertical-align: middle;
+	border: 1px solid #b1b1b1;
+}
+
+.haba50{
+        width: 50px;
+}
+
+.haba80{
+        width: 80px;
+}
+@media screen and (max-width:480px) {
+.haba50{
+        width: auto;
+}
+
+.haba80{
+        width: auto;}
+}
+
+
+table.devicewaku td input[type=checkbox] {
+  transform: scale(1.5);
+}
+
+td.tyuusin {
+    text-align: center;
+}
+
+
+/* faq.tpl */
+
+ol.qa {/* リストエリアの幅 */
+    width: 640px;
+    margin: 0px auto;
+    padding: 0;
+    list-style-type: none;
+}
+@media screen and (max-width:480px) {
+ol.qa {
+    width: auto;}
+}
+
+ol.qa dl {/* リスト項目の内容 */
+    margin: 0px auto;
+    background-color: #EFF7FF;
+}
+
+ol.qa dt {/* Questionエリア */
+    margin: 0px auto;
+    padding: 7px 6px 6px 35px;
+    background: url("../images/q7g.gif") no-repeat 4px 5px;
+    font-weight: bold;
+    line-height: 120%;
+}
+
+ol.qa dd {/* Answerエリア */
+    margin: 0px auto;
+    padding: 8px 6px 25px 35px;
+    background: #ffffff url("../images/a2.gif") no-repeat 4px 8px;
+    line-height: 150%;
+    font-size: 1em;
+}
+
+ol.faqol{
+    margin: 10px 0px 100px 0px;
+    padding-left: 60px;
+    font-size: 1.1em;
+    list-style-type: none;
+}
+@media screen and (max-width:480px) {
+ol.faqol{
+    margin: 10px 10px 100px 0px;
+    padding-left: 40px;
+    font-size: 1em;}
+}
+
+ol.faqol li{
+    padding-bottom: 5px;
+}
+
+
+ol.faqol a {
+    font-size: 1em;
+}
+
+
+
+/* 使ってないかも */
+.tugihe {
+    margin: 60px 0px 50px 30px;
+}
+
+.modoru {
+    margin: 50px 0px 80px 30px;
+}
+
+p.naka2 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+p.komoji {
+    margin: 0px;
+    padding: 0px;
+    font-size: 0.9em;
+}
+
+#calendar{
+   width: 500px;
+}
+
+/* English ******************************************/
+
+/* top_eng.tpl */
+p.peng {
+   font-size: 1.1em;
+}
+
+
+
+/* Reserver form 0501追加*/
+td.td-disabled:after {
+    content: "";
+    position: absolute;
+    background-color: #ddd;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    cursor: no-drop;
+    z-index: 1;
+}
+
+td.td-disabled {
+    position: relative;
+}
+
+td.td-disabled a {
+    position: relative;
+    z-index: 2;
+    text-decoration: none;
+}
+
+.block-form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.block-form-inline .block-form-item {
+    /* width: calc(50% - 20px); */
+    /* display: flex; */
+    align-items: center;
+    margin-bottom: 15px;
+    margin-right: 20px;
+}
+
+.block-form-inline .block-form-item:nth-child(2n) {
+    margin-right: 0;
+    /* margin-left: 20px; */
+}
+
+.block-form-inline .block-form-item label {
+    width: 150px;
+    display: block;
+}
+
+.block-form-inline .block-form-item select,
+.block-form-inline .block-form-item input {
+    width: calc(100%);
+    padding: 5px 8px;
+    border-radius: 2px;
+    box-shadow: none;
+    border: 1px solid #a9a9a9;
+    min-height: 35px;
+    font-size: 1.3em;
+}
+@media screen and (max-width:480px) {
+.block-form-inline .block-form-item select,
+.block-form-inline .block-form-item input {
+    width: 100%;
+    }
+}
+
+.form-control {
+    padding: 5px 8px;
+    border-radius: 2px;
+    box-shadow: none;
+    border: 1px solid #a9a9a9;
+    min-height: 35px;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+}
+
+.n-kakunin th[scope="row"] {
+    width: 100px;
+}
+
+
+
+.block-form-inline .block-form-item2 {
+    width: calc(90% - 20px);
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-right: 20px;
+}
+
+.block-form-inline .block-form-item2:nth-child(2n) {
+    margin-right: 0;
+    margin-left: 20px;
+}
+
+.block-form-inline .block-form-item2 label {
+    width: 100px;
+    display: block;
+}
+
+.block-form-inline .block-form-item2 select,
+.block-form-inline .block-form-item2 input {
+    width: calc(100% - 100px);
+    padding: 5px 8px;
+    border-radius: 2px;
+    box-shadow: none;
+    border: 1px solid #a9a9a9;
+    min-height: 35px;
+    font-size: 1.3em;
+}
+/* /Reserver form */
+.black-btn{
+    background-color: #222222;
+}

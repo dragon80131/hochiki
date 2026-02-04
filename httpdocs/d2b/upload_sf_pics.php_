@@ -1,0 +1,50 @@
+<?php
+
+$ds = DIRECTORY_SEPARATOR; //1
+
+#$storeFolder = 'sf_pics'; //2
+
+$editBukkenCD = $_GET['BukkenCD'];
+// �t�@�C���ۑ��ꏊ
+$dir = "./sf_pics/".$editBukkenCD."/";
+if (file_exists($dir)) {
+	#�t�H���_�����݂���ꍇ�͒��g���������񂯂��B
+	$Command = "rm -f " . $dir."/*";
+	shell_exec($Command);
+} else {
+	// iraifile_tmp/�t�H���_�ɕ����ԍ��̃t�H���_���쐬����
+	mkdir("./sf_pics/".$editBukkenCD, 0777);
+	chmod("./sf_pics/".$editBukkenCD, 0777); // chmod�Ŗ����I�ɕύX
+}
+$storeFolder = 'sf_pics'."/".$editBukkenCD; //2
+
+
+
+if (!empty($_FILES)) {
+
+    $tempFile = $_FILES['file']['tmp_name']; //3
+
+    $targetPath = dirname( __FILE__ ) . $ds. $storeFolder . $ds; //4
+
+    $targetFile = $targetPath. $_FILES['file']['name']; //5
+
+    move_uploaded_file($tempFile,$targetFile); //6
+
+
+
+$fp = fopen("E:/xampp8.2.4/kotei/httpdocs/d2b/aaa.txt", "a");
+fwrite($fp, "\ntempFile:".$tempFile);
+fwrite($fp, "\ntargetFile:".$targetFile);
+fclose($fp);
+
+
+}
+
+/*
+	$PicLoop = count($_FILES['file']['tmp_name']);
+	for ($i=0; $i<$PicLoop; $i++) {#�t�@�C�������J��Ԃ�
+
+	}
+*/
+
+?> 

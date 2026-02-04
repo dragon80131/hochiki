@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リニューアル支援</title>
+
+<!-- BootstrapのCSS読み込み -->
+<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/kotei/css/kotei.css" rel="stylesheet">
+<link href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" rel="stylesheet" >
+
+<!-- jQuery読み込み -->
+<script src="./include/js/jquery-3.2.1.min.js"></script>
+<!-- BootstrapのJS読み込み -->
+<script src="./include/bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./css/rnsien.css">
+<script type="text/javascript" src="tools.js"></script>
+
+</head>
+
+<body>
+__SHeader__
+<br>
+<div class="left-yose" style="padding-left:40px">
+	<a href="s_search.php__QUERY__" class="btn btn-info">トップへ</a>　物件CD：__editBukkenCD__　　<br><br>
+</div>
+<div class="container">
+	<div class="left-yose" style="padding-left:20px">
+		<table class="table-condensed" style="width:500px" border=1>
+			<tr><th bgcolor="#CCFFFF" style="width:100px">件名No</th><td style="width:300px">__KenmeiNo__</td></tr>
+			<tr><th bgcolor="#CCFFFF" style="width:100px">物件名称</th><td style="width:300px">__BukkenName__</td></tr>
+			<tr><th bgcolor="#CCFFFF">住所</th><td>__Address__</td></tr>
+			<tr><th bgcolor="#CCFFFF">住戸数</th><td>__Kosu__</td></tr>
+			<tr><th bgcolor="#CCFFFF">管理会社</th><td>__KanriGaisya__</td></tr>
+			<tr><th bgcolor="#CCFFFF">工事開始日</th><td>__ZentaiStartDate__
+		</table>
+	</div>
+	<div>
+		<table style="width:500px;text-align:left" border=1>
+			<tr><th style="background-color:#CCFFFF">稟議名称</th><th style="background-color:#CCFFFF">状態</th>
+				<th style="background-color:#CCFFFF">期限</th></tr>
+			<tr><th>041.その他口座販売に関する稟議書</th><td __SonotaAlert__ ><font color="__SonotaColor__"><b>__SonotaRingi__</b></font></td><td>__AlertDay1__</td></tr>
+			<tr><th>物件値引稟議申請</th><td __NebikiAlert__><font color="__NebikiColor__"><b>__NebikiRingi__</b></font></td><td>__AlertDay1__</td></tr>
+			<tr><th>07.営業協力費・口銭</th><td __EigyoAlert__><font color="__EigyoColor__"><b>__EigyoKyouryoku__</b></font></td><td>__AlertDay2__</td></tr>
+			<tr><th>21.営業での他社製品仕入請書</th><td __TashaAlert__><font color="__TashaColor__"><b>__TashaRingi__</b></font></td><td>__AlertDay2__</td></tr>
+			<tr><th>22.営業での外注工事請負</th><td __KoujiAlert__><font color="__KoujiColor__"><b>__KoujiRingi__</b></font></td><td>__AlertDay2__</td></tr>
+			<tr><td colspan="3" align="center"><a href="s_ringihenshu.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__" class="btn btn-primary">稟議申請編集</a></td></tr>
+		</table>
+	</div>
+</div>
+
+<form action="#" method="POST" name="mainform">
+<input type="hidden" name="editBukkenCD" value="__editBukkenCD__">
+<input type="hidden" name="rKey" value="__rKey__">
+
+
+<div>
+	<div class="left-yose" >
+		　<a href="#" onclick="javascript:move('s_made_list.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')" class="btn btn-success">作成済み・更新資料</a>
+	</div>
+
+
+	<div class="menu_box">
+		<div class="menu_midashi"><span class="icon1"></span>1.物件基本情報</div>
+		<ul class="menu_list">
+			<li class="orange"><a href="#" onclick="javascript:move('s_kihon_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">物件基本情報登録</a></li>
+			<!--20190718old<li class="orange"><a href="#" onclick="javascript:move('s_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">物件基本情報登録</a></li>-->
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_pic.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">現場写真</a></li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_taio_list.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">折衝記録</a></li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_keiyakusho.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">契約書作成</a></li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_kani_Torisetu.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">簡易取説</a>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_mitsumorisho.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">見積依頼書作成</a></li>
+		</ul>
+	</div>
+
+	<div class="menu_box">
+		<div class="menu_midashi"><span class="icon2"></span>2.工事案内情報</div>
+		<ul class="menu_list">
+			<!--20190718old<li class="orange"><a href="#" onclick="javascript:move('s_koji_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">工事案内情報登録</a></li>-->
+			
+			<li class="menu_item"><div class="drop">工程表作成</div>
+				<ul class="menu_detail">
+					<li><a href="#" onclick="javascript:move('./doc/s_zentaikoteihyo_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">全体工程表</a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_make_kanryo.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">詳細工程表 - 専有部仮日程</a></li>
+				</ul>
+			</li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('./doc/s_koji_annai.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">工事案内作成</a></li>
+			<li class="menu_item"><div class="drop">各工事案内</div>
+				<ul class="menu_detail">
+					<li><a href="#" onclick="javascript:move('./s_jizenchosa_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">事前調査案内</a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_gaibu_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')"><i class="far fa-file-excel"></i>外部オーナー向け案内<span class="DL">DL</span></a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_kinrinmeidou.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">近隣鳴動案内</a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_syouboukensa.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">消防検査案内</a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_rizikaihoukoku_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')"><i class="far fa-file-excel"></i>理事会報告<span class="DL">DL</span></a></li>
+
+				</ul>
+			</li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_koji_document.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">その他資料</a></li>
+		</ul>
+	</div>
+
+	<div class="menu_box">
+		<div class="menu_midashi"><span class="icon4"></span>3.ネスペ依頼</div>
+		<ul class="menu_list">
+			<li class="orange"><a href="#" onclick="javascript:move('s_489.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">ネスペ依頼登録</a></li>
+__If489kotei__
+			<li class="menu_single"><a href="https://www2.489501.jp/__BukkenCD489__/top_seko.php?ID=aiphone&Pass=230601" target="_blank">作業工程表</a></li>
+			<li class="menu_single"><a href="https://www2.489501.jp/__BukkenCD489__/top_seko.php?ID=aiphone&Pass=230601" target="_blank">確認書アプリ項目</a></li>
+__If489kotei__
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_489download.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">予定・決定案内</a></li>
+			<!--<li class="menu_single"><a href="#" onclick="javascript:move('./doc/s_hensin_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')"><i class="far fa-file-excel"></i>返信督促案内<span class="DL">DL</span></a></li>-->
+		</ul>
+	</div>
+
+	<div class="menu_box">
+		<div class="menu_midashi"><span class="icon3"></span>4.施工情報</div>
+		<ul class="menu_list">
+			<li class="orange"><a href="#" onclick="javascript:move('s_seko_form.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">施工情報登録</a></li>
+			<li class="menu_item"><div class="drop">作業指示</div>
+				<ul class="menu_detail">
+					<li><a href="#" onclick="javascript:move('s_kikisetei.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">作業指示書、機器設定表</a></li>
+				</ul>
+			</li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_anzensyorui.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__&cat=anzen')">安全書類作成</a></li>
+			<li class="menu_item"><div class="drop">現場資料</div>
+				<ul class="menu_detail">
+					<li><a href="#" onclick="javascript:move('./doc/s_seko_keiji_issiki_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')"><i class="far fa-file-excel"></i>インターホン工事書類・掲示物一式<span class="DL">DL</span></a></li>
+					<li><a href="#" onclick="javascript:move('./doc/s_seko_kanban_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')"><i class="far fa-file-excel"></i>施工看板<span class="DL">DL</span></a></li>
+					<li><a href="./doc/s_seko_kanryoheya_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__" target="_blank"><i class="far fa-file-excel"></i>工事完了住戸一覧表<span class="DL">DL</span></a></li>
+					<!--<li><a href="./doc/s_make_kanryodoc.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__" target="_blank">工事完了住戸一覧表</a></li>-->
+				</ul>
+			</li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_seko_document.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">その他資料</a></li>
+		</ul>
+	</div>
+
+	<div class="menu_box box5">
+		<div class="menu_midashi"><span class="icon5"></span>5.現場納入</div>
+		<ul class="menu_list">
+
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_kansei_document.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">完成図書</a></li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('./doc/s_make_kojikanryoA_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')" ><i class="far fa-file-excel"></i>工事完了報告書A<span class="DL">DL</span></a></li>
+			<!--20190107 Bはスマート工事くんから出力する
+			<li class="menu_single"><a href="#" onclick="javascript:move('./doc/s_make_kojikanryoB_Excel.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')" ><i class="far fa-file-excel"></i>工事完了報告書B<span class="DL">DL</span></a></li>-->
+			<li class="menu_single"><a href="#" onclick="javascript:move('./s_kanryoB_list.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')" >工事完了報告書B</a></li>
+			<li class="menu_single"><a href="#" onclick="javascript:move('s_zan.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">残工事情報</a></li>
+			<li class="menu_single">☆残工事覚書</li>
+			<li class="menu_single">☆オプション集計</li>
+
+		</ul>
+	</div>
+
+</div>
+
+<br>
+</form>
+
+
+※2019/5/13 ☆は次期リリース予定
+
+__SFooter__
+__SCopyright__
+
+
+
+</body>
+</html>

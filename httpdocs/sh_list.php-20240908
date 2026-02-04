@@ -1,0 +1,349 @@
+<?php
+
+include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+	include_once _INC_DIR . "carrier.inc";
+	include_once _INC_DIR . "global.inc";
+
+	include_once _CLS_DIR . "SPFWDatabase.cls";
+	include_once _CLS_DIR . "SPFWLog.cls";
+	include_once _CLS_DIR . "SPFWTemplate.cls";
+	include_once _CLS_DIR . "SPFWListObject.cls";
+	include_once _CLS_DIR . "SPFWParameter.cls";
+#	include_once _CLS_DIR . "SPFWDate.cls";
+	include_once _CLS_DIR . "SPFWInputCheck.cls";
+	include_once _CLS_DIR . "SPUSUser.cls";
+	include_once _CLS_DIR . "SPUSReservation.cls";
+	include_once _CLS_DIR . "SPUSBukken.cls";
+	// include_once _CLS_DIR . "SPUSHenkoRoom.cls";
+	// include_once _CLS_DIR . "SPUSHenkoDate.cls";
+
+
+
+	// データベースコネクト
+	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+	if (!$myDB->Connection)
+		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
+
+
+
+	########################################################
+	# 値取得
+	########################################################
+	$rKey 			= SPFWParameter::getValues("rKey");
+	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
+	$ClientCD = SPFWParameter::getValues('ClientCD');
+	$work = SPFWParameter::getValues('work');
+	########################################################
+	# 認証動作
+	########################################################
+	if ($rKey) {
+
+		$myUser = new User($myDB);
+		if ($rKey == NULL)
+			showSorryPage(_ILLEGAL_ACCESS);
+
+		if (!$myUser->doAuthenticationByRegistKey($rKey))
+			trigger_error("doAuthentication Failed.", E_USER_ERROR);
+
+		if ($myUser->UserCD == -1)
+			showSorryPage(_ILLEGAL_ACCESS);
+
+			$myUserCD 		= $myUser->UserCD;
+			$ClientCD 		= $myUser->ClientCD;
+		unset($myUser);
+	}
+
+
+#######################################移植
+	########################################################
+# クライアント取得 tBukkenMからとる
+########################################################
+$myBukken = new Bukken($myDB);
+if (!$myBukken->executeSelect(" BukkenCD = '".$editBukkenCD."' AND MukouFlg = FALSE", "")) {
+	$ErrorString = array();
+	$ErrorString[] = "設定ファイル情報の抽出に失敗しました。";
+	$ErrorLoop = count($ErrorString);
+	$myTemplate = new SPFWTemplate(_ADMIN_ERROR_TPL, $MyCarrier, TRUE);
+	unset($myTemplate);
+	exit;
+}
+$MansionName = $myBukken->BukkenName;
+$wWakuPattern = $myBukken->WakuPattern;
+$MaxWakuSu = $myBukken->MaxWakuSu;#6-4-4
+$KokonoWakuSu = explode("-",$MaxWakuSu);
+$wHansu = $myBukken->Hansu;
+$TargetClientCD = $myBukken->ClientCD;#111
+$SenyuStartDate = $myBukken->SenyuStartDate;
+$SenyuEndDate = $myBukken->SenyuEndDate;
+$SenyuDateCnt = ((strtotime($SenyuEndDate) -  strtotime($SenyuStartDate)) / 86400) + 1; #専有部日数
+$SyonitiKouryo = $myBukken->FirstDateFeature; 
+$MinuteTime = $myBukken->MinuteTime; #20ぷん
+// echo "<br> ".__LINE__." MansionName :".$MansionName ;
+########################################################
+# 詳細工程表（イメージ）部分
+########################################################
+
+for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
+	$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$i];
+
+
+
+
+	${'wWaku' . $WakuName . 'Col'} = ceil($KokonoWakuSu[$i] / $wHansu);
+	${'wWaku' . $WakuName . 'ColSum'} = ${'wWaku' . $WakuName . 'Col'} * $wHansu;
+	$wWakuColSum += ${'wWaku' . $WakuName . 'Col'};
+}
+
+
+
+$Koteihyou = "<table border='3' width='600px' cellspacing='5' style='text-align:center' cellpadding='7' class='ex_table'>";
+$Koteihyou .= "<tr><td class='ex_table2'>日程</td>";
+$Koteihyou .= "<td class='ex_table2'>曜日</td>";
+for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
+	$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$i];
+
+	$Koteihyou .= "<td colspan = " . ${'wWaku' . $WakuName . 'Col'};
+	if ($i % 2 == 0) {
+		$Koteihyou .= " style='background-color:#add8e6;' ";
+	} else {
+		$Koteihyou .= " style='background-color:#e0ffff;' ";
+	}
+	$Koteihyou .= "class='ex_table2'>" . $WakuName."</td>";
+
+	${$WakuName . "index"} = 0;
+	// echo "<pre>";
+	// var_dump(${'Waku' . $WakuName . 'Room'});
+	// echo "</pre>";
+
+	${"wWaku".$WakuName."col"} = ${'wWaku' . $WakuName . 'Col'} ;#大文字、小文字がちがう！
+	#echo "<br> ".__LINE__." Hensu :".${"wWaku".$WakuName."col"};
+	
+
+}
+$Koteihyou .= "</tr>";
+
+
+$wWakuSum1 = 0;
+$wWakuSum2 = 0;
+
+$week = ['日', '月', '火', '水', '木', '金', '土'];
+$date = new DateTime($SenyuStartDate);
+
+$myListObject = new SPFWListObject($myDB);
+$sql = "SELECT ";
+$sql .= "r.ReservationCD , ";	#0
+$sql .= "r.UserCD , ";			#1
+$sql .= "r.ID , ";				#2
+$sql .= "r.TimeFrom , ";		#3
+$sql .= "r.TimeTo, ";			#4
+$sql .= "u.LastName, ";			#5
+$sql .= "u.TEL, ";				#6
+$sql .= "r.Memo ";				#7
+
+//  echo "<br> ".__LINE__." Hensu :".$sql;
+$myListObject->SelectSQL = $sql;
+	$sql = " FROM tReservationF r, tUserM u ";
+	$sql .= " WHERE r.MukouFlg = FALSE and r.UserCD = u.UserCD ";
+	$sql .= "  and r.BukkenCD = '".$editBukkenCD."'";
+	$sql .= "  and u.BukkenCD = '".$editBukkenCD."'";
+//  echo "<br> ".$sql;
+	$myListObject->Condition = $sql;
+	$myListObject->Order = "r.TimeFrom";
+
+	$myListObject->Limit = "allpage";
+
+	if (!($myListObject->GetList(1)))
+		trigger_error("Getting Bukken List Failed.", E_USER_ERROR);
+
+	$ReserveLoop = $myListObject->Rows;
+	for ($i = 0; $i < $ReserveLoop; $i++) {
+
+		$ReservationCD[$i] = $myListObject->GetValue($i, 0);
+		$UserCD[$i] = $myListObject->GetValue($i, 1);
+		$ID[$i] = $myListObject->GetValue($i, 2);
+		$TimeFrom[$i] = $myListObject->GetValue($i, 3);
+		$TimeFromDate[$i] = substr($TimeFrom[$i],0,10);#2024-08-10
+		$TimeFromTime[$i] = substr($TimeFrom[$i],11,5);#10:20
+		$Reserve[$TimeFromDate[$i]][$TimeFromTime[$i]][] = $ID[$i];
+
+		#ユーザ情報$aLastName."'  ,'".$aTEL."','".$aMemo
+		$UserData['LastName'][$ID[$i]] = $myListObject->GetValue($i, 5);
+		$UserData['TEL'][$ID[$i]] 	= $myListObject->GetValue($i, 6);
+		$UserData['Memo'][$ID[$i]] 	= $myListObject->GetValue($i, 7);
+
+	}
+
+
+// echo 	$UserData['LastName']['301'];
+// print_r($UserData);
+
+
+
+
+for ($i = 0; $i < $SenyuDateCnt; $i++) {
+	$SenyuDate = $date->format('Y-m-d');
+
+		if ($holiday[$i]) { //土日祝なら
+			$Koteihyou .= "<tr class='trtop' id='row".$SenyuDate."' ><td rowspan=" . $wHansu . " class='ex_table2' style='background-color:pink;'>" . $SenyuDate . "</td>";
+			$Koteihyou .= "<td rowspan=" . $wHansu . " class='ex_table2' style='background-color:pink;'>" . $week[$date->format('w')] . "</td>";
+		} else { //平日なら
+			$Koteihyou .= "<tr class='trtop'  id='row".$SenyuDate."' ><td rowspan=" . $wHansu . " class='ex_table2'>" . $SenyuDate . "</td>";
+			$Koteihyou .= "<td rowspan=" . $wHansu . " class='ex_table2'>" . $week[$date->format('w')] . "</td>";
+		}
+
+				
+		for ($j = 0; $j < $wHansu; $j++) {
+
+			if ($j != 0)
+			$Koteihyou .= "<tr >";	
+
+			for ($k = 0; $k < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $k++) {
+				$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$k];
+				$WakuStart = $WAKUPATTERN[$wWakuPattern]['StartTime'][$k];
+		
+
+					for ($l = 0; $l < ${'wWaku' . $WakuName . 'Col'}; $l++) {
+						$tID = "";
+						if ($k % 2 == 0) {
+							$Koteihyou .= "<td style='background-color:#ffff9e;'>";
+						} else {
+							$Koteihyou .= "<td style='background-color:#ffffcf;'>";
+						}
+
+						$addedTime = $MinuteTime * $l ;
+						$SenyuDateTime = date('H:i', strtotime("+$addedTime minutes", strtotime($WakuStart)));
+						$tID = $Reserve[$SenyuDate][$SenyuDateTime][$j];#部屋ID
+						if($tID){
+							$aLastName = $UserData['LastName'][$tID] ;
+							$aTEL = $UserData['TEL'][$tID] ;
+							$aMemo = $UserData['Memo'][$tID] ;
+
+
+						}
+	// #104 は、　08－11　09:00　の　2番目にはいってる
+	// echo "<br> ".__LINE__." ID :".$Reserve[$SenyuDate][$SenyuDateTime][$j];
+	// echo "<br> ".__LINE__." j :".$j;
+	// echo "<br> ".__LINE__." l :".$l;
+	// echo "<br> ".__LINE__." SenyuDate :".$SenyuDate;
+	// echo "<br> ".__LINE__." SenyuDateTime :".$SenyuDateTime;
+	// echo "<br> ".__LINE__." tID :".$tID;
+
+	// clickBtn7(HenkoDate,TimeFromTime,DispWaku) 
+
+						if (!$tID ) {
+							#ここは空きか　部屋がないかもしれないな。
+							$Koteihyou .= "<a href='#' onclick=\"clickBtn7('".$SenyuDate."', '".$SenyuDateTime."', '".$WakuName."')\">空き</a>";
+
+						} else {
+							// echo "<br> ".__LINE__." tID :".$tID;
+							// echo "<br> ".__LINE__." aLastName :".$aLastName;
+
+							$Koteihyou .= "<font size='5'> <b>" ;
+							$Koteihyou .= "<a href='#' onclick=\"clickBtn8('".$tID."' ,'".$aLastName."'  ,'".$aTEL."','".$aMemo."' , '".$SenyuDate."', '".$SenyuDateTime."', '".$WakuName."' )\"  >";
+							$Koteihyou .= $tID."</a></b></font>";
+
+						}
+						#$KoteihyouEX[] = "${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]";
+
+						// echo "<br>" . $WakuName . ":" . ${$WakuName . "index"};
+						$Koteihyou .= "</td>";
+						${$WakuName . "index"}++;
+
+		
+					}
+			}
+			$Koteihyou .= "</tr>";
+		}
+
+	$date->modify('+1 days');
+}
+$Koteihyou .= "</table>";
+
+
+
+
+
+
+
+#######################################移植終わり
+
+// #調査ミサイル
+// $fh = fopen("aaa.txt", "a");
+// fwrite($fh,"\n work:".__FILE__." ".$work );
+// fclose($fh);
+// #調査ミサイルEnd
+	if($work){#追加・修正
+		$aHenkoDate = SPFWParameter::getValues('HenkoDate');#wHenkoDateにしたら下でダブっておかしくなる
+		$aTimeFromTime = SPFWParameter::getValues('TimeFromTime');
+		#$WakuNo = SPFWParameter::getValues('WakuNo');# value red
+		$aRoomNo = SPFWParameter::getValues('RoomNo');
+		$aLastName = SPFWParameter::getValues('Name');
+		$aTEL = SPFWParameter::getValues('TEL');
+		$aMemo = SPFWParameter::getValues('Memo');
+// #調査ミサイル
+// $fh = fopen("aaa.txt", "a");
+// fwrite($fh,"\n aLastName:".$aLastName );
+// fclose($fh);
+// #調査ミサイルEnd
+		###登録処理
+		if($aHenkoDate != 'red'){#Javascriptに　HiddenHenkoDate の　ElementByID部分の変更前の値
+
+			$myReservation = new Reservation($myDB);
+			if (!$myReservation->executeSelect("  BukkenCD = '".$editBukkenCD."' AND ID = $aRoomNo AND MukouFlg = FALSE", "")) 
+				trigger_error("Getting Reservation Failed.", E_USER_ERROR);
+			$myReservation->Updater = $UserCD;
+
+			$myReservation->TimeFrom = $aHenkoDate." ".$aTimeFromTime;
+
+			// $MinuteTime（20分）後の時刻を計算
+			$TimeToTime = date('H:i', strtotime('+'.$MinuteTime.' minutes', strtotime($TimeFromTime)));
+
+
+			$myReservation->TimeTo = $aHenkoDate." ".$TimeToTime;
+			$myReservation->Memo = $aMemo;
+			$myReservation->Updater = $myUserCD;
+
+			if (!$myReservation->executeUpdate())
+				trigger_error("Updating myReservation Failed.", E_USER_ERROR);
+
+			$myUser = new User($myDB);
+			if (!$myUser->executeSelect("  BukkenCD = '".$editBukkenCD."' AND ID = '".$aRoomNo."' AND MukouFlg = FALSE", "")) 
+				trigger_error("Getting Reservation Failed.", E_USER_ERROR);
+			$myUser->Updater = $myUserCD;
+
+			$myUser->LastName = $aLastName;
+			$myUser->TEL 	=  $aTEL;
+			$myUser->ReplyFlg 	= "2";#TEL受付
+			if (!$myUser->executeUpdate())
+				trigger_error("Updating myUser Failed.", E_USER_ERROR);
+	// 		####登録処理End
+	// 		####変数ドロップしておく。
+			SPFWTemplate::dropValue('work');
+
+				
+	// // 		####登録処理End
+	// // 		####変数ドロップしておく。
+			SPFWTemplate::dropValue('work');
+			// リダイレクトによるページリロード
+			header("Location: " . $_SERVER['PHP_SELF'] . "?ClientCD=" . urlencode($ClientCD)."&editBukkenCD=" . urlencode($editBukkenCD)."&rKey=" . urlencode($rKey));
+			exit;
+
+		}
+	}
+
+
+
+	########################################################
+	# コンテンツ表示
+	########################################################
+
+	$CNT_FILE = "sh_list.tpl";
+	$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
+	$HiddenValues = $myTemplate->getValuesToPass();
+	$myTemplate->convertTags();
+	$myTemplate->outputTemplate();
+	unset($myTemplate);
+	unset($myLog);
+
+
+?>
