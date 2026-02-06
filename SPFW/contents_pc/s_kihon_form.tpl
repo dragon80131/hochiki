@@ -1335,21 +1335,25 @@
 		});
 
 		jQuery("#KyoyobuStartDate").datepicker({
+			maxDate: new Date($("#KyoyobuEndDate").val()),
 			numberOfMonths: 2,
 			showButtonPanel: true
 		});
 
 		jQuery("#KyoyobuEndDate").datepicker({
+			minDate: new Date($("#KyoyobuStartDate").val()),
 			numberOfMonths: 2,
 			showButtonPanel: true
 		});
 
 		jQuery("#SenyubuStartDate").datepicker({
+			maxDate: new Date($("#SenyubuEndDate").val()),
 			numberOfMonths: 2,
 			showButtonPanel: true
 		});
 
 		jQuery("#SenyubuEndDate").datepicker({
+			minDate: new Date($("#SenyubuStartDate").val()),
 			numberOfMonths: 2,
 			showButtonPanel: true
 		});
@@ -1379,6 +1383,32 @@
 
 			updateDatepicker();
 		});	
+
+		$('#KyoyobuStartDate').on('change', function() {
+			$("#KyoyobuEndDate").datepicker('option', {
+				minDate: new Date($("#KyoyobuStartDate").val()),
+			});
+		});	
+
+		$('#KyoyobuEndDate').on('change', function() {
+			$("#KyoyobuStartDate").datepicker('option', {
+				maxDate: new Date($("#KyoyobuEndDate").val()),
+			});
+		});	
+
+		$('#SenyubuStartDate').on('change', function() {
+			$("#SenyubuEndDate").datepicker('option', {
+				minDate: new Date($("#SenyubuStartDate").val()),
+			});
+		});	
+
+		$('#SenyubuEndDate').on('change', function() {
+			$("#SenyubuStartDate").datepicker('option', {
+				maxDate: new Date($("#SenyubuEndDate").val()),
+			});
+		});	
+
+
 		
 		$('.senyubucls').on('change', function() {
 			updateDatepicker();

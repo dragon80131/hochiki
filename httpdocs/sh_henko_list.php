@@ -51,7 +51,8 @@ if ($rKey) {
 }
 
 $IfWorker = $UserKbn == 3;
-$IfDeveloper	= $UserKbn != 3;
+// $IfDeveloper	= $UserKbn != 3;
+$IfDeveloper	= true;
 $IfSP 			= $m == 1; // スマホ用
 $IfPC 			= $m != 1;
 $IfShowSchedule = false;

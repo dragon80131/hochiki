@@ -877,6 +877,14 @@
       }
   });    
 
+  $(document).on('keydown', 'input[type="text"], input[type="email"], input[type="number"]', function (e) {
+      // Allow Enter for #srch_room only
+      if (e.key === 'Enter' && this.id !== 'srch_room') {
+          e.preventDefault();
+          return false;
+      }
+  });
+
   </script>
 
 </html>

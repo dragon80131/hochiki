@@ -121,7 +121,7 @@
 						<!--電話番号-->
 						<font color="red"> *</font>
 					</th>
-					<td><input type="text" name="wTEL" id="wTEL" value="__wTEL__" istyle="4" style="ime-mode:disabled;" class="form">&ensp;(例：090-1234-56789)<br>
+					<td><input type="number" name="wTEL" id="wTEL" value="__wTEL__" istyle="4" style="ime-mode:disabled;" class="form" pattern="[0-9]*" inputmode="numeric">&ensp;(例：0312345678)<br>
 						__form8__
 						<!--※工事終了まで連絡の取れる電話番号--><br>
 						__form30__
@@ -229,6 +229,11 @@ __COMMON_POST_QUERY__ -->
 	</table>
 	</table>
 
+<script>
+	document.getElementById('wTEL').addEventListener('input', function () {
+		this.value = this.value.replace(/[^0-9]/g, '');
+	});
+</script>
 </body>
 </head>
 </html>

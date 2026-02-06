@@ -204,6 +204,7 @@ $wArrangeType = $myBukken->ArrangeType;
 $wFloorReserveInfo = $myBukken->FloorReserveInfo;
 
 if($bikoreg == "yes"){
+	$work = '';
 	$myBukken->Biko =$Biko;
 	if (!$myBukken->executeUpdate())
 		trigger_error("Updating myBukken Failed.", E_USER_ERROR);
