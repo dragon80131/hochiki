@@ -928,34 +928,42 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						$x ++;
 					}else{
 						if($wArrangeType == '1'){
-							$bReservedRooms = 0;
-							foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-								if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-									$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
-								}
-							}
-							if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
-								${'Waku' . $WakuName . 'Room'}[] = "余地";
-								$passed_rooms ++;
-								$EmptyFrameCount ++;
-							}else{
-								$bCorrectFloor = false;
-								foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-									if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-										if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
-											$bCorrectFloor = true;
-											break;
-										}
-									}
-								}
-								if($bCorrectFloor){
-									${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
-								}else{
-									${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
-									// $Overflows ++;
-								}
+							// 仮日程の場合は、チェックを行わずに表示します。
+							if(empty($UserData['ReplyFlg'][$Reserve[$SenyuDate][$WakuName][$x]]) && empty($UserData['ConfirmFlg'][$Reserve[$SenyuDate][$WakuName][$x]])){
+								${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 								$passed_rooms ++;
 								$x ++;
+							}else{
+								$bReservedRooms = 0;
+								foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+									if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+										$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+									}
+								}
+								if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
+									${'Waku' . $WakuName . 'Room'}[] = "余地";
+									$passed_rooms ++;
+									$EmptyFrameCount ++;
+								}else{
+									$bCorrectFloor = false;
+									foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+										if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+											if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+												$bCorrectFloor = true;
+												break;
+											}
+										}
+									}
+									if($bCorrectFloor){
+										${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
+									}else{
+										${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+										// $Overflows ++;
+									}
+									$passed_rooms ++;
+									$x ++;
+								}
+
 							}
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];

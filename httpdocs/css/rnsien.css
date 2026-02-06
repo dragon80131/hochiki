@@ -385,8 +385,6 @@ table.ex_table td.link_cell{
   cursor: pointer;
   color: #007bff;
   padding: 13px 10px;
-  white-space: nowrap;
-  vertical-align: baseline;
 }
 table.ex_table:not(.no-action) td.link_cell:not(.no-action):hover{
   background-color: #f8cbad !important;
@@ -400,8 +398,6 @@ table.ex_table td.link_cell_blank{
   cursor: pointer;
   color: #007bff;
   padding: 13px 10px;
-  white-space: nowrap;
-  vertical-align: baseline;
 }
 table.ex_table:not(.no-action) td.link_cell_blank:not(.no-action):hover{
   background-color: #9ca8a4 !important;
