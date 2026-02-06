@@ -44,6 +44,10 @@
 		display:block;
 		opacity:.5;
 	}
+	table.ex_table td.link_cell{
+		font-size:20px;
+		font-weight:bold;
+	}
 	@media (min-width: 576px) {
 		.modal-dialog {
 			max-width: 330px;
@@ -70,15 +74,6 @@ if(isNaN(ReservationCount))
 function modorumove(val){
 	document.form1.action = val;
 	document.form1.submit(true);
-}
-function moveandaki(value){
-	document.mainform.action = "s_make_kanryo_hensyu.php?editBukkenCD=__editBukkenCD__&editBuildingCD=__editBuildingCD__&Aki="+value+"&work=2";
-	document.mainform.submit(true);
-}
-
-function moveandroom(num){
-	document.mainform.action = "s_make_kanryo_hensyu.php?editBukkenCD=__editBukkenCD__&editBuildingCD=__editBuildingCD__&Aki="+num+"&work=3";
-	document.mainform.submit(true);
 }
 
 function go_confirm(url){
@@ -180,6 +175,35 @@ window.onload = function() {
     location.hash = "#m" + __m__;
 };
 
+
+$(document).on('click', '.link_cell', function () {
+	$(".link_cell").removeClass("active");
+	$(this).addClass("active");
+});
+
+$(document).on('click', '.link_cell_blank', function () {
+	let room_obj = $(".link_cell.active");
+	if(room_obj.length){
+		let blank_room = $(this).find("a").length>0?$(this).find("a").html():'';
+		let blank_room_val = $(this).find('input[type="hidden"]').length>0?$(this).find('input[type="hidden"]').val():'';
+
+		let valid_room = room_obj.find("a").length>0?room_obj.find("a").html():'';
+		let valid_room_val = room_obj.find('input[type="hidden"]').length>0?room_obj.find('input[type="hidden"]').val():'';
+
+		if(blank_room_val && valid_room_val){
+			room_obj.find("a").html(blank_room);
+			room_obj.find('input[type="hidden"]').val(blank_room_val);
+
+			$(this).find("a").html(valid_room);
+			$(this).find('input[type="hidden"]').val(valid_room_val);
+
+			room_obj.removeClass('link_cell').removeClass('active').addClass('link_cell_blank');
+			$(this).removeClass('link_cell_blank').removeClass('active').addClass('link_cell');
+		}
+	}
+});
+
+
 </script>
 
 
@@ -261,7 +285,7 @@ __IfShortage__
 
 
 ■詳細工程表<br>
-<br>削除する<font color="blue">空き</font>をクリックしてください。部屋をクリックすると空き枠にかわります。
+部屋番号をクリック、次に、「空き」をクリックしてください。
 
 <br>__IfError__<font color=red >※すべての部屋を組み込むことができませんでした。</font>__IfError__<br>
 __Koteihyou__

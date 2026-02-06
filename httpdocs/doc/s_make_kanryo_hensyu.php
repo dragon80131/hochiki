@@ -289,477 +289,6 @@ function numberToCircled($number) {
 	$rowCountforDay = ceil($rowCountforDay / $wHansu) * $wHansu;
 
 	########################################################
-	# 空き削除処理
-	########################################################
-	if($work==2){
-		$wKoteihyouEX = SPFWParameter::getValues('wwKoteihyouEX');		#配列
-		$Aki = SPFWParameter::getValues('Aki');		#休工日
-
-		$tempRowCountforDay = ceil(($wWakuAM+$wFrameOverflow*$wHansu) / 5);
-		if($tempRowCountforDay > $wHansu){
-			$wWakuAMcol = 5;
-		}else{
-			$wWakuAMcol=ceil($wWakuAM/$rowCountforDay)+$wFrameOverflow;#入力枠数を班数でわった切り上げた数
-		}
-
-		$WakuAMCEL = $wWakuAMcol*$rowCountforDay;#一日のAMのセル数
-		if($wWakuPattern > 2) {
-			$tempRowCountforDay = ceil(($wWakuPM1+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM1col = 5;
-			}else{
-				$wWakuPM1col = ceil($wWakuPM1 / $rowCountforDay)+$wFrameOverflow;
-			}
-
-			$tempRowCountforDay = ceil(($wWakuPM2+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM2col = 5;
-			}else{
-				$wWakuPM2col = ceil($wWakuPM2 / $rowCountforDay)+$wFrameOverflow;
-			}
-		
-			$WakuPM1CEL = $wWakuPM1col*$rowCountforDay;#一日のPM1のセル数
-			$WakuPM2CEL = $wWakuPM2col*$rowCountforDay;#一日のPM2のセル数
-			$wWakuSum=$wWakuAMcol+$wWakuPM1col+$wWakuPM2col;
-		}else{
-			//$wWakuPM1col=ceil(($wWakuPM1)/$rowCountforDay);
-			$tempRowCountforDay = ceil(($wWakuPM+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM1col = 5;
-			}else{
-				$wWakuPM1col = ceil($wWakuPM / $rowCountforDay)+$wFrameOverflow;
-			}
-		
-			$WakuPM1CEL = $wWakuPM1col*$rowCountforDay;#一日のPM1のセル数
-			$wWakuSum=$wWakuAMcol+$wWakuPM1col;
-		}
-		$x=0;
-		$y=0;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuAMcol ; $k++){
-					$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuPM1col+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuPM1col;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuPM1CEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuPM1CEL;
-			}
-		}
-		$x=$WakuAMCEL;
-		$y=$wWakuAMcol;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuPM1col ; $k++){
-					$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuAMcol+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuAMcol;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuAMCEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuAMCEL;
-			}
-		}
-		if($wWakuPattern > 2) {
-			$x=$WakuAMCEL+$WakuPM1CEL;
-			$y=$wWakuAMcol+$wWakuPM1col;
-			for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-				for($j=0 ; $j<$rowCountforDay ; $j++){
-					for($k=0 ; $k< $wWakuPM2col ; $k++){
-						$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-						if($y==$Aki)
-							$n=$x;
-						$x++;
-						$y++;
-					}
-					$y=$y+$wWakuPM1col+$wWakuAMcol;
-					
-				}
-				$x=$x+$WakuPM1CEL+$WakuAMCEL;
-			}
-		}
-		$key=0;
-		ksort($wKoteihyou1);
-		for($i=0;$i<count($wKoteihyou1);$i++){
-			if(ctype_digit($wKoteihyou1[$i])&&($wKoteihyou1[$i]!=="空き" && $wKoteihyou1[$i]!=="枠越" && $wKoteihyou1[$i]!=="余地" && $wKoteihyou1[$i]!=="時間外")){
-				$LastRoom = $i;
-			}
-		}
-		$l=0;
-		$o=0;
-		for($i=0;$i<count($wKoteihyou1);$i++){
-			if($n<=$i){
-				if(ctype_digit($wKoteihyou1[$i])&&$l==0&&$o==0){
-					$wKoteihyou1[$n]=$wKoteihyou1[$i];
-					for($j=0;$j<count($wKaiRoom3);$j++){
-						if($wKaiRoom3[$j]==$wKoteihyou1[$n]){
-							$Room=$j+1;
-						}
-					}
-					if(isset($wKaiRoom3[$Room])){
-						$wKoteihyou1[$i]=$wKaiRoom3[$Room];
-						$Room++;
-					}else{
-						if($wArrangeType == '1')
-							$wKoteihyou1[$i]="余地";
-						else
-							$wKoteihyou1[$i]="空き";
-					}
-					$l++;
-				}elseif(ctype_digit($wKoteihyou1[$i])){
-					if(isset($wKaiRoom3[$Room])){
-						$wKoteihyou1[$i]=$wKaiRoom3[$Room];
-						$Room++;
-					}else{
-						if($wArrangeType == '1')
-							$wKoteihyou1[$i]="余地";
-						else
-							$wKoteihyou1[$i]="空き";
-					}
-				}elseif($LastRoom<=$i &&isset($wKaiRoom3[$Room])&& ($wKoteihyou1[$i]=="空き" || $wKoteihyou1[$i]=="枠越" || $wKoteihyou1[$i]=="余地" || $wKoteihyou1[$i]=="時間外") && $o==0 &&$n==$i){
-					$wKoteihyou1[$i]=$wKaiRoom3[$Room];
-					$Room++;
-					$o++;
-				}
-			}else{
-				if($i==$LastRoom){
-					for($j=0;$j<count($wKaiRoom3);$j++){
-						if($wKaiRoom3[$j]==$wKoteihyou1[$i]){
-							$Room=$j+1;
-						}
-					}
-				}
-			}
-
-		}
-
-		$x=0;
-		$y=0;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuAMcol ; $k++){
-					$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuPM1col+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuPM1col;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuPM1CEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuPM1CEL;
-			}
-		}
-		$x=$WakuAMCEL;
-		$y=$wWakuAMcol;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuPM1col ; $k++){
-					$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuAMcol+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuAMcol;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuAMCEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuAMCEL;
-			}
-		}
-		if($wWakuPattern > 2) {
-			$x=$WakuAMCEL+$WakuPM1CEL;
-			$y=$wWakuAMcol+$wWakuPM1col;
-			for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-				for($j=0 ; $j<$rowCountforDay ; $j++){
-					for($k=0 ; $k< $wWakuPM2col ; $k++){
-						$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-						if($y==$Aki)
-							$n=$x;
-						$x++;
-						$y++;
-					}
-					$y=$y+$wWakuPM1col+$wWakuAMcol;
-					
-				}
-				$x=$x+$WakuPM1CEL+$WakuAMCEL;
-			}
-		}
-
-
-
-	}
-
-	########################################################
-	# 空き削除処理
-	########################################################
-
-	if($work==3){
-		$wKoteihyouEX = SPFWParameter::getValues('wwKoteihyouEX');		#配列
-		$Aki = SPFWParameter::getValues('Aki');		#休工日
-
-		$tempRowCountforDay = ceil(($wWakuAM+$wFrameOverflow*$wHansu) / 5);
-		if($tempRowCountforDay > $wHansu){
-			$wWakuAMcol = 5;
-		}else{
-			$wWakuAMcol = ceil($wWakuAM / $rowCountforDay)+$wFrameOverflow;#入力枠数を班数でわった切り上げた数
-		}
-
-		$WakuAMCEL = $wWakuAMcol*$rowCountforDay;#一日のAMのセル数
-		if($wWakuPattern > 2) {
-			$tempRowCountforDay = ceil(($wWakuPM1+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM1col = 5;
-			}else{
-				$wWakuPM1col = ceil($wWakuPM1 / $rowCountforDay)+$wFrameOverflow;
-			}
-		
-			$tempRowCountforDay = ceil(($wWakuPM2+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM2col = 5;
-			}else{
-				$wWakuPM2col = ceil($wWakuPM2 / $rowCountforDay)+$wFrameOverflow;
-			}
-		
-			$WakuPM1CEL = $wWakuPM1col*$rowCountforDay;#一日のPM1のセル数
-			$WakuPM2CEL = $wWakuPM2col*$rowCountforDay;#一日のPM2のセル数
-		}else{
-			$tempRowCountforDay = ceil(($wWakuPM+$wFrameOverflow*$wHansu) / 5);
-			if($tempRowCountforDay > $wHansu){
-				$wWakuPM1col = 5;
-			}else{
-				$wWakuPM1col = ceil($wWakuPM / $rowCountforDay)+$wFrameOverflow;
-			}
-		
-			// $wWakuPM1col=ceil(($wWakuPM1)/$rowCountforDay);
-			$WakuPM1CEL = $wWakuPM1col*$rowCountforDay;#一日のPM1のセル数
-		}
-
-		$x=0;
-		$y=0;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){##工事順にソートするAM
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuAMcol ; $k++){
-					$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuPM1col+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuPM1col;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuPM1CEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuPM1CEL;
-			}
-		}
-		$x=$WakuAMCEL;
-		$y=$wWakuAMcol;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){#工事順にソート（PM1）
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuPM1col ; $k++){
-					$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuAMcol+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuAMcol;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuAMCEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuAMCEL;
-			}
-		}
-		if($wWakuPattern > 2) {#工事順にソート（PM2）
-			$x=$WakuAMCEL+$WakuPM1CEL;
-			$y=$wWakuAMcol+$wWakuPM1col;
-			for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-				for($j=0 ; $j<$rowCountforDay ; $j++){
-					for($k=0 ; $k< $wWakuPM2col ; $k++){
-						$wKoteihyou1[$x] = $wKoteihyouEX[$y];
-						if($y==$Aki)
-							$n=$x;
-						$x++;
-						$y++;
-					}
-					$y=$y+$wWakuPM1col+$wWakuAMcol;
-					
-				}
-				$x=$x+$WakuPM1CEL+$WakuAMCEL;
-			}
-		}
-		ksort($wKoteihyou1);
-
-		for($i=0;$i<count($wKoteihyou1);$i++){
-			if(ctype_digit($wKoteihyou1[$i])){
-				$LastRoom = $i;
-			}
-		}
-	
-		$l=0;
-		for($i=0;$i<count($wKoteihyou1);$i++){
-			if($n<=$i){
-				if(ctype_digit($wKoteihyou1[$i])&&$l==0){
-					$wKoteihyou2 = $wKoteihyou1[$n];
-					if($wArrangeType == '1')
-						$wKoteihyouEX[$n]="余地";
-					else
-						$wKoteihyouEX[$n]="空き";
-
-					for($j=0;$j<count($wKaiRoom3);$j++){
-						if($wKaiRoom3[$j]==$wKoteihyou2){
-							$Room=$j-1;
-						}
-					}
-					if($wArrangeType == '1')
-						$wKoteihyou1[$i]="余地";
-					else
-						$wKoteihyou1[$i]="空き";
-
-					$Room++;
-					$l++;
-				}elseif(ctype_digit($wKoteihyou1[$i])){
-					if($wKaiRoom3[$Room]){
-						$wKoteihyou1[$i]=$wKaiRoom3[$Room];
-						$Room++;
-					}else{
-						if($wArrangeType == '1')
-							$wKoteihyou1[$i]="余地";
-						else
-							$wKoteihyou1[$i]="空き";
-
-						$Room++;
-					}
-				}elseif($LastRoom<$i &&isset($wKaiRoom3[$Room])&& ($wKoteihyou1[$i]=="空き" || $wKoteihyou1[$i]=="枠越" || $wKoteihyou1[$i]=="余地" || $wKoteihyou1[$i]=="時間外") &&$l==1 ){
-					$wKoteihyou1[$i]=$wKaiRoom3[$Room];
-					$Room++;
-					$l++;
-				}
-			}
-		}
-
-
-
-		$x=0;
-		$y=0;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuAMcol ; $k++){
-					$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuPM1col+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuPM1col;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuPM1CEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuPM1CEL;
-			}
-		}
-		$x=$WakuAMCEL;
-		$y=$wWakuAMcol;
-		for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-			for($j=0 ; $j<$rowCountforDay ; $j++){
-				for($k=0 ; $k< $wWakuPM1col ; $k++){
-					$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-					if($y==$Aki)
-						$n=$x;
-					$x++;
-					$y++;
-				}
-				if($wWakuPattern > 2) {
-					$y=$y+$wWakuAMcol+$wWakuPM2col;
-				}else{
-					$y=$y+$wWakuAMcol;
-				}
-				
-			}
-			if($wWakuPattern > 2) {
-				$x=$x+$WakuAMCEL+$WakuPM2CEL;
-			}else{
-				$x=$x+$WakuAMCEL;
-			}
-		}
-		if($wWakuPattern > 2) {
-			$x=$WakuAMCEL+$WakuPM1CEL;
-			$y=$wWakuAMcol+$wWakuPM1col;
-			for($i=0 ; $i<($SenyuDateCnt+$beforeReserveDayDateCnt+$afterReserveDayDateCnt) ; $i++){
-				for($j=0 ; $j<$rowCountforDay ; $j++){
-					for($k=0 ; $k< $wWakuPM2col ; $k++){
-						$wKoteihyouEX[$y] = $wKoteihyou1[$x];
-						if($y==$Aki)
-							$n=$x;
-						$x++;
-						$y++;
-					}
-					$y=$y+$wWakuPM1col+$wWakuAMcol;
-					
-				}
-				$x=$x+$WakuPM1CEL+$WakuAMCEL;
-			}
-		}
-
-// id='".$m."' 　に飛ぶ
-
-	}
-
-	########################################################
 	# 詳細工程表イメージ作成
 	########################################################
 
@@ -867,19 +396,19 @@ function numberToCircled($number) {
 		}
 	
 		if($KojiHoliday_){
-			$Koteihyou .="<tr class='trreserveday'><td rowspan =1 class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
-			$Koteihyou .="<td rowspan =1 class='ex_table2'>".$week_str."</td>";
-			$Koteihyou .="<td rowspan =1 class='ex_table2'></td>";
+			$Koteihyou .="<tr class='trreserveday'><td rowspan=1 class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
+			$Koteihyou .="<td rowspan=1 class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<td rowspan=1 class='ex_table2'></td>";
 			$Koteihyou .="<td colspan=";
 			$Koteihyou .=$wWakuAMcol+$wWakuPM1col+$wWakuPM2col;#うまくつかって上部をつくる　あとで♪
-			$Koteihyou .=" rowspan = 1 style='text-align:center;' class='ex_table2'> ";
+			$Koteihyou .=" rowspan=1 style='text-align:center;' class='ex_table2'> ";
 			$Koteihyou .="休工日";
 			$Koteihyou .="</td></tr>";
 
 		#★１休工日でない場合
 		}else{
-			$Koteihyou .="<tr class='trtop trreserveday'><td rowspan =".$rowCountforDay." class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
-			$Koteihyou .="<td rowspan =".$rowCountforDay." class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<tr class='trtop trreserveday'><td rowspan=".$rowCountforDay." class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
+			$Koteihyou .="<td rowspan=".$rowCountforDay." class='ex_table2'>".$week_str."</td>";
 			
 			#★２班数分くりかえす
 			$banNo = 1;
@@ -889,89 +418,92 @@ function numberToCircled($number) {
 				if($j!==0)#班が１つめなら<tr>つける
 					$Koteihyou .="<tr class='trreserveday'>";
 				if($j % $banRowspan == 0){
-					$Koteihyou .="<td rowspan =".$banRowspan." class='ex_table2'>".$banNo."</td>";
+					$Koteihyou .="<td rowspan=".$banRowspan." class='ex_table2'>".$banNo."</td>";
 					$curHansu = $banNo;
 					$banNo ++;
 				}
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3;'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5;'>";
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}#★３AM枠数を班数で割った数分繰り返すEnd
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3;'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#d2e5ff;'>";
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}
 				#★３-２PM１枠数を班数で割った数分繰り返す　End
 
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if(!$wKoteihyouEX[$m])
-							$Koteihyou .="<td style='background-color:#d3d3d3'>";
-						else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-							$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-						else
-							$Koteihyou .="<td class='link_cell' style='background-color:#d1f9b7'>";
 						if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-							$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						}else{
-							$Koteihyou .= '<font style="font-size:20px"> <b>';
-							$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="</td>";
+						}else if($wKoteihyouEX[$m] != ''){
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-							$Koteihyou .= '</b></font>';
+							$Koteihyou .="</td>";
+						}else{
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}
 						$KoteihyouEX[] = $wKoteihyouEX[$m];
 						$HansuEX[] = $curHansu;
 						$m++;
-						$Koteihyou .="</td>";
 					}
 				}#★３-３PM２枠数を班数で割った数分繰り返す
 
@@ -1006,19 +538,19 @@ function numberToCircled($number) {
 		}
 	
 		if($KojiHoliday[$i]){
-			$Koteihyou .="<tr class='trholiday'><td rowspan =1".$wShukujitucolor[$i]." class='ex_table2'>".$SenyuDate."</td>";
-			$Koteihyou .="<td rowspan =1".$wShukujitucolor[$i]." class='ex_table2'>".$week_str."</td>";
-			$Koteihyou .="<td rowspan =1".$wShukujitucolor[$i]." class='ex_table2'></td>";
+			$Koteihyou .="<tr class='trholiday'><td rowspan=1".$wShukujitucolor[$i]." class='ex_table2'>".$SenyuDate."</td>";
+			$Koteihyou .="<td rowspan=1".$wShukujitucolor[$i]." class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<td rowspan=1".$wShukujitucolor[$i]." class='ex_table2'></td>";
 			$Koteihyou .="<td colspan=";
 			$Koteihyou .=$wWakuAMcol+$wWakuPM1col+$wWakuPM2col;#うまくつかって上部をつくる　あとで♪
-			$Koteihyou .=" rowspan = 1 style='text-align:center;' class='ex_table2'> ";
+			$Koteihyou .=" rowspan=1 style='text-align:center;' class='ex_table2'> ";
 			$Koteihyou .="休工日";
 			$Koteihyou .="</td></tr>";
 
 		#★１休工日でない場合
 		}else{
-			$Koteihyou .="<tr class='trtop'><td rowspan =".$rowCountforDay.$wShukujitucolor[$i]." class='ex_table2'>".$SenyuDate."</td>";
-			$Koteihyou .="<td rowspan =".$rowCountforDay.$wShukujitucolor[$i]." class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<tr class='trtop'><td rowspan=".$rowCountforDay.$wShukujitucolor[$i]." class='ex_table2'>".$SenyuDate."</td>";
+			$Koteihyou .="<td rowspan=".$rowCountforDay.$wShukujitucolor[$i]." class='ex_table2'>".$week_str."</td>";
 			
 			#★２班数分くりかえす
 			$banNo = 1;
@@ -1028,90 +560,93 @@ function numberToCircled($number) {
 				if($j!==0)#班が１つめなら<tr>つける
 					$Koteihyou .="<tr>";
 				if($j % $banRowspan == 0){
-					$Koteihyou .="<td rowspan =".$banRowspan." class='ex_table2'>".$banNo."</td>";
+					$Koteihyou .="<td rowspan=".$banRowspan." class='ex_table2'>".$banNo."</td>";
 					$curHansu = $banNo;
 					$banNo ++;
 				}
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5;'>";
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}#★３AM枠数を班数で割った数分繰り返すEnd
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3;'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#d2e5ff;'>";
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}
 				#★３-２PM１枠数を班数で割った数分繰り返す　End
 
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if(!$wKoteihyouEX[$m])
-							$Koteihyou .="<td style='background-color:#d3d3d3'>";
-						else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-							$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-						else
-							$Koteihyou .="<td class='link_cell' style='background-color:#d1f9b7'>";
 						if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-							$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						}else{
-							$Koteihyou .= '<font style="font-size:20px"> <b>';
-							$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="</td>";
+						}else if($wKoteihyouEX[$m] != ''){
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-							$Koteihyou .= '</b></font>';
+							$Koteihyou .="</td>";
+						}else{
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}
 
 						$KoteihyouEX[] = $wKoteihyouEX[$m];
 						$HansuEX[] = $curHansu;
 						$m++;
-						$Koteihyou .="</td>";
 					}
 				}#★３-３PM２枠数を班数で割った数分繰り返す
 
@@ -1144,19 +679,19 @@ function numberToCircled($number) {
 		}
 	
 		if($KojiHoliday_){
-			$Koteihyou .="<tr class='trreserveday'><td rowspan =1 class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
-			$Koteihyou .="<td rowspan =1 class='ex_table2'>".$week_str."</td>";
-			$Koteihyou .="<td rowspan =1 class='ex_table2'></td>";
+			$Koteihyou .="<tr class='trreserveday'><td rowspan=1 class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
+			$Koteihyou .="<td rowspan=1 class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<td rowspan=1 class='ex_table2'></td>";
 			$Koteihyou .="<td colspan=";
 			$Koteihyou .=$wWakuAMcol+$wWakuPM1col+$wWakuPM2col;#うまくつかって上部をつくる　あとで♪
-			$Koteihyou .=" rowspan = 1 style='text-align:center;' class='ex_table2'> ";
+			$Koteihyou .=" rowspan=1 style='text-align:center;' class='ex_table2'> ";
 			$Koteihyou .="休工日";
 			$Koteihyou .="</td></tr>";
 
 		#★１休工日でない場合
 		}else{
-			$Koteihyou .="<tr class='trtop trreserveday'><td rowspan =".$rowCountforDay." class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
-			$Koteihyou .="<td rowspan =".$rowCountforDay." class='ex_table2'>".$week_str."</td>";
+			$Koteihyou .="<tr class='trtop trreserveday'><td rowspan=".$rowCountforDay." class='ex_table2'>".$SenyuDate."<div class='reserve_day'>予備日</div></td>";
+			$Koteihyou .="<td rowspan=".$rowCountforDay." class='ex_table2'>".$week_str."</td>";
 			
 			#★２班数分くりかえす
 			$banNo = 1;
@@ -1166,92 +701,92 @@ function numberToCircled($number) {
 				if($j!==0)#班が１つめなら<tr>つける
 					$Koteihyou .="<tr class='trreserveday'>";
 				if($j % $banRowspan == 0){
-					$Koteihyou .="<td rowspan =".$banRowspan." class='ex_table2'>".$banNo."</td>";
+					$Koteihyou .="<td rowspan=".$banRowspan." class='ex_table2'>".$banNo."</td>";
 					$curHansu = $banNo;
 					$banNo ++;
 				}
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5;'>";
-
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}#★３AM枠数を班数で割った数分繰り返すEnd
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if(!$wKoteihyouEX[$m])
-						$Koteihyou .="<td style='background-color:#d3d3d3'>";
-					else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-						$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-					else
-						$Koteihyou .="<td class='link_cell' style='background-color:#d2e5ff;'>";
-
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default;color:#1f1f1f;'>";
 						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-					}else{
-						$Koteihyou .= '<font style="font-size:20px"> <b>';
-						$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
+						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						$Koteihyou .= '</b></font>';
+						$Koteihyou .="</td>";
+					}else{
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}
 					$KoteihyouEX[] = $wKoteihyouEX[$m];
 					$HansuEX[] = $curHansu;
 					$m++;
-					$Koteihyou .="</td>";
 				}
 				#★３-２PM１枠数を班数で割った数分繰り返す　End
 
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if(!$wKoteihyouEX[$m])
-							$Koteihyou .="<td style='background-color:#d3d3d3'>";
-						else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外")
-							$Koteihyou .="<td class='link_cell' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
-						else
-							$Koteihyou .="<td class='link_cell' style='background-color:#d1f9b7'>";
-
 						if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-							$Koteihyou .= "<a href='#' onclick='moveandaki(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default;color:#1f1f1f;'>";
 							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-						}else{
-							$Koteihyou .= '<font style="font-size:20px"> <b>';
-							$Koteihyou .= "<a href='#' onclick='moveandroom(".$m.")' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="</td>";
+						}else if($wKoteihyouEX[$m] != ''){
+							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
+							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
-							$Koteihyou .= '</b></font>';
+							$Koteihyou .="</td>";
+						}else{
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3'>";
+							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+							$Koteihyou .="</td>";
 						}
 						$KoteihyouEX[] = $wKoteihyouEX[$m];
 						$HansuEX[] = $curHansu;
 						$m++;
-						$Koteihyou .="</td>";
 					}
 				}#★３-３PM２枠数を班数で割った数分繰り返す
 
