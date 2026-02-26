@@ -692,6 +692,12 @@
 			border: 1px solid #333;
 			border-collapse: collapse;
 		}
+
+		.btn-group label.btn:has(input:checked) {
+			color: #fff;
+			background-color: #db7561;
+			border-color: #dd7e6b;
+		}		
 	</style>
 </head>
 
@@ -795,8 +801,8 @@
 			<div id="ErrorString" style="color: red"></div>
 
 			<form action="s_make_schedule.php" method="POST" name="mainform">
-			<div class="btn-group" data-toggle="buttons">
-			<label class="btn btn-primary active">
+			<div class="btn-group">
+			<label class="btn btn-primary">
 				<input type="radio" name="wArrangeType" value="1" id="wArrangeType1" __ArrangeTypeChecked1__ onchange="refreshArrangeType()"> 点検
 			</label>
 			<label class="btn btn-primary">

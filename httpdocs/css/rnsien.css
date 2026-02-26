@@ -432,14 +432,14 @@ table.ex_table td .haslink{
 }
 
 .btn-blue {
-  background-color: #f4cccc;
-  border: #f4cccc solid 1px;
+  background-color: #dd7e6b;
+  border: #dd7e6b solid 1px;
   color: #fff;
 }
 
 .btn-blue:hover {
-  background-color: #f8d7d7;
-  border: #f4cccc solid 1px;
+  background-color: #da705b;
+  border: #da705b solid 1px;
   color: #fff;
 }
 

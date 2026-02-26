@@ -22,6 +22,7 @@ include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 include_once _CLS_DIR . "SPUSGyosya.cls";
 include_once _CLS_DIR . "SPUSReservation.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once _CLS_DIR . "SPUSReservationInit.cls";
 
 
 // データベースコネクト
@@ -85,6 +86,175 @@ if ($hensyu == 1) {
 }
 $wHansuEX = SPFWParameter::getValues('wHansuEX');
 $wHansuEX = SPFWTools::decodePluralValue($wHansuEX); #配列
+
+
+// 空き室のない部屋を優先的に再配置します。
+$wWakuAMcol = intval($wWakuAMcol);
+$wWakuPM1col = intval($wWakuPM1col);
+$wWakuPM2col = intval($wWakuPM2col);
+$wHansuRows = intval($rowCountforDay / $wHansu);
+
+$wKoteihyouIndex = 0;
+$curAMPM = 'AM';
+$curAMPMColIndex = 0;
+$AM_Blanks = array();
+$AM_Rooms = array();
+$PM1_Blanks = array();
+$PM1_Rooms = array();
+$PM2_Blanks = array();
+$PM2_Rooms = array();
+$val_Blanks = ['空き', '余地', '枠越', '時間外', ''];
+$rowIndex = 0;
+
+$wKoteihyouEXTemp = array();
+$wHansuEXTemp = array();
+
+while($wKoteihyouIndex < count($wKoteihyouEX)){
+	for($i=0; $i<$wWakuAMcol; $i++){
+		if($wKoteihyouIndex >= count($wKoteihyouEX))
+			break;
+		$disRoom = $wKoteihyouEX[$wKoteihyouIndex];
+		$disHansu = $wHansuEX[$wKoteihyouIndex]??'';
+		if(in_array($disRoom, $val_Blanks)){
+			array_push($AM_Blanks, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}else{
+			array_push($AM_Rooms, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}
+		$wKoteihyouIndex ++;
+	}
+	for($i=0; $i<$wWakuPM1col; $i++){
+		if($wKoteihyouIndex >= count($wKoteihyouEX))
+			break;
+		$disRoom = $wKoteihyouEX[$wKoteihyouIndex];
+		$disHansu = $wHansuEX[$wKoteihyouIndex]??'';
+		if(in_array($disRoom, $val_Blanks)){
+			array_push($PM1_Blanks, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}else{
+			array_push($PM1_Rooms, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}
+		$wKoteihyouIndex ++;
+	}
+	for($i=0; $i<$wWakuPM2col; $i++){
+		if($wKoteihyouIndex >= count($wKoteihyouEX))
+			break;
+		$disRoom = $wKoteihyouEX[$wKoteihyouIndex];
+		$disHansu = $wHansuEX[$wKoteihyouIndex]??'';
+		if(in_array($disRoom, $val_Blanks)){
+			array_push($PM2_Blanks, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}else{
+			array_push($PM2_Rooms, array(
+				'room' => $disRoom,
+				'hansu' => $disHansu
+			));
+		}
+		$wKoteihyouIndex ++;
+	}
+
+	$rowIndex ++;
+	if($rowIndex >= $wHansuRows){
+		$AM_Index = 0;
+		$AM_IsRoom = true;
+		$PM1_Index = 0;
+		$PM1_IsRoom = true;
+		$PM2_Index = 0;
+		$PM2_IsRoom = true;
+
+		for($j=0; $j<$wHansuRows; $j++){
+			for($i=0; $i<$wWakuAMcol; $i++){
+				if($AM_IsRoom){
+					if($AM_Index < count($AM_Rooms)){
+						array_push($wKoteihyouEXTemp, $AM_Rooms[$AM_Index]['room']);
+						array_push($wHansuEXTemp, $AM_Rooms[$AM_Index]['hansu']);
+						$AM_Index ++;
+					}else{
+						$AM_IsRoom = false;
+						$AM_Index = 0;
+					}
+				}
+
+				if(!$AM_IsRoom){
+					if($AM_Index < count($AM_Blanks)){
+						array_push($wKoteihyouEXTemp, $AM_Blanks[$AM_Index]['room']);
+						array_push($wHansuEXTemp, $AM_Blanks[$AM_Index]['hansu']);
+						$AM_Index ++;
+					}else{
+						break;
+					}
+				}
+			}
+			for($i=0; $i<$wWakuPM1col; $i++){
+				if($PM1_IsRoom){
+					if($PM1_Index < count($PM1_Rooms)){
+						array_push($wKoteihyouEXTemp, $PM1_Rooms[$PM1_Index]['room']);
+						array_push($wHansuEXTemp, $PM1_Rooms[$PM1_Index]['hansu']);
+						$PM1_Index ++;
+					}else{
+						$PM1_IsRoom = false;
+						$PM1_Index = 0;
+					}
+				}
+
+				if(!$PM1_IsRoom){
+					if($PM1_Index < count($PM1_Blanks)){
+						array_push($wKoteihyouEXTemp, $PM1_Blanks[$PM1_Index]['room']);
+						array_push($wHansuEXTemp, $PM1_Blanks[$PM1_Index]['hansu']);
+						$PM1_Index ++;
+					}else{
+						break;
+					}
+				}
+			}
+			for($i=0; $i<$wWakuPM2col; $i++){
+				if($PM2_IsRoom){
+					if($PM2_Index < count($PM2_Rooms)){
+						array_push($wKoteihyouEXTemp, $PM2_Rooms[$PM2_Index]['room']);
+						array_push($wHansuEXTemp, $PM2_Rooms[$PM2_Index]['hansu']);
+						$PM2_Index ++;
+					}else{
+						$PM2_IsRoom = false;
+						$PM2_Index = 0;
+					}
+				}
+
+				if(!$PM2_IsRoom){
+					if($PM2_Index < count($PM2_Blanks)){
+						array_push($wKoteihyouEXTemp, $PM2_Blanks[$PM2_Index]['room']);
+						array_push($wHansuEXTemp, $PM2_Blanks[$PM2_Index]['hansu']);
+						$PM2_Index ++;
+					}else{
+						break;
+					}
+				}
+			}			
+		}
+	
+		$AM_Blanks = array();
+		$AM_Rooms = array();
+		$PM1_Blanks = array();
+		$PM1_Rooms = array();
+		$PM2_Blanks = array();
+		$PM2_Rooms = array();
+		$rowIndex = 0;
+	}
+}
+
+$wKoteihyouEX = $wKoteihyouEXTemp;
+$wHansuEX = $wHansuEXTemp;
 
 $wArrangeType = SPFWParameter::getValues('wArrangeType');
 $wFloorReserveInfo = SPFWParameter::getValues('FloorReserveInfo');
@@ -588,6 +758,8 @@ for ($i = 0; $i < $beforeReserveDayDateCnt * $rowCountforDay; $i++) {
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()->setARGB('cccccc');
+			}else if($wKoteihyouEX[$k] != ''){
+				$sheet->setCellValue($cell, $wKoteihyouEX[$k]);
 			}else{
 				#セルの色をグレーにする
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
@@ -724,6 +896,8 @@ for ($i = 0; $i < $afterReserveDayDateCnt * $rowCountforDay; $i++) {
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()->setARGB('cccccc');
+			}else if($wKoteihyouEX[$k] != ""){
+				$sheet->setCellValue($cell, $wKoteihyouEX[$k]);
 			}else{
 				#セルの色をグレーにする
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
@@ -887,6 +1061,9 @@ if($editBuildingCD){
 	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD = '" . $editBuildingCD . "' ";
 	$result = mysqli_query($db_link, $sql);
 
+	$sql = " update  tReservationInitF set MukouFlg = 1";
+	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD = '" . $editBuildingCD . "' ";
+	$result = mysqli_query($db_link, $sql);
 
 	$sql = " update tUserM set MukouFlg = 1 ";
 	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD = '" . $editBuildingCD . "' ";
@@ -896,6 +1073,9 @@ if($editBuildingCD){
 	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD IS NULL ";
 	$result = mysqli_query($db_link, $sql);
 
+	$sql = " update  tReservationInitF set MukouFlg = 1";
+	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD IS NULL ";
+	$result = mysqli_query($db_link, $sql);
 
 	$sql = " update tUserM set MukouFlg = 1 ";
 	$sql .= " WHERE BukkenCD = '" . $editBukkenCD . "' AND BuildingCD IS NULL ";
@@ -1116,6 +1296,39 @@ for ($i = 0; $i < count($KojiDate['RoomID']); $i++) {
 			$ErrorString[] = '予約情報登録時にエラーがおこりました。';
 			showAdminSorryPage($ErrorString);
 		}
+
+
+		$myReservationInit = new ReservationInit($myDB);
+
+		$myReservationInit->ReservationCD = $ReservationCD;
+		$myReservationInit->ClientCD = $TargetClientCD;
+		$myReservationInit->StylistCD = "1"; #$shokiStylistCD; まずは、３Lineをもつ班を指定した
+		$myReservationInit->UserCD = $tUserCD;#　50行ほど前に登録したUserCD
+		$myReservationInit->BukkenCD = $editBukkenCD;
+		if($editBuildingCD){
+			$myReservationInit->BuildingCD = $editBuildingCD;
+		// }else{
+		// 	$myReservationInit->BuildingCD = null;
+		}
+		$myReservationInit->ID = $wID[$i];#部屋番号
+		if(isset($HansuInfos[$wID[$i]])){
+			$myReservationInit->HanNo = $HansuInfos[$wID[$i]];
+		}
+		if(isset($ViewOrders[$wID[$i]])){
+			$myReservationInit->ViewOrderNo = $ViewOrders[$wID[$i]];
+		}
+		$myReservationInit->TimeFrom = $wTimeFrom;
+		$myReservationInit->TimeTo = $wTimeTo;
+		$myReservationInit->MenuCD = "|1|"; #　'|' . $MenuCD . '|';　まずは、20分作業のMenuを固定にした
+		$myReservationInit->Status = '1';
+		$myReservationInit->Creator = $MyUserCD;
+		$myReservationInit->Updater = $MyUserCD;
+
+		if (!$myReservationInit->executeUpdate()) { //★引数もたせるとInsert
+			$ErrorString = [];
+			$ErrorString[] = '予約情報登録時にエラーがおこりました。';
+			showAdminSorryPage($ErrorString);
+		}		
 	}
 	$No++;
 } //ForのEnd

@@ -402,6 +402,7 @@ $wMaxWakuSuu = SPFWTools::decodePluralValue($wMaxWakuSu, "-");
 ${"KojijunChecked" . $wKojijun} = " checked ";
 // ${"FrameOverflowSelect" . $wFrameOverflow} = " selected ";
 ${"ArrangeTypeChecked" . $wArrangeType} = " checked ";
+${"ArrangeTypeActived" . $wArrangeType} = " active ";
 
 if($wArrangeType == '1'){
 	$IfArrangeType1 = TRUE;

@@ -79,6 +79,7 @@ $isAdminMode = TRUE;
 	$FloorReserveInfo = SPFWParameter::getValues('FloorReserveInfo');
 	$FloorReserveInfo = htmlspecialchars($FloorReserveInfo, ENT_QUOTES, 'UTF-8');
 	$wFrameOverflow = SPFWParameter::getValues('wFrameOverflow');
+	$wFrameOverflow = intval($wFrameOverflow);
 	// $backFrameOverflow = $wFrameOverflow;
 	// if($wArrangeType == '1'){
 	// 	$wFrameOverflow = 0;
