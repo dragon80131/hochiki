@@ -1,0 +1,4 @@
+Please insert bellow columns to tclientm table;
+
+BusinessHours	varchar(100)	NULL	営業時間
+BusinessHoursNote	varchar(100)	NULL	営業時間注記	

@@ -2,7 +2,7 @@
 
 // ini_set('display_errors', "On");
 
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 include_once _CLS_DIR . "SPFWDatabase.cls";
@@ -63,7 +63,7 @@ if($deleteFlg == 1){
 	}
 	$FilePath = $mySign->FilePath ;
 
-	if (unlink("D:/xampp/htdocs/hochiki/httpdocs/".$FilePath)) {
+	if (unlink("C:/xampp/htdocs/hochiki/httpdocs/".$FilePath)) {
 		echo "ファイル '$FilePath' が削除されました。";
 	} else {
 		echo "ファイル '$FilePath' を削除できませんでした。";

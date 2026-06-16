@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	include_once _INC_DIR . "carrier.inc";
 	include_once _INC_DIR . "global.inc";
 
@@ -21,7 +21,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 
 
 	// データベースコネクト
-	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
+ 	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
 	if (!$myDB->Connection)
 		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
 
@@ -594,6 +594,61 @@ for ($i = 0; $i < $ReservationLoop; $i++) {
 	$arrTimeFrom[$ID[$i]] 	= $myListObject->GetValue($i, 5);
 }
 
+// 初期予約情報を取得します。
+$myListObjectInit = new SPFWListObject($myDB);
+$sql  = "SELECT ";
+$sql .= "r.ReservationCD, "; #0
+$sql .= "DATE(r.TimeFrom) AS Date, "; #1
+if($wWakuPattern == '0' || $wWakuPattern == '1' || $wWakuPattern == '2'){ // 2枠
+	$sql .= "CASE ";
+	$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+	$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '18:00:00' THEN 'PM'";
+	$sql .= " ELSE 'Other'";
+	$sql .= " END AS AMPM ,"; #2
+}else{ // 3枠
+	$sql .= "CASE ";
+	$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+	$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '14:59:00' THEN 'PM1'";
+	$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '15:00:00' AND '18:00:00' THEN 'PM2'";
+	$sql .= " ELSE 'Other'";
+	$sql .= " END AS AMPM ,"; #2
+}
+$sql .= "r.ID, "; #3
+$sql .= "r.UserCD, "; #4
+$sql .= "r.TimeFrom, "; #5
+$sql .= "r.TimeTo, "; #6
+$sql .= "r.HanNo, "; #7
+$sql .= "r.ViewOrderNo "; #8
+
+$myListObjectInit->SelectSQL = $sql;
+$sql  = " FROM tReservationInitF r, tUserM u ";
+$sql .= " WHERE r.Status = 1 AND r.MukouFlg = FALSE AND r.UserCD = u.UserCD";
+$sql .= " AND r.BukkenCD = " . $editBukkenCD;
+if($editBuildingCD){
+	$sql .= " AND r.BuildingCD = " . $editBuildingCD;
+}else{
+	$sql .= " AND r.BuildingCD IS NULL ";
+}
+
+// $sql .= " AND ClientCD = " . $wClientCD;
+
+$myListObjectInit->Condition = $sql;
+$myListObjectInit->Order = "Date, AMPM, r.HanNo, r.TimeFrom, r.Updated, r.ReservationCD";
+$myListObjectInit->Limit = "allpage";
+
+if (!($myListObjectInit->GetList(1)))
+	trigger_error("Getting Reservation List Failed.", E_USER_ERROR);
+
+$ReservationLoopInit = $myListObjectInit->Rows;
+for ($i = 0; $i < $ReservationLoopInit; $i++) {
+	$tDate = $myListObjectInit->GetValue($i, 1);
+	$tDate = date("Y-m-d", strtotime($tDate));
+	$AMPM = $myListObjectInit->GetValue($i, 2);
+	$ID[$i] = $myListObjectInit->GetValue($i, 3);
+	$HanNo = $myListObjectInit->GetValue($i, 7);
+	$ReserveInit[$tDate][$AMPM][$HanNo][] = $ID[$i];
+}
+
 if($wWakuPattern == "" || !$ReservationLoop){
 	echo ('<script>
 if(confirm("作業日程登録がまだ終わっていないようです。\r\nブラウザで戻り、作業日程登録の各項目の入力をお願いします。\r\n作業日程登録ページへ移動しますか？")){
@@ -777,25 +832,39 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					}else{
 						if($wArrangeType == '1'){
 							$bReservedRooms = 0;
-							foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-								if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-									$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
-								}
+							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+							// 		$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+							// 	}
+							// }
+							$tSenyuDate = date("Y-m-d", strtotime($SenyuDate));
+							if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+								$bReservedRooms = count($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]);
 							}
-							if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
+
+							if($ban_rooms > $bReservedRooms){
 								${'Waku' . $WakuName . 'Room'}[] = "余地";
 								$passed_rooms ++;
 								$EmptyFrameCount ++;
 							}else{
 								$bCorrectFloor = false;
-								foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-									if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-										if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+								// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+								// 		if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// 			$bCorrectFloor = true;
+								// 			break;
+								// 		}
+								// 	}
+								// }
+								if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+									foreach($ReserveInit[$tSenyuDate][$WakuName][$dis_ban] as $ReserveInitRoom){
+										if($ReserveInitRoom == $Reserve[$SenyuDate][$WakuName][$x]){
 											$bCorrectFloor = true;
 											break;
 										}
 									}
 								}
+
 								if($bCorrectFloor){
 									${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 								}else{
@@ -936,25 +1005,39 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 								$x ++;
 							}else{
 								$bReservedRooms = 0;
-								foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-									if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-										$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
-									}
+								// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+								// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+								// 		$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+								// 	}
+								// }
+								$tSenyuDate = date("Y-m-d", strtotime($SenyuDate));
+								if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+									$bReservedRooms = count($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]);
 								}
-								if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
+
+								if($ban_rooms > $bReservedRooms){
 									${'Waku' . $WakuName . 'Room'}[] = "余地";
 									$passed_rooms ++;
 									$EmptyFrameCount ++;
 								}else{
 									$bCorrectFloor = false;
-									foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-										if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-											if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+									// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+									// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+									// 		if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+									// 			$bCorrectFloor = true;
+									// 			break;
+									// 		}
+									// 	}
+									// }
+									if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+										foreach($ReserveInit[$tSenyuDate][$WakuName][$dis_ban] as $ReserveInitRoom){
+											if($ReserveInitRoom == $Reserve[$SenyuDate][$WakuName][$x]){
 												$bCorrectFloor = true;
 												break;
 											}
 										}
 									}
+
 									if($bCorrectFloor){
 										${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 									}else{
@@ -1097,25 +1180,39 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					}else{
 						if($wArrangeType == '1'){
 							$bReservedRooms = 0;
-							foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-								if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-									$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
-								}
+							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+							// 		$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+							// 	}
+							// }
+							$tSenyuDate = date("Y-m-d", strtotime($SenyuDate));
+							if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+								$bReservedRooms = count($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]);
 							}
-							if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
+
+							if($ban_rooms > $bReservedRooms){
 								${'Waku' . $WakuName . 'Room'}[] = "余地";
 								$passed_rooms ++;
 								$EmptyFrameCount ++;
 							}else{
 								$bCorrectFloor = false;
-								foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-									if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-										if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+								// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+								// 		if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// 			$bCorrectFloor = true;
+								// 			break;
+								// 		}
+								// 	}
+								// }
+								if(isset($ReserveInit[$tSenyuDate][$WakuName][$dis_ban]) && is_array($ReserveInit[$tSenyuDate][$WakuName][$dis_ban])){
+									foreach($ReserveInit[$tSenyuDate][$WakuName][$dis_ban] as $ReserveInitRoom){
+										if($ReserveInitRoom == $Reserve[$SenyuDate][$WakuName][$x]){
 											$bCorrectFloor = true;
 											break;
 										}
 									}
 								}
+
 								if($bCorrectFloor){
 									${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 								}else{

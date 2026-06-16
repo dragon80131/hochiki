@@ -1,6 +1,7 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+// include_once "/var/www/kawamoto_dia/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "global.inc";
 
 include_once _CLS_DIR . "SPFWDatabase.cls";
@@ -196,10 +197,10 @@ unset($myBukken);
 
 $folderPath = './upfile/'.date('Y',strtotime($Created) );
 $DomainQR_path = $folderPath."/".$editBukkenCD.'qrcode.png';
-$TargetURL = "https://app5.489501.jp/hochiki/login.php";
+$TargetURL = _ROOT_URL."login.php";
 if($editBuildingCD){
 	$DomainQR_path = $folderPath."/".$editBukkenCD.'-'.$editBuildingCD.'qrcode.png';
-	$TargetURL = "https://app5.489501.jp/hochiki/login.php?editBuildingCD=".$editBuildingCD;
+	$TargetURL = _ROOT_URL."login.php?editBuildingCD=".$editBuildingCD;
 }
 
 
@@ -227,6 +228,58 @@ if (!($myListObject->GetList(1)))
 $wPasswd = $myListObject->GetValue(0, 0);#一番初めのユーザのパスワードをセット
 unset($myListObject);
 
+########################################################
+# 案内資料フッター（クライアント・支店）
+########################################################
+$ClientName = '';
+$ClientTEL = '';
+$BusinessHours = '';
+$BusinessHoursNote = '';
+$BrancheName = '';
+$BrancheCompanyDisplayName = '';
+$BusinessHoursDisplay = '';
+
+if ($wClientCD) {
+	$myListObject = new SPFWListObject($myDB);
+	$sql = "SELECT ";
+	$sql .= "ClientName, TEL, BusinessHours, BusinessHoursNote ";
+	$myListObject->SelectSQL = $sql;
+	$sql = " FROM tClientM";
+	$sql .= " WHERE MukouFlg = FALSE AND ClientCD='" . $wClientCD . "'";
+
+	$myListObject->Condition	= $sql;
+	$myListObject->Order 		= "";
+	$myListObject->Limit 		= "1";
+
+	if ($myListObject->GetList(1)) {
+		$ClientName = $myListObject->GetValue(0, 0) ?? '';
+		$ClientTEL = $myListObject->GetValue(0, 1) ?? '';
+		$BusinessHours = $myListObject->GetValue(0, 2) ?? '';
+		$BusinessHoursNote = $myListObject->GetValue(0, 3) ?? '';
+	}
+	unset($myListObject);
+}
+
+if ($wBrancheCD) {
+	$myListObject = new SPFWListObject($myDB);
+	$sql = "SELECT ";
+	$sql .= "BrancheName ";
+	$myListObject->SelectSQL = $sql;
+	$sql = " FROM tBrancheM";
+	$sql .= " WHERE MukouFlg = FALSE AND BrancheCD='" . $wBrancheCD . "'";
+
+	$myListObject->Condition	= $sql;
+	$myListObject->Order 		= "";
+	$myListObject->Limit 		= "1";
+
+	if ($myListObject->GetList(1)) {
+		$BrancheName = $myListObject->GetValue(0, 0) ?? '';
+	}
+	unset($myListObject);
+}
+
+$BrancheCompanyDisplayName = $ClientName . $BrancheName;
+$BusinessHoursDisplay = trim($BusinessHours . $BusinessHoursNote);
 
 ########################################################
 # Excelファイル生成
@@ -474,34 +527,21 @@ if($wArrangeType == '1'){ // 点検
 	unset($myListObject);
 	$sheet->setCellValue('T3', $KanriCompanyName);
 
-	// 点検会社
-	$myListObject = new SPFWListObject($myDB);
-	$sql = "SELECT ";
-	$sql .= "BrancheName, BrancheTEL";
-	$myListObject->SelectSQL = $sql;
-	$sql = " FROM tBrancheM";
-	$sql .= " WHERE MukouFlg = FALSE AND BrancheCD='".$wBrancheCD."'";
-
-	$myListObject->Condition	= $sql;
-	$myListObject->Order 		= "";
-	$myListObject->Limit 		= "1";
-
-	if (!($myListObject->GetList(1))){
+	$sheet->setCellValue('T42', $BrancheCompanyDisplayName);
+	$sheet->mergeCells('I43:N43');
+	$sheet->setCellValue('I43', $ClientTEL);
+	if ($BusinessHoursDisplay !== '') {
+		$sheet->setCellValue('T44', '営業時間 : ' . $BusinessHoursDisplay);
 	}
-	$BrancheName = $myListObject->GetValue(0, 0);
-	$BrancheTEL = $myListObject->GetValue(0, 1);
-	unset($myListObject);
-
-	$sheet->setCellValue('T42', "ホーチキ株式会社".$BrancheName."メンテナンスセンター");
-	$sheet->setCellValue('K43', $BrancheTEL);
 
 	// 担当1
+	$Tanto1Name = '';
+	$Tanto2Name = '';
 	$myUser = new User($myDB);
 	if (!$myUser->executeSelect(" UserCD = '" . $TantoCD1 . "' AND MukouFlg = FALSE", "")) {
 	}
 	$Tanto1Name = $myUser->LastName;
 	unset($myUser);
-	$sheet->setCellValue('K43', $BrancheTEL);
 
 	// 担当2
 	$myUser = new User($myDB);
@@ -619,26 +659,8 @@ if($wArrangeType == '1'){ // 点検
 	unset($myListObject);
 	$sheet->setCellValue('E40', $KanriCompanyName);
 
-	// 点検会社
-	$myListObject = new SPFWListObject($myDB);
-	$sql = "SELECT ";
-	$sql .= "BrancheName, BrancheTEL";
-	$myListObject->SelectSQL = $sql;
-	$sql = " FROM tBrancheM";
-	$sql .= " WHERE MukouFlg = FALSE AND BrancheCD='".$wBrancheCD."'";
-
-	$myListObject->Condition	= $sql;
-	$myListObject->Order 		= "";
-	$myListObject->Limit 		= "1";
-
-	if (!($myListObject->GetList(1))){
-	}
-	$BrancheName = $myListObject->GetValue(0, 0);
-	$BrancheTEL = $myListObject->GetValue(0, 1);
-	unset($myListObject);
-
-	$sheet->setCellValue('E41', "ホーチキ株式会社".$BrancheName."メンテナンスセンター");
-	$sheet->setCellValue('E42', $BrancheTEL);
+	$sheet->setCellValue('E41', $BrancheCompanyDisplayName);
+	$sheet->setCellValue('E42', $ClientTEL);
 }
 
 if($isTwoPage){

@@ -1,8 +1,8 @@
 <?php
 /**
- * Clientクラス
+ * ReservationTempクラス
  *
- * クライアントマスタを扱うクラスです。
+ * 一時保存の予約マスタを扱うクラスです。
  *
  * @package 
  * @access  public
@@ -14,73 +14,70 @@
 // 依存
 include_once _CLS_DIR . "SPFWLog.cls";
 
-class Client {
+class ReservationTemp {
 	/**
 	 * データベースクラスのインスタンス
 	 */
-	var $myDB;
+	Public $myDB;
 	/**
 	 * レコードカウント
 	 */
-	var $RecCnt;
+	Public $RecCnt;
 	/**
 	 * クエリ実行結果セット
 	 */
-	var $tmprtn;
+	Public $tmprtn;
 	/**
 	 * 対象テーブル名称
 	 */
-	var $TableName;
+	Public $TableName;
 	/**
-	 * クライアントコード
+	 * 予約コード
 	 * 
 	 * 連番
 	 */
-	var $ClientCD;
+	Public $ReservationCD;
 	/**
-	 * クライアントID
+	 * クライアントコード
 	 */
-	var $ID;
+	Public $ClientCD;
 	/**
-	 * クライアント名称
+	 * 会員コード
 	 */
-	var $ClientName;
-	/**
-	 * メールアドレス
-	 */
-	var $Yomikata;
-	/**
-	 * 備考
-	 */
-	var $Notes;
-
-	var $TEL;
-
-	var $FAX;
-	var $BusinessHours;
-	var $BusinessHoursNote;
-	/**
-	 * 無効フラグ
-	 */
-	var $MukouFlg;
+	Public $UserCD;
 	/**
 	 * 作成日時
 	 */
-	var $Created;
+	Public $Created;
 	/**
 	 * 作成者
 	 */
-	var $Creator;
+	Public $Creator;
 	/**
 	 * 更新日時
 	 */
-	var $Updated;
+	Public $Updated;
 	/**
 	 * 更新者
 	 */
-	var $Updater;
+	Public $Updater;
 
-	function __construct($myDB = "",$ClientCD = -1) {
+	/**
+	 * 会員ID　いわば　部屋番号　を増やす。20110626
+	 */
+	Public $ID;
+
+
+	/**
+	 * 第2希望予約終了時刻
+	 */
+
+	Public $BukkenCD;
+	Public $BuildingCD;
+	Public $ReservationInfo;
+
+	Public $Err;
+	function __construct($myDB = "",$ReservationCD = -1) {
 		// ログ準備
 		$myLog = new SPFWLog();
 
@@ -94,9 +91,9 @@ class Client {
 		}
 
 		// 整数変換
-		settype($ClientCD,"integer");
+		settype($ReservationCD,"integer");
 		// 整数チェック
-		if (!is_long($ClientCD) or $ClientCD == 0) {
+		if (!is_long($ReservationCD) or $ReservationCD == 0) {
 			$this->Err = "ユーザーコード が不正です";
 			$myLog->error("ClassName : " . get_class($this) . " : " . $this->Err);
 			unset($myLog);
@@ -104,8 +101,8 @@ class Client {
 		}
 
 		$this->myDB = $myDB;
-		$this->TableName = "tClientM";
-		$this->ClientCD = $ClientCD;
+		$this->TableName = "tReservationTempF";
+		$this->ReservationCD = $ReservationCD;
 
 		return TRUE;
 	}
@@ -113,20 +110,16 @@ class Client {
 	function initialize(){
 		$this->Err = "";
 
+		$this->ReservationCD = "";
 		$this->ClientCD = "";
-		$this->ID = "";
-		$this->ClientName = "";
-		$this->Yomikata = "";
-		$this->Notes = "";
-		$this->TEL = "";
-		$this->FAX = "";
-		$this->BusinessHours = "";
-		$this->BusinessHoursNote = "";
-		$this->MukouFlg = "";
+		$this->UserCD = "";
 		$this->Created = "";
 		$this->Creator = "";
 		$this->Updated = "";
 		$this->Updater = "";
+		$this->BukkenCD = "";
+		$this->BuildingCD = "";
+		$this->ReservationInfo = "";
 	}
 
 	//抽出
@@ -146,20 +139,16 @@ class Client {
 		
 		// ページプロパティ取得
 		$sqlMoji = "select ";
-		$sqlMoji .= "ClientCD";
-		$sqlMoji .= ", ID";
-		$sqlMoji .= ", ClientName";
-		$sqlMoji .= ", Yomikata";
-		$sqlMoji .= ", Notes";
-		$sqlMoji .= ", TEL ";
-		$sqlMoji .= ", FAX ";
-		$sqlMoji .= ", BusinessHours ";
-		$sqlMoji .= ", BusinessHoursNote ";
-		$sqlMoji .= ", MukouFlg";
+		$sqlMoji .= "ReservationCD";
+		$sqlMoji .= ", ClientCD";
+		$sqlMoji .= ", UserCD";
 		$sqlMoji .= ", Created";
 		$sqlMoji .= ", Creator";
 		$sqlMoji .= ", Updated";
 		$sqlMoji .= ", Updater";
+		$sqlMoji .= ", BukkenCD";
+		$sqlMoji .= ", BuildingCD";
+		$sqlMoji .= ", ReservationInfo";
 		$sqlMoji .= " from $this->TableName";
 
 		if($WhereStr != "")
@@ -183,6 +172,7 @@ class Client {
 			}
 			else if($this->RecCnt > 1){
 				$this->tmprtn = $rtn;
+				$this->getDataSet(0);
 			}
 		}
 
@@ -197,31 +187,17 @@ class Client {
 		}
 		else{
 			list(
+				$this->ReservationCD,
 				$this->ClientCD,
-				$this->ID,
-				$this->ClientName,
-				$this->Yomikata,
-				$this->Notes,
-				$this->TEL,
-				$this->FAX,
-				$this->BusinessHours,
-				$this->BusinessHoursNote,
-				$this->MukouFlg,
+				$this->UserCD,
 				$this->Created,
 				$this->Creator,
 				$this->Updated,
-				$this->Updater
+				$this->Updater,
+				$this->BukkenCD,
+				$this->BuildingCD,
+				$this->ReservationInfo
 			) = $this->myDB->fetchRow($this->tmprtn,$RowNo);
-
-			$this->ID = stripslashes($this->ID);
-			$this->ClientName = stripslashes($this->ClientName);
-			$this->Yomikata = stripslashes($this->Yomikata);
-			$this->Notes = stripslashes($this->Notes);
-			$this->TEL = stripslashes($this->TEL);
-			$this->FAX = stripslashes($this->FAX);
-			$this->BusinessHours = stripslashes($this->BusinessHours);
-			$this->BusinessHoursNote = stripslashes($this->BusinessHoursNote);
-			$this->MukouFlg = $this->convertFlgToBoolean($this->MukouFlg);
 		}
 	}
 
@@ -241,7 +217,7 @@ class Client {
 			return FALSE;
 		}
 		
-		if ($this->ClientCD < 0) {
+		if ($this->ReservationCD < 0) {
 			// 新規
 			// step 1. 新規番号取得のためトランザクション開始
 			if (!($this->myDB->executeQuery("BEGIN"))) {
@@ -259,44 +235,37 @@ class Client {
 					return FALSE;
 				} else {
 					// step 3. 取得
-					$sqlMoji = "select ClientCD from $this->TableName order by ClientCD desc limit 1";
+					$sqlMoji = "select ReservationCD from $this->TableName order by ReservationCD desc limit 1";
 					$maxCD = $this->myDB->getOneValue($sqlMoji);
 					$maxCD = ($maxCD == -1) ? 0 : $maxCD;
 					$maxCD++;
 
 					// step 4. インサート
 					$sqlMoji = "Insert into $this->TableName (";
-					$sqlMoji .= "ClientCD";
-					if ($this->ID != "") $sqlMoji .= ", ID";
-					if ($this->ClientName != "") $sqlMoji .= ", ClientName";
-					if ($this->Yomikata != "") $sqlMoji .= ", Yomikata";
-					if ($this->Notes != "") $sqlMoji .= ", Notes";
-					if ($this->TEL != "") $sqlMoji .= ", TEL";		
-					if ($this->FAX != "") $sqlMoji .= ", FAX";
-					if ($this->BusinessHours != "") $sqlMoji .= ", BusinessHours";
-					if ($this->BusinessHoursNote != "") $sqlMoji .= ", BusinessHoursNote";
-					if ($this->MukouFlg != "") $sqlMoji .= ", MukouFlg";
+
+					$sqlMoji .= "ReservationCD";
+					if ($this->ClientCD != "") $sqlMoji .= ", ClientCD";
+					if ($this->UserCD != "") $sqlMoji .= ", UserCD";
 					$sqlMoji .= ", Created";
 					if ($this->Creator != "") $sqlMoji .= ", Creator";
 					$sqlMoji .= ", Updated";
 					if ($this->Updater != "") $sqlMoji .= ", Updater";
+					if ($this->BukkenCD != "") $sqlMoji .= ", BukkenCD";
+					if ($this->BuildingCD != "") $sqlMoji .= ", BuildingCD";
+					if ($this->ReservationInfo != "") $sqlMoji .= ", ReservationInfo";
 					$sqlMoji .= ") values (";
+
 					$sqlMoji .= "$maxCD";
-					if ($this->ID != "") $sqlMoji .= ", '" . addslashes($this->ID) . "'";
-					if ($this->ClientName != "") $sqlMoji .= ", '" . addslashes($this->ClientName) . "'";
-					if ($this->Yomikata != "") $sqlMoji .= ", '" . addslashes($this->Yomikata) . "'";
-					if ($this->Notes != "") $sqlMoji .= ", '" . addslashes($this->Notes) . "'";
-					if ($this->TEL != "") $sqlMoji .= ", '" . addslashes($this->TEL) . "'";
-					if ($this->FAX != "") $sqlMoji .= ", '" . addslashes($this->FAX) . "'";
-					if ($this->BusinessHours != "") $sqlMoji .= ", '" . addslashes($this->BusinessHours) . "'";
-					if ($this->BusinessHoursNote != "") $sqlMoji .= ", '" . addslashes($this->BusinessHoursNote) . "'";
-					if ($this->MukouFlg != "") $sqlMoji .= ", " . $this->convertFlgToString($this->MukouFlg);
+					if ($this->ClientCD != "") $sqlMoji .= ", $this->ClientCD";
+					if ($this->UserCD != "") $sqlMoji .= ", $this->UserCD";
 					$sqlMoji .= ", NOW()";
 					if ($this->Creator != "") $sqlMoji .= ", $this->Creator";
 					$sqlMoji .= ", NOW()";
 					if ($this->Updater != "") $sqlMoji .= ", $this->Updater";
+					if ($this->BukkenCD != "") $sqlMoji .= ", '" . addslashes($this->BukkenCD) . "'";
+					if ($this->BuildingCD != "") $sqlMoji .= ", '" . addslashes($this->BuildingCD) . "'";
+					if ($this->ReservationInfo != "") $sqlMoji .= ", '" . addslashes($this->ReservationInfo) . "'";
 					$sqlMoji .= ")";
-
 					$rtn = $this->myDB->executeQuery($sqlMoji);
 					if (!$rtn){
 						$this->Err = "追加処理に失敗しました";
@@ -312,7 +281,7 @@ class Client {
 							return FALSE;
 						}
 						else {
-							$this->ClientCD = $maxCD;
+							$this->ReservationCD = $maxCD;
 						}
 					}
 				}
@@ -320,25 +289,54 @@ class Client {
 		} else {
 			// アップデート
 			$sqlMoji = "Update $this->TableName set ";
-			$sqlMoji .= "ClientCD = $this->ClientCD";
-			$sqlMoji .= ", ID = " . $this->convertNullStringValue($this->ID);
-			$sqlMoji .= ", ClientName = " . $this->convertNullStringValue($this->ClientName);
-			$sqlMoji .= ", Yomikata = " . $this->convertNullStringValue($this->Yomikata);
-			$sqlMoji .= ", Notes = " . $this->convertNullStringValue($this->Notes);
-			$sqlMoji .= ", TEL = " . $this->convertNullStringValue($this->TEL);
-			$sqlMoji .= ", FAX = " . $this->convertNullStringValue($this->FAX);
-			$sqlMoji .= ", BusinessHours = " . $this->convertNullStringValue($this->BusinessHours);
-			$sqlMoji .= ", BusinessHoursNote = " . $this->convertNullStringValue($this->BusinessHoursNote);
-			$sqlMoji .= ", MukouFlg = " . $this->convertFlgToString($this->MukouFlg);
+			$sqlMoji .= "ReservationCD = $this->ReservationCD";
+			$sqlMoji .= ", ClientCD = " . $this->convertNullIntValue($this->ClientCD);
+			$sqlMoji .= ", UserCD = " . $this->convertNullIntValue($this->UserCD);
 			$sqlMoji .= ", Created = " . $this->convertNullStringValue($this->Created);
 			$sqlMoji .= ", Creator = " . $this->convertNullIntValue($this->Creator);
-			$sqlMoji .= ", Updated = NOW()";
+			$sqlMoji .= ", Updated = " . $this->convertNullStringValue($this->Updated);
 			$sqlMoji .= ", Updater = " . $this->convertNullIntValue($this->Updater);
-			$sqlMoji .= " where ClientCD = $this->ClientCD";
+			$sqlMoji .= ", BukkenCD = " . $this->convertNullStringValue($this->BukkenCD);
+			$sqlMoji .= ", BuildingCD = " . $this->convertNullStringValue($this->BuildingCD);
+			$sqlMoji .= ", ReservationInfo = " . $this->convertNullStringValue($this->ReservationInfo);
+			$sqlMoji .= " where ReservationCD = $this->ReservationCD";
 
 			$rtn = $this->myDB->executeQuery($sqlMoji);
 			if (!$rtn){
 				$this->Err = "更新処理に失敗しました";
+				$myLog->error("ClassName : " . get_class($this) . " : " . $this->Err);
+				unset($myLog);
+				return FALSE;
+			}
+		}
+
+		return TRUE;
+	}
+
+	/* 削除 */
+	function executeDelete() {
+		// ログ準備
+		$myLog = new SPFWLog();
+
+		// エラークリア
+		$this->Err = "";
+
+		//設定
+		if ($this->myDB == "") {
+			$this->Err = "データベースへのコネクションがありません";
+			$myLog->error("ClassName : " . get_class($this) . " : " . $this->Err);
+			unset($myLog);
+			return FALSE;
+		}
+		
+		if ($this->ReservationCD > 0) {
+			// 削除
+			$sqlMoji = "delete from $this->TableName ";
+			$sqlMoji .= " where ReservationCD = $this->ReservationCD";
+
+			$rtn = $this->myDB->executeQuery($sqlMoji);
+			if (!$rtn){
+				$this->Err = "削除処理に失敗しました";
 				$myLog->error("ClassName : " . get_class($this) . " : " . $this->Err);
 				unset($myLog);
 				return FALSE;
@@ -363,9 +361,9 @@ class Client {
 	}
 
 	function convertFlgToBoolean($flg){
-		if ($flg == "t" || $flg == 1)
+		if ($flg == "t")
 			return TRUE;
-		else if ($flg == "f" || $flg == 0)
+		else if ($flg == "f")
 			return FALSE;
 	}
 
@@ -423,56 +421,6 @@ class Client {
 			unset($myLog);
 			return FALSE;
 		}
-		return TRUE;
-	}
-
-	function createSite($ID){
-		if ($ID == NULL)
-			return FALSE;
-
-		$MyDir = _DOCUMENT_ROOT . $ID;
-		if (file_exists($MyDir))
-			return FALSE;
-
-		$Command = 'mkdir ' . $MyDir . ' 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
-		$Command = 'chmod 777 ' . $MyDir . ' 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
-		$Command = 'ln -s ' . _DOCUMENT_ROOT . '*.php ' . $MyDir . '/ 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
-		$MyDir = _DOCUMENT_ROOT . $ID . '/upfile';
-		if (file_exists($MyDir))
-			return FALSE;
-
-		$Command = 'mkdir ' . $MyDir . ' 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
-		$Command = 'chmod 777 ' . $MyDir . ' 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	function destroySite($ID){
-		if ($ID == NULL)
-			return FALSE;
-
-		$MyDir = _DOCUMENT_ROOT . $ID;
-		if (!file_exists($MyDir))
-			return FALSE;
-
-		$Command = 'rm -Rf ' . $MyDir . ' 2>&1';
-		if (($this->Err = shell_exec($Command)) != NULL)
-			return FALSE;
-
 		return TRUE;
 	}
 }

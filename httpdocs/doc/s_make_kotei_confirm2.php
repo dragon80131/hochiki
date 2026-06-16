@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 
@@ -18,6 +18,7 @@ include_once _CLS_DIR . "SPUSIraiRenkei.cls";
 include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once _CLS_DIR . "SPUSReservationTemp.cls";
 
 
 // データベースコネクト
@@ -1166,9 +1167,24 @@ foreach($afterReserveDay as $key => $aReserveDay){
 }
 
 $Koteihyou .= "</table>";
-$wKoteihyouEX = SPFWTools::encodePluralValue($KoteihyouEX);
+//$wKoteihyouEX = SPFWTools::encodePluralValue($KoteihyouEX);
+$wKoteihyouEXHTML = "";
+$i = 0;
+foreach (array_chunk($KoteihyouEX, 300) as $KoteihyouEXChunk) {
+	$wKoteihyouEXHTML .= '<input type="hidden" name="wKoteihyouEX_'.$i.'" value="' . SPFWTools::encodePluralValue($KoteihyouEXChunk) . '">';
+	$i++;
+}
+$wKoteihyouEXHTML .= '<input type="hidden" name="wKoteihyouEX_count" value="' . $i . '">';
+
 $wKaiRoom3 = SPFWTools::encodePluralValue($KaiRoom3);
-$wHansuEX = SPFWTools::encodePluralValue($HansuEX);
+//$wHansuEX = SPFWTools::encodePluralValue($HansuEX);
+$wHansuEXHTML = "";
+$i = 0;
+foreach (array_chunk($HansuEX, 300) as $HansuEXChunk) {
+	$wHansuEXHTML .= '<input type="hidden" name="wHansuEX_'.$i.'" value="' . SPFWTools::encodePluralValue($HansuEXChunk) . '">';
+	$i++;
+}
+$wHansuEXHTML .= '<input type="hidden" name="wHansuEX_count" value="' . $i . '">';
 
 $wFrameOverflow = SPFWParameter::getValues('wFrameOverflow');
 
@@ -1238,6 +1254,19 @@ if (!($myListObject->GetList(1)))
 	trigger_error("Getting Reservation List Failed.", E_USER_ERROR);
 $ReservationCount = $myListObject->Rows;
 
+// 一時保存されたデータがあるか確認します。
+$myReservationTemp = new ReservationTemp($myDB);
+if($editBuildingCD){
+	if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD = '".$editBuildingCD."'", "")) 
+		trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+}else{
+	if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD IS NULL", "")) 
+		trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+}
+$IfExistTempReservation = false;
+if($myReservationTemp->RecCnt > 0)
+	$IfExistTempReservation = true;
+
 ########################################################
 # コンテンツ表示
 ########################################################
@@ -1251,4 +1280,3 @@ $myTemplate->convertTags();
 $myTemplate->outputTemplate();
 
 unset($myTemplate);
-unset($myLog);

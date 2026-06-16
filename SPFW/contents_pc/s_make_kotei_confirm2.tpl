@@ -227,8 +227,8 @@
 				<input type="hidden" name="wWakuAM3col" value="__wWakuAM3col__">
 				<input type="hidden" name="wWakuPM1col" value="__wWakuPM1col__">
 				<input type="hidden" name="wWakuPM2col" value="__wWakuPM2col__">
-				<input type="hidden" name="wKoteihyouEX" value="__wKoteihyouEX__">
-				<input type="hidden" name="wHansuEX" value="__wHansuEX__">
+				__wKoteihyouEXHTML__
+				__wHansuEXHTML__
 				<input type="hidden" name="RowsLoop" value="__RowsLoop__">
 				<input type="hidden" name="wHoliday1" value="__wHoliday1__">
 				<input type="hidden" name="wShukujitucolor" value="__wShukujitucolor__">
@@ -310,6 +310,11 @@
 
 		__SFooter__
 		__SCopyright__
-
+	<script>
+	__IfExistTempReservation__
+	if(confirm("一時保存された工程表案があります。\r\n保存済みの工程表案の編集ページに移動しますか？"))
+		location.href="s_make_kanryo_hensyu.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__&editBuildingCD=__editBuildingCD__&temp_show=1";
+	__IfExistTempReservation__
+	</script>
 </body>
 </html>

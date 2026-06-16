@@ -1,6 +1,6 @@
 <?php
 
-include_once "E:/xampp8.2.4/kotei/SPFW/inc/D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "E:/xampp8.2.4/kotei/SPFW/inc/C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 

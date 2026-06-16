@@ -1,7 +1,7 @@
 usr_id	07F003	
 usr_pass	sM0Pk1l	
 epass	0000	
-emj_path	D:/xampp/htdocs/vhosts/ver2.souppot.jp/SPFW/inc/emoji/data/	
+emj_path	C:/xampp/htdocs/vhosts/ver2.souppot.jp/SPFW/inc/emoji/data/	
 emjimg_path	http://ver2.souppot.jp/emjimg	
 emoji_non	2	
 emoji_chr	*	

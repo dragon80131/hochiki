@@ -23,6 +23,12 @@
       rel="stylesheet"
       type="text/css"
     />
+    <style>
+		.HasError{
+			color:red;
+      text-align:left;
+		}
+	</style>
     <script type="text/javascript" src="../js/tools_ajax.js"></script>
     <script type="text/javascript" src="../js/ConnectedSelect.js"></script>
     <!--<script src="../js/jquery-1.4.2.js" type="text/javascript"></script>-->
@@ -30,19 +36,297 @@
     <script type="text/javascript">
       jQuery(function ($) {
         var checked_last = null;
-        jQuery(".check-range").on("click", function (event) {
-          if (event.shiftKey && checked_last) {
-            //Shiftを押してクリックした場所は終点として処理をする
-            var $targets = $(".check-range");
-            var p1 = $targets.index(checked_last);
-            var p2 = $targets.index(this);
+        var dragStartCheckbox = null;
+        var dragEndCheckbox = null;
+        var dragStartCell = null;
+        var dragEndCell = null;
+        var dragWithCtrl = false;
+        var dragHoverCell = null;
+        var pendingRange = [];
+        var pendingInitialized = false;
+        var suppressNextClick = false;
+        var isDragging = false;
+
+        function setUserSelectDisabled(disabled) {
+          if (disabled) {
+            $("body").addClass("no-user-select");
+          } else {
+            $("body").removeClass("no-user-select");
+          }
+        }
+
+        function getCheckboxRange(startCheckbox, endCheckbox) {
+          var $targets = $(".room-composition .check-range");
+          var p1 = $targets.index(startCheckbox);
+          var p2 = $targets.index(endCheckbox);
+
+          if (p1 < 0 || p2 < 0) {
+            return [];
+          }
+
+          var range = [];
             for (var i = Math.min(p1, p2); i <= Math.max(p1, p2); ++i) {
-              $targets.get(i).checked = checked_last.checked;
+            range.push($targets.get(i));
+          }
+          return range;
+        }
+
+        function getCellPosition(cell) {
+          if (!cell) {
+            return null;
+          }
+          var $cell = $(cell);
+          var $row = $cell.closest("tr");
+          var $table = $cell.closest("table.room-composition");
+          if ($row.length === 0 || $table.length === 0) {
+            return null;
+          }
+
+          var rowIndex = $table.find("tr").index($row.get(0));
+          var colIndex = cell.cellIndex;
+          if (rowIndex < 0 || colIndex == null || colIndex < 0) {
+            return null;
+          }
+          return { row: rowIndex, col: colIndex, table: $table };
+        }
+
+        function getCheckboxRectangle(startCell, endCell) {
+          var pos1 = getCellPosition(startCell);
+          var pos2 = getCellPosition(endCell);
+          if (!pos1 || !pos2 || pos1.table.get(0) !== pos2.table.get(0)) {
+            return [];
+          }
+
+          var $table = pos1.table;
+          var r1 = Math.min(pos1.row, pos2.row);
+          var r2 = Math.max(pos1.row, pos2.row);
+          var c1 = Math.min(pos1.col, pos2.col);
+          var c2 = Math.max(pos1.col, pos2.col);
+
+          var range = [];
+          for (var r = r1; r <= r2; ++r) {
+            var $row = $table.find("tr").eq(r);
+            if ($row.length === 0) continue;
+            for (var c = c1; c <= c2; ++c) {
+              var $cell = $row.find("td").eq(c);
+              if ($cell.length === 0) continue;
+              var checkbox = $cell.find(".check-range").get(0) || null;
+              if (checkbox) {
+                range.push(checkbox);
+              }
+            }
+          }
+          return range;
+        }
+
+        function clearDragHighlights() {
+          $(".room-composition td.drag-highlight").removeClass("drag-highlight");
+        }
+
+        function getCellRectangle(startCell, endCell) {
+          var pos1 = getCellPosition(startCell);
+          var pos2 = getCellPosition(endCell);
+          if (!pos1 || !pos2 || pos1.table.get(0) !== pos2.table.get(0)) {
+            return [];
+          }
+
+          var $table = pos1.table;
+          var r1 = Math.min(pos1.row, pos2.row);
+          var r2 = Math.max(pos1.row, pos2.row);
+          var c1 = Math.min(pos1.col, pos2.col);
+          var c2 = Math.max(pos1.col, pos2.col);
+
+          var cells = [];
+          for (var r = r1; r <= r2; ++r) {
+            var $row = $table.find("tr").eq(r);
+            if ($row.length === 0) continue;
+            for (var c = c1; c <= c2; ++c) {
+              var $cell = $row.find("td").eq(c);
+              if ($cell.length === 0) continue;
+              cells.push($cell.get(0));
+            }
+          }
+          return cells;
+        }
+
+        function getCellsFromCheckboxRange(startCheckbox, endCheckbox) {
+          var checkboxes = getCheckboxRange(startCheckbox, endCheckbox);
+          var cells = [];
+          for (var i = 0; i < checkboxes.length; ++i) {
+            var $cell = $(checkboxes[i]).closest("td");
+            if ($cell.length > 0) {
+              cells.push($cell.get(0));
+            }
+          }
+          return cells;
+        }
+
+        function clearPendingRange() {
+          pendingRange = [];
+          pendingInitialized = false;
+        }
+
+        function getPendingRoomNumbers() {
+          var roomNumbers = [];
+          for (var i = 0; i < pendingRange.length; ++i) {
+            roomNumbers.push(pendingRange[i].value);
+          }
+          return roomNumbers;
+        }
+
+        $(document).on("mousedown", ".room-composition td", function (event) {
+          dragStartCell = this;
+          dragStartCheckbox = $(this).find(".check-range").get(0) || null;
+          dragWithCtrl = !!(event && (event.ctrlKey || event.metaKey));
+          isDragging = false;
+          dragHoverCell = this;
+          clearDragHighlights();
+          // Always suppress native text selection while dragging on table cells.
+          if (event && typeof event.preventDefault === "function") {
+            event.preventDefault();
+          }
+          setUserSelectDisabled(true);
+          if (dragStartCell) {
+            $(dragStartCell).addClass("drag-highlight");
+          }
+        });
+
+        $(document).on("mousemove", function () {
+          if (dragStartCheckbox) {
+            isDragging = true;
+          }
+        });
+
+        $(document).on("mouseenter mousemove", ".room-composition td", function () {
+          if (!dragStartCell || !dragStartCheckbox) {
+            return;
+          }
+          dragHoverCell = this;
+          var cells = dragWithCtrl
+            ? getCellRectangle(dragStartCell, dragHoverCell)
+            : getCellsFromCheckboxRange(dragStartCheckbox, $(this).find(".check-range").get(0) || null);
+          clearDragHighlights();
+          for (var i = 0; i < cells.length; ++i) {
+            $(cells[i]).addClass("drag-highlight");
+          }
+        });
+
+        $(document).on("mouseup", ".room-composition td", function () {
+          if (!dragStartCheckbox) {
+            return;
+          }
+          dragEndCell = this;
+          dragEndCheckbox = $(this).find(".check-range").get(0) || null;
+          if (isDragging && dragStartCheckbox !== dragEndCheckbox) {
+            pendingRange = dragWithCtrl
+              ? getCheckboxRectangle(dragStartCell, dragEndCell)
+              : getCheckboxRange(dragStartCheckbox, dragEndCheckbox);
+            if (pendingRange.length > 0) {
+              pendingInitialized = true;
+              suppressNextClick = true;
+              $("#multiSelectModal").modal("show");
+            }
+          }
+
+          dragStartCheckbox = null;
+          dragEndCheckbox = null;
+          dragStartCell = null;
+          dragEndCell = null;
+          dragWithCtrl = false;
+          dragHoverCell = null;
+          isDragging = false;
+          setUserSelectDisabled(false);
+          clearDragHighlights();
+        });
+
+        $(document).on("mouseup", function () {
+          // If mouseup happens outside the table, still allow drag selection
+          if (
+            dragStartCheckbox &&
+            dragHoverCell &&
+            dragStartCell !== dragHoverCell &&
+            isDragging
+          ) {
+            var dragHoverCheckbox = $(dragHoverCell).find(".check-range").get(0) || null;
+            pendingRange = dragWithCtrl
+              ? getCheckboxRectangle(dragStartCell, dragHoverCell)
+              : getCheckboxRange(dragStartCheckbox, dragHoverCheckbox);
+            if (pendingRange.length > 0) {
+              pendingInitialized = true;
+              suppressNextClick = true;
+              $("#multiSelectModal").modal("show");
+            }
+          }
+          dragStartCheckbox = null;
+          dragStartCell = null;
+          dragEndCell = null;
+          dragWithCtrl = false;
+          dragHoverCell = null;
+          isDragging = false;
+          setUserSelectDisabled(false);
+          clearDragHighlights();
+        });
+
+        $(".room-composition").on("click", ".check-range", function (event) {
+          if (suppressNextClick) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            suppressNextClick = false;
+            return false;
+          }
+
+          if (event.shiftKey && checked_last) {
+            // Shiftを押してクリックした場所は終点として処理する
+            var range = getCheckboxRange(checked_last, this);
+            for (var i = 0; i < range.length; ++i) {
+              range[i].checked = checked_last.checked;
             }
           } else {
-            //Shiftを押さずにクリックした場所は始点として覚えておく
+            // Shiftを押さずにクリックした場所は始点として覚えておく
             checked_last = this;
           }
+
+          RoomCheck();
+        });
+
+        function applyPendingRange(shouldCheck) {
+          if (!pendingInitialized || pendingRange.length === 0) {
+            $("#multiSelectModal").modal("hide");
+            return false;
+          }
+
+          for (var i = 0; i < pendingRange.length; ++i) {
+            pendingRange[i].checked = shouldCheck;
+          }
+
+          RoomCheck();
+          clearPendingRange();
+          $("#multiSelectModal").modal("hide");
+          return true;
+        }
+
+        $("#multiSelectApply").on("click", function () {
+          applyPendingRange(true);
+        });
+
+        $("#multiSelectClear").on("click", function () {
+          applyPendingRange(false);
+        });
+
+        $("#multiSelectModal").on("show.bs.modal", function () {
+          var roomNumbers = getPendingRoomNumbers();
+          if (roomNumbers.length > 0) {
+            $("#selectedRooms").text(roomNumbers.join(", "));
+          } else {
+            $("#selectedRooms").text("なし");
+          }
+        });
+
+        $("#multiSelectModal").on("hidden.bs.modal", function () {
+          $("#selectedRooms").text("");
+          clearPendingRange();
+          suppressNextClick = false;
+          clearDragHighlights();
         });
       });
 
@@ -82,7 +366,47 @@
         }
         return false;
       }
+      function check_form(){
+        let wKosuVal = document.getElementById("wKosu").value;
+        if(wKosuVal == ""){
+          $("#ErrorString").html("※戸数を入力してください。");
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+          return false;
+        }else{
+          $("#ErrorString").html("");
+        }
+
+        return true;
+      }	
     </script>
+    <style>
+    .setting_input_panel{
+      position: sticky;
+      left: 0;
+      top: 0;
+      background: #fff;
+      z-index: 10;
+      -webkit-box-shadow: 1px 2px 13px 7px rgba(79, 66, 66, 0.32);
+      box-shadow: 1px 2px 13px 7px rgba(79, 66, 66, 0.32);
+    }
+
+    /* Prevent native text selection while Ctrl/Command-dragging */
+    body.no-user-select, body.no-user-select *{
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .room-composition td.drag-highlight{
+      background: rgba(0, 123, 255, 0.2);
+      outline: 2px solid rgba(0, 123, 255, 0.35);
+      outline-offset: -2px;
+    }
+    </style>
   </head>
 
   <body
@@ -115,7 +439,7 @@
       部屋構成を作成しますので、以下の項目を入力し、「確定」ボタンをクリックしてください。<br />
       <form action="s_make_kanryo2.php" method="POST" name="mainform" onsubmit="return moveandCheck();">
         <font color="red"><span id="ErrorString"></span></font><br />
-        <table border="1">
+        <table border="1" class="setting_input_panel">
           <tr>
             <th width="200" style="text-align: center" bgcolor="#f4cccc">
               戸数
@@ -147,6 +471,29 @@
           __RowsLoop__
         </table>
 
+        <div class="modal fade" id="multiSelectModal" tabindex="-1" role="dialog" aria-labelledby="multiSelectModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="multiSelectModalLabel">複数部屋を設定</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="mt-2">
+                  <div>以下の部屋が設定されます。</div>
+                  <p id="selectedRooms"></p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="multiSelectClear">選択を解除する</button>
+                <button type="button" class="btn btn-primary blue" id="multiSelectApply">選択する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <br />
         <!--
 <table>
@@ -172,6 +519,7 @@
           type="submit"
           value="確定"
           class="btn btn-primary blue"
+          onclick="return check_form();"
         />
         <br /><br />
         <input

@@ -7,7 +7,7 @@
 
 if (!empty($_FILES)) {
 
-	include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+	include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	include_once _INC_DIR . "global.inc";
 	include_once _CLS_DIR . "SPFWDatabase.cls";
 	include_once _CLS_DIR . "SPFWLog.cls";
@@ -57,9 +57,9 @@ if (!empty($_FILES)) {
 		$tempFile = $_FILES['file']['tmp_name']; //3
 
 
-		$directoryPath = "D:/xampp/htdocs/hochiki/httpdocs/kojifile/".$tempEditBukkenCD;
+		$directoryPath = "C:/xampp/htdocs/hochiki/httpdocs/kojifile/".$tempEditBukkenCD;
 		if($tempEditBuildingCD){
-			$directoryPath = "D:/xampp/htdocs/hochiki/httpdocs/kojifile/".$tempEditBukkenCD.'-'.$tempEditBuildingCD;
+			$directoryPath = "C:/xampp/htdocs/hochiki/httpdocs/kojifile/".$tempEditBukkenCD.'-'.$tempEditBuildingCD;
 		}
 
 		// ディレクトリが存在しない場合に作成

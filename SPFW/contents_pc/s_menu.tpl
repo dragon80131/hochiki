@@ -50,6 +50,21 @@
       margin-left:auto;
       margin-right:auto;
     }
+    ul.menu_list > li{
+      position:relative;
+    }
+    ul.menu_list > li.notcompleted::after{
+      content: '';
+      width: 14px;
+      height: 14px;
+      border-radius: 10px;
+      background-color: #fb1a1a;
+      position: absolute;
+      right: -5px;
+      top: -5px;
+      z-index: 1;
+      border: solid 1px #fff;
+    }
   </style>
   <script type="text/javascript">
     $(function() {
@@ -152,7 +167,7 @@
 
 
                     <ul class="menu_list IsBouka" >
-                      <li class="menu_single">
+                      <li class="menu_single __IfTempSave__ notcompleted __IfTempSave__ ">
                         <a href="#" onclick="javascript:move('./doc/s_make_kanryo2.php?rKey=__rKey__&editBukkenCD=__editBukkenCD__')">作業日程登録</a>
                       </li>
                     </ul>

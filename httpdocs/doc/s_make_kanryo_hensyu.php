@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-	include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+	include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	include_once _INC_DIR . "carrier.inc";
 	include_once _INC_DIR . "global.inc";
 
@@ -18,13 +18,13 @@ $isAdminMode = TRUE;
 	include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 	include_once _CLS_DIR . "SPUSKoji.cls";
 	include_once _CLS_DIR . "SPUSBuilding.cls";
+	include_once _CLS_DIR . "SPUSReservationTemp.cls";
 
 
 	// データベースコネクト
 	$myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
 	if (!$myDB->Connection)
 		trigger_error("SPFWDatabase Failed.", E_USER_ERROR);
-
 
 	########################################################
 	# 認証動作
@@ -44,7 +44,7 @@ $isAdminMode = TRUE;
 
 	$UserCD = $myUser->UserCD;
 	$ID = $myUser->ID;
-	unset($myUser);
+
 
 	########################################################
 	# 設定パラメータ取得取得
@@ -57,49 +57,161 @@ $isAdminMode = TRUE;
 		//  echo " :".SPFWParameter::getValues($key);
 	}
 
-	$ColsBlock = SPFWTools::decodePluralValue($wColsBlock);
-	$RowsLoop = SPFWParameter::getValues('RowsLoop');
-
-
-	$wKojijun = SPFWParameter::getValues('wKojijun');		# 工事順
-	$wFirstDateFeature = SPFWParameter::getValues('wFirstDateFeature');#初日工事数考慮
-	$wHoliday1 = SPFWParameter::getValues('wHoliday1');		#休日
-	$wHoliday2 = SPFWParameter::getValues('wHoliday2');		
-	$wHoliday3 = SPFWParameter::getValues('wHoliday3');
-	$wHoliday4 = SPFWParameter::getValues('wHoliday4');
-	$wReserveDay = SPFWParameter::getValues('wReserveDay');		#予備日
+	$act = SPFWParameter::getValues('act');
 	$editBukkenCD = SPFWParameter::getValues('editBukkenCD');
 	$editBuildingCD = SPFWParameter::getValues('editBuildingCD');
+	$myReservationTemp = new ReservationTemp($myDB);
+	if($editBuildingCD){
+		if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD = '".$editBuildingCD."'", "")) 
+			trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+	}else{
+		if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD IS NULL", "")) 
+			trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+	}
+	$temp_show = SPFWParameter::getValues('temp_show');
+	if($temp_show == '1' && $act != 'temp_save'){
+		$tempReservationInfo = $myReservationTemp->ReservationInfo;
+		$tempReservationInfo = html_entity_decode($tempReservationInfo, ENT_QUOTES, 'UTF-8');
+		$arrtempReservationInfo = json_decode($tempReservationInfo, true);
 
-	$wWakuAMcol = SPFWParameter::getValues('wWakuAMcol');
-	$wWakuPM1col = SPFWParameter::getValues('wWakuPM1col');
-	$wWakuPM = SPFWParameter::getValues('wWakuPM'); 
-	$wHansu = SPFWParameter::getValues('wHansu');
-	$wArrangeType = SPFWParameter::getValues('wArrangeType');
-	$FloorReserveInfo = SPFWParameter::getValues('FloorReserveInfo');
-	$FloorReserveInfo = htmlspecialchars($FloorReserveInfo, ENT_QUOTES, 'UTF-8');
-	$wFrameOverflow = SPFWParameter::getValues('wFrameOverflow');
-	$wFrameOverflow = intval($wFrameOverflow);
-	// $backFrameOverflow = $wFrameOverflow;
-	// if($wArrangeType == '1'){
-	// 	$wFrameOverflow = 0;
-	// }
+		$editBukkenCD = $arrtempReservationInfo['editBukkenCD'] ?? $editBukkenCD;
+		$editBuildingCD = $arrtempReservationInfo['editBuildingCD'] ?? $editBuildingCD;
+		$wHansu = $arrtempReservationInfo['wHansu'] ?? '';
+		$wWakuPattern = $arrtempReservationInfo['wWakuPattern'] ?? '';
+		$wFrameOverflow = $arrtempReservationInfo['wFrameOverflow'] ?? '';
+		$wFrameOverflow = intval($wFrameOverflow);		
 
-	// if($wWakuPM){
-	// 	$wWakuPM1col = ceil($wWakuPM/$wHansu);
-	// }
-	
-	$wWakuPM2col = SPFWParameter::getValues('wWakuPM2col');
-	$wKoteihyouEX = SPFWParameter::getValues('wKoteihyouEX');
-	$holiday = SPFWParameter::getValues('holiday');		#休日
-	$wShukujitucolor = SPFWParameter::getValues('wShukujitucolor');		#祝日色
-	$wKyukobi = SPFWParameter::getValues('wKyukobi');		#休工日
-	$work = SPFWParameter::getValues('work');		#休工日
-	$wKaiRoom3 = SPFWParameter::getValues('wKaiRoom3');		#休工日
-	$wKoteihyouEX = SPFWTools::decodePluralValue($wKoteihyouEX); #配列
-	$wShukujitucolor = SPFWTools::decodePluralValue($wShukujitucolor);
-	$wKyukobi = SPFWTools::decodePluralValue($wKyukobi);
-	$wKaiRoom3 = SPFWTools::decodePluralValue($wKaiRoom3);
+		$wWakuAM = $arrtempReservationInfo['wWakuAM'] ?? '';
+		$wWakuAM2 = $arrtempReservationInfo['wWakuAM2'] ?? '';
+		$wWakuAM3 = $arrtempReservationInfo['wWakuAM3'] ?? '';
+		$wWakuPM = $arrtempReservationInfo['wWakuPM'] ?? '';
+		$wWakuPM1 = $arrtempReservationInfo['wWakuPM1'] ?? '';
+		$wWakuPM2 = $arrtempReservationInfo['wWakuPM2'] ?? '';
+		$wFirstDateFeature = $arrtempReservationInfo['wFirstDateFeature'] ?? '';
+		$wKojijun = $arrtempReservationInfo['wKojijun'] ?? '';
+		$wWakuAMcol = $arrtempReservationInfo['wWakuAMcol'] ?? '';
+		$wWakuAM2col = $arrtempReservationInfo['wWakuAM2col'] ?? '';
+		$wWakuAM3col = $arrtempReservationInfo['wWakuAM3col'] ?? '';
+		$wWakuPM1col = $arrtempReservationInfo['wWakuPM1col'] ?? '';
+		$wWakuPM2col = $arrtempReservationInfo['wWakuPM2col'] ?? '';
+		
+		$RowsLoop = $arrtempReservationInfo['RowsLoop'] ?? '';
+		$wHoliday1 = $arrtempReservationInfo['wHoliday1'] ?? '';
+		$wShukujitucolor = $arrtempReservationInfo['wShukujitucolor'] ?? '';
+		$wKyukobi = $arrtempReservationInfo['wKyukobi'] ?? '';
+		$wKaiRoom3 = $arrtempReservationInfo['wKaiRoom3'] ?? '';
+		$wMaxWakuSu = $arrtempReservationInfo['wMaxWakuSu'] ?? '';
+		$rowCountforDay = $arrtempReservationInfo['rowCountforDay'] ?? '';
+		$wArrangeType = $arrtempReservationInfo['wArrangeType'] ?? '';
+		$FloorReserveInfo = $wFloorReserveInfo = $arrtempReservationInfo['FloorReserveInfo'] ?? '';
+		$FloorReserveInfo = htmlspecialchars($FloorReserveInfo, ENT_QUOTES, 'UTF-8');
+
+		$wShukujitucolor = SPFWTools::decodePluralValue($wShukujitucolor);
+		$wKyukobi = SPFWTools::decodePluralValue($wKyukobi);
+		$wKaiRoom3 = SPFWTools::decodePluralValue($wKaiRoom3);
+
+		$wKoteihyouEX = array();
+		$wKoteihyouEX_count = $arrtempReservationInfo['wKoteihyouEX_count'] ?? $wKoteihyouEX_count;
+		if(empty($wKoteihyouEX_count) || $wKoteihyouEX_count == ''){
+			$wKoteihyouEX_count = 0;
+		}
+		if($wKoteihyouEX_count == 0){
+			echo ('<script>
+				alert("工程表編集中にエラーが発生いたしました。");
+				location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+			</script>');
+			exit;		
+		}
+		for($i=0; $i<$wKoteihyouEX_count; $i++){
+			$wKoteihyouEX_temp = $arrtempReservationInfo['wKoteihyouEX_'.$i] ?? '';
+			if(empty($wKoteihyouEX_temp) || $wKoteihyouEX_temp == ''){
+				echo ('<script>
+					alert("工程表編集中にエラーが発生いたしました。");
+					location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+				</script>');
+				exit;		
+			}
+			$wKoteihyouEX = array_merge($wKoteihyouEX, SPFWTools::decodePluralValue($wKoteihyouEX_temp));
+		}
+	}else{
+		$ColsBlock = SPFWTools::decodePluralValue($wColsBlock);
+		$RowsLoop = SPFWParameter::getValues('RowsLoop');
+
+
+		$wKojijun = SPFWParameter::getValues('wKojijun');		# 工事順
+		$wFirstDateFeature = SPFWParameter::getValues('wFirstDateFeature');#初日工事数考慮
+		$wHoliday1 = SPFWParameter::getValues('wHoliday1');		#休日
+		$wHoliday2 = SPFWParameter::getValues('wHoliday2');		
+		$wHoliday3 = SPFWParameter::getValues('wHoliday3');
+		$wHoliday4 = SPFWParameter::getValues('wHoliday4');
+		$wReserveDay = SPFWParameter::getValues('wReserveDay');		#予備日
+
+		$wWakuAMcol = SPFWParameter::getValues('wWakuAMcol');
+		$wWakuPM1col = SPFWParameter::getValues('wWakuPM1col');
+		$wWakuPM = SPFWParameter::getValues('wWakuPM'); 
+		$wHansu = SPFWParameter::getValues('wHansu');
+		$wArrangeType = SPFWParameter::getValues('wArrangeType');
+		$FloorReserveInfo = $wFloorReserveInfo = SPFWParameter::getValues('FloorReserveInfo');
+		$FloorReserveInfo = htmlspecialchars($FloorReserveInfo, ENT_QUOTES, 'UTF-8');
+		$wFrameOverflow = SPFWParameter::getValues('wFrameOverflow');
+		$wFrameOverflow = intval($wFrameOverflow);
+		// $backFrameOverflow = $wFrameOverflow;
+		// if($wArrangeType == '1'){
+		// 	$wFrameOverflow = 0;
+		// }
+
+		// if($wWakuPM){
+		// 	$wWakuPM1col = ceil($wWakuPM/$wHansu);
+		// }
+		
+		$wWakuPM2col = SPFWParameter::getValues('wWakuPM2col');
+		$holiday = SPFWParameter::getValues('holiday');		#休日
+		$wShukujitucolor = SPFWParameter::getValues('wShukujitucolor');		#祝日色
+		$wKyukobi = SPFWParameter::getValues('wKyukobi');		#休工日
+		$work = SPFWParameter::getValues('work');		#休工日
+		$wKaiRoom3 = SPFWParameter::getValues('wKaiRoom3');		#休工日
+		$wShukujitucolor = SPFWTools::decodePluralValue($wShukujitucolor);
+		$wKyukobi = SPFWTools::decodePluralValue($wKyukobi);
+		$wKaiRoom3 = SPFWTools::decodePluralValue($wKaiRoom3);
+
+		$wKoteihyouEX = array();
+		$wKoteihyouEX_count = SPFWParameter::getValues('wKoteihyouEX_count');
+		if(empty($wKoteihyouEX_count) || $wKoteihyouEX_count == ''){
+			$wKoteihyouEX_count = 0;
+		}
+		if($wKoteihyouEX_count == 0){
+			echo ('<script>
+				alert("工程表編集中にエラーが発生いたしました。");
+				location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+			</script>');
+			exit;		
+		}
+		for($i=0; $i<$wKoteihyouEX_count; $i++){
+			$wKoteihyouEX_temp = SPFWParameter::getValues('wKoteihyouEX_'.$i);
+			if(empty($wKoteihyouEX_temp) || $wKoteihyouEX_temp == ''){
+				echo ('<script>
+					alert("工程表編集中にエラーが発生いたしました。");
+					location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+				</script>');
+				exit;		
+			}
+			$wKoteihyouEX = array_merge($wKoteihyouEX, SPFWTools::decodePluralValue($wKoteihyouEX_temp));
+		}
+
+	}
+
+	$tempSavedReservationCnt = $myReservationTemp->RecCnt;
+
+	$IfShowConfirmTempShow = false;
+	if($temp_show == '1'){
+		$IfShowConfirmTempShow = false;
+	}else{
+		if($myReservationTemp->RecCnt > 0)
+			$IfShowConfirmTempShow = true;
+	}
+
+
+	unset($myUser);
 
 	$myBukken = new Bukken($myDB);
 
@@ -215,7 +327,11 @@ function numberToCircled($number) {
 
 
 	// $wHoliday = SPFWTools::decodePluralValue($Holiday1);
-	$wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
+	if($temp_show == '1' && $act != 'temp_save'){
+		$wHoliday = $arrtempReservationInfo['wHoliday'] ?? array();
+	}else{
+		$wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
+	}
 	$Holiday = array();
 	$wHolidayHTML = '';
 	if(is_array($wHoliday) && count($wHoliday) > 0){
@@ -233,7 +349,12 @@ function numberToCircled($number) {
 	$afterReserveDay = [];
 
 	if($wArrangeType != '1'){	
-		$wReserveDay 				= SPFWParameter::getValues("wReserveDay"); // 配列
+		if($temp_show == '1' && $act != 'temp_save'){
+			$wReserveDay = $arrtempReservationInfo['wReserveDay'] ?? array();
+		}else{
+			$wReserveDay 				= SPFWParameter::getValues("wReserveDay"); // 配列
+		}
+
 		$ReserveDay = array();
 		$wReserveDayHTML = '';
 		if(is_array($wReserveDay) && count($wReserveDay) > 0){
@@ -257,6 +378,65 @@ function numberToCircled($number) {
 			}
 		}
 	}
+
+	// 一時保存
+	if($act == 'temp_save'){
+		for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
+			if ($i != 0)
+				$MaxWakuSu .= "-";
+
+			$MaxWakuSu .= ${'wWaku' . $WAKUPATTERN[$wWakuPattern]['AMPM'][$i]};
+		}
+		if($editBuildingCD){
+			$myBuilding->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+			$myBuilding->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
+			$myBuilding->Hansu = $wHansu;
+			$myBuilding->WakuPattern = $wWakuPattern;
+			$myBuilding->Kojijun = $wKojijun;
+			$myBuilding->FirstDateFeature = $wFirstDateFeature;
+			$myBuilding->MaxWakuSu = $MaxWakuSu;
+			$myBuilding->FrameOverflow = $wFrameOverflow;
+			$myBuilding->ArrangeType = $wArrangeType;
+			$myBuilding->FloorReserveInfo = $wFloorReserveInfo;
+
+			if (!$myBuilding->executeUpdate()) {
+				trigger_error("executeUpdate(myBuilding) Failed.", E_USER_ERROR);
+			}
+		}else{
+			$myBukken->Hansu = $wHansu;
+			$myBukken->WakuPattern = $wWakuPattern;
+			$myBukken->Kojijun = $wKojijun;
+			$myBukken->FirstDateFeature = $wFirstDateFeature;
+			$myBukken->MaxWakuSu = $MaxWakuSu;
+			$myBukken->FrameOverflow = $wFrameOverflow;
+			$myBukken->ArrangeType = $wArrangeType;
+			$myBukken->FloorReserveInfo = $wFloorReserveInfo;
+
+
+			$myBukken->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+			$myBukken->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
+
+			if (!$myBukken->executeUpdate()) {
+				trigger_error("executeUpdate(myBukken) Failed.", E_USER_ERROR);
+			}
+		}
+
+		$myReservationTemp->ClientCD = $myUser->ClientCD;
+		$myReservationTemp->UserCD = $myUser->UserCD;
+		$myReservationTemp->BukkenCD = $editBukkenCD;
+		$myReservationTemp->BuildingCD = $editBuildingCD;
+		$myReservationTemp->ReservationInfo = json_encode($_POST);
+		$myReservationTemp->Creator = $MyUserCD;
+		$myReservationTemp->Updater = $MyUserCD;
+		if (!$myReservationTemp->executeUpdate()) {
+			$ErrorString = [];
+			$ErrorString[] = '予約情報一時保存時にエラーがおこりました。';
+			showAdminSorryPage($ErrorString);
+		}
+		$tempSavedReservationCnt = 1;
+		$temp_show = '1';
+	}
+
 	$beforeReserveDayDateCnt = count($beforeReserveDay);
 	$afterReserveDayDateCnt = count($afterReserveDay);
 
@@ -427,8 +607,8 @@ function numberToCircled($number) {
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -454,8 +634,8 @@ function numberToCircled($number) {
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
-						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -483,8 +663,8 @@ function numberToCircled($number) {
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
 						if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
-							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d1f9b7'>";
+							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -710,8 +890,8 @@ function numberToCircled($number) {
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
-						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -737,8 +917,8 @@ function numberToCircled($number) {
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
 					if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
-						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -766,8 +946,8 @@ function numberToCircled($number) {
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
 						if($wKoteihyouEX[$m]=="空き" || $wKoteihyouEX[$m]=="余地"){
-							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
-							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d1f9b7'>";
+							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="枠越" || $wKoteihyouEX[$m]=="時間外"){
@@ -803,9 +983,9 @@ function numberToCircled($number) {
 	for($i=0;$i<count($wKaiRoom3);$i++){
 		if(array_search($wKaiRoom3[$i] ,$wKoteihyouEX )===false){
 			if($ShortageRoom==""){
-				$ShortageRoom = "　".$wKaiRoom3[$i];
+				$ShortageRoom = '<span class="missing_cell"><a href="#">'.$wKaiRoom3[$i].'</a><input type="hidden" name="wwKoteihyouEX[]" value="'.$wKaiRoom3[$i].'"></span>';
 			}else{
-				$ShortageRoom .= "、".$wKaiRoom3[$i];
+				$ShortageRoom .= '<span class="missing_cell"><a href="#">'.$wKaiRoom3[$i].'</a><input type="hidden" name="wwKoteihyouEX[]" value="'.$wKaiRoom3[$i].'"></span>';
 			}
 		}
 	}
@@ -839,7 +1019,14 @@ function numberToCircled($number) {
 	$ReservationCount = $myListObject->Rows;
 
 	$wKoteihyouEX = SPFWTools::encodePluralValue($KoteihyouEX);
-	$wHansuEX2 = SPFWTools::encodePluralValue($HansuEX);
+	$wHansuEXHTML = "";
+	$i = 0;
+	foreach (array_chunk($HansuEX, 300) as $HansuEXChunk) {
+		$wHansuEXHTML .= '<input type="hidden" name="wHansuEX_'.$i.'" value="' . SPFWTools::encodePluralValue($HansuEXChunk) . '">';
+		$i++;
+	}
+	$wHansuEXHTML .= '<input type="hidden" name="wHansuEX_count" value="' . $i . '">';
+	
 
 	// $wFrameOverflow = $backFrameOverflow;
 
@@ -856,6 +1043,4 @@ function numberToCircled($number) {
 	$myTemplate->outputTemplate();
 
 	unset($myTemplate);
-	unset($myLog);
-
 ?>

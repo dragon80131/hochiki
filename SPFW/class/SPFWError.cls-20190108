@@ -175,7 +175,7 @@ class SPFWError {
 	 */
 	function recordError($ErrorMessage) {
 
-	include_once "D:/xampp/htdocs/kotei/SPFW/class/SPFWLog.cls";
+	include_once "C:/xampp/htdocs/kotei/SPFW/class/SPFWLog.cls";
 		$myLog = new SPFWLog();
 		for ($i = 0;$i < count($GLOBALS['ExecuteError']); $i++)
 			$Errors .= $GLOBALS['ExecuteError'][$i] . "\n";

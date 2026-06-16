@@ -1,6 +1,8 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+// include_once "/var/www/kawamoto_dia/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 
@@ -261,12 +263,19 @@ if (!$wMenuCD)
 ########################################################
 $myClient = new Client($myDB);
 
+$ClientName = "";
+$ClientTEL = "";
+$BusinessHours = "";
+$BusinessHoursNote = "";
+
 if ($TargetClientCD > 0) {
 	if (!$myClient->executeSelect("ClientCD = $TargetClientCD and MukouFlg = 0" , "") || $myClient->RecCnt != 1)
 		trigger_error("Getting myClient Failed.", E_USER_ERROR);
 
 	$ClientName = $myClient->ClientName;
 	$ClientTEL = $myClient->TEL;
+	$BusinessHours = $myClient->BusinessHours;
+	$BusinessHoursNote = $myClient->BusinessHoursNote;
 
 }
 
@@ -733,7 +742,10 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 			$Message .= "\nこのメールアドレスはお客様へのお知らせ専用です。";
 			$Message .= "\nこのメールアドレスへ返信としてご質問をお送りいただいても回答できません。ご了承ください。";
 			$Message .= "\nご質問やご不明な点がございましたら、下記までお問い合わせお願い申し上げます。";
-			$Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+
+			$ContactInfo = "\n".$ClientName."　".$ClientTEL."　営業時間：".$BusinessHours.$BusinessHoursNote;
+			// $Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+			$Message .= $ContactInfo;
 
 			$Headers = "From: " . mb_encode_mimeheader("消防設備点検予約システム", "ISO-2022-JP", "Q") . " < ".$wFromAddress."  >\n";
 
@@ -764,12 +776,15 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 			$Message .= "\nこのメールアドレスはお客様へのお知らせ専用です。";
 			$Message .= "\nこのメールアドレスへ返信としてご質問をお送りいただいても回答できません。ご了承ください。";
 			$Message .= "\nご質問やご不明な点がございましたら、下記までお問い合わせお願い申し上げます。";
-			$Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+
+			$ContactInfo = "\n".$ClientName."　".$ClientTEL."　営業時間：".$BusinessHours.$BusinessHoursNote;
+			// $Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+			$Message .= $ContactInfo;
 
 			$Headers = "From: " . mb_encode_mimeheader("消防設備点検予約システム", "ISO-2022-JP", "Q") . " < ".$wFromAddress."  >\n";
 
-			if (!mb_send_mail($EMail, $Subject, $Message, $Headers, "-f" . $wFromAddress))
-				trigger_error("ending Mail Failed. Please Look Up maillog.", E_USER_ERROR);
+			// if (!mb_send_mail($EMail, $Subject, $Message, $Headers, "-f" . $wFromAddress))
+				// trigger_error("ending Mail Failed. Please Look Up maillog.", E_USER_ERROR);
 
 		} #EMailありEnd
 	}else if($flag == '3'){
@@ -792,7 +807,10 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 			$Message .= "\nこのメールアドレスはお客様へのお知らせ専用です。";
 			$Message .= "\nこのメールアドレスへ返信としてご質問をお送りいただいても回答できません。ご了承ください。";
 			$Message .= "\nご質問やご不明な点がございましたら、下記までお問い合わせお願い申し上げます。";
-			$Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+
+			$ContactInfo = "\n".$ClientName."　".$ClientTEL."　営業時間：".$BusinessHours.$BusinessHoursNote;
+			// $Message .= "\nホーチキ株式会社".$branchInfo."　営業時間：平日 ９：００～１７：３０（１２：００～１３：００を除く）";
+			$Message .= $ContactInfo;
 
 			$Headers = "From: " . mb_encode_mimeheader("消防設備点検予約システム", "ISO-2022-JP", "Q") . " < ".$wFromAddress."  >\n";
 

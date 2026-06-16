@@ -1,6 +1,6 @@
 <?php
 
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 include_once _CLS_DIR . "SPFWDatabase.cls";
@@ -468,7 +468,7 @@ $Koteihyou .= "</table>";
 
 // ディレクトリのパス
 /*
-$directory = 'D:/xampp/htdocs/hochiki/httpdocs/kojifile/'.$editBukkenCD."/";
+$directory = 'C:/xampp/htdocs/hochiki/httpdocs/kojifile/'.$editBukkenCD."/";
 if (file_exists($directory)) {
 
 	// ディレクトリを開く
@@ -518,7 +518,7 @@ $UploadFileID = $FileName = $FilePath = $LastName = $Created = [];
 for ($i = 0; $i < $UploadFileLoop; $i++) {
 	$UploadFileID[$i] 		= $myListObject->GetValue($i, 0);
 	$FileName[$i]	= $myListObject->GetValue($i, 1);
-	$FilePath[$i] 		= str_replace('D:/xampp/htdocs/hochiki/httpdocs/kojifile/', './kojifile/', $myListObject->GetValue($i, 2));
+	$FilePath[$i] 		= str_replace('C:/xampp/htdocs/hochiki/httpdocs/kojifile/', './kojifile/', $myListObject->GetValue($i, 2));
 	$LastName[$i] 		= $myListObject->GetValue($i, 3);
 	$Created[$i] 		= date("Y-m-d H:i", strtotime($myListObject->GetValue($i, 4)));
 }

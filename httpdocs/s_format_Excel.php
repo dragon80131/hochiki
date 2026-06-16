@@ -4,7 +4,7 @@
 // ini_set('display_errors', "On");
 // //PHPエラーの表示・非表示を設定。
 
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 include_once _CLS_DIR . "SPFWDatabase.cls";

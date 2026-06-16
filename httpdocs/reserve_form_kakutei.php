@@ -1,5 +1,7 @@
 <?php
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+// include_once "/var/www/kawamoto_dia/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 
@@ -1197,8 +1199,8 @@ if ($Syusei == 1) {
 
 $myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier, FALSE, $MyClientCD);
 $HiddenValues = $myTemplate->getValuesToPass();
-$myTemplate->Msg = str_replace($LoopString2, NULL, $myTemplate->Msg);
-$myTemplate->Msg = str_replace($LoopString3, NULL, $myTemplate->Msg);
+$myTemplate->Msg = str_replace($LoopString2, '', $myTemplate->Msg);
+$myTemplate->Msg = str_replace($LoopString3, '', $myTemplate->Msg);
 
 $myTemplate->convertTags();
 $myTemplate->outputTemplate();
@@ -1377,8 +1379,62 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 			$ID[$i] = $myListObject->GetValue($i, 3);
 			$Reserve[$AMPM][] = $ID[$i];
 			$UserData['ReplyFlg'][$ID[$i]] 	= $myListObject->GetValue($i, 12);
+			$UserData['ConfirmFlg'][$ID[$i]] 	= $myListObject->GetValue($i, 13);
 			$arrHanNo[$ID[$i]] 	= $myListObject->GetValue($i, 14);
 		}
+
+		// 初期予約情報を取得します。
+		$myListObjectInit = new SPFWListObject($myDB);
+		$sql  = "SELECT ";
+		$sql .= "r.ReservationCD, "; #0
+		$sql .= "DATE(r.TimeFrom) AS Date, "; #1
+		if($wWakuPattern == '0' || $wWakuPattern == '1' || $wWakuPattern == '2'){ // 2枠
+			$sql .= "CASE ";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '18:00:00' THEN 'PM'";
+			$sql .= " ELSE 'Other'";
+			$sql .= " END AS AMPM ,"; #2
+		}else{ // 3枠
+			$sql .= "CASE ";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '14:59:00' THEN 'PM1'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '15:00:00' AND '18:00:00' THEN 'PM2'";
+			$sql .= " ELSE 'Other'";
+			$sql .= " END AS AMPM ,"; #2
+		}
+		$sql .= "r.ID, "; #3
+		$sql .= "r.UserCD, "; #4
+		$sql .= "r.TimeFrom, "; #5
+		$sql .= "r.TimeTo, "; #6
+		$sql .= "r.HanNo, "; #7
+		$sql .= "r.ViewOrderNo "; #8
+
+		$myListObjectInit->SelectSQL = $sql;
+		$sql  = " FROM tReservationInitF r, tUserM u ";
+		$sql .= " WHERE r.Status = 1 AND r.MukouFlg = FALSE AND r.UserCD = u.UserCD";
+		$sql .= " AND r.BukkenCD = " . $editBukkenCD;
+		if($editBuildingCD){
+			$sql .= " AND r.BuildingCD = " . $editBuildingCD;
+		}else{
+			$sql .= " AND r.BuildingCD IS NULL ";
+		}
+		$sql .= " AND date_format(r.TimeFrom, '%Y/%m/%d') = date_format('" . $TargetDate . "', '%Y/%m/%d')";
+
+		$myListObjectInit->Condition = $sql;
+		$myListObjectInit->Order = "Date, AMPM, r.HanNo, r.TimeFrom, r.Updated, r.ReservationCD";
+		$myListObjectInit->Limit = "allpage";
+
+		if (!($myListObjectInit->GetList(1)))
+			trigger_error("Getting Reservation List Failed.", E_USER_ERROR);
+
+		$ReservationLoopInit = $myListObjectInit->Rows;
+		for ($i = 0; $i < $ReservationLoopInit; $i++) {
+			$AMPM = $myListObjectInit->GetValue($i, 2);
+			$ID[$i] = $myListObjectInit->GetValue($i, 3);
+			$HanNo = $myListObjectInit->GetValue($i, 7);
+			$ReserveInit[$AMPM][$HanNo][] = $ID[$i];
+		}
+
 		$rowCountforDay = $wHansu;
 		for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
 			$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$i];
@@ -1443,24 +1499,50 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 					if(isset($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && $UserData['ReplyFlg'][$Reserve[$WakuName][$x]] == '3'){
 						$x ++;
 					}else{
-						$bReservedRooms = 0;
-						foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-							if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($TargetDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-								$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+						// 仮日程の場合は、チェックを行わずに表示します。
+						if(empty($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && empty($UserData['ConfirmFlg'][$Reserve[$WakuName][$x]])){
+							$x ++;
+						}else{
+							$bReservedRooms = 0;
+							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($TargetDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+							// 		$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+							// 	}
+							// }
+							if(isset($ReserveInit[$WakuName][$dis_ban]) && is_array($ReserveInit[$WakuName][$dis_ban])){
+								$bReservedRooms = count($ReserveInit[$WakuName][$dis_ban]);
+							}
+							if($ban_rooms > $bReservedRooms){
+							}else{
+								$bCorrectFloor = false;
+								// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+								// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+								// 		if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// 			$bCorrectFloor = true;
+								// 			break;
+								// 		}
+								// 	}
+								// }
+								if(isset($ReserveInit[$WakuName][$dis_ban]) && is_array($ReserveInit[$WakuName][$dis_ban])){
+									foreach($ReserveInit[$WakuName][$dis_ban] as $ReserveInitRoom){
+										if($ReserveInitRoom == $Reserve[$WakuName][$x]){
+											$bCorrectFloor = true;
+											break;
+										}
+									}
+								}
+								$x ++;
 							}
 						}
-						if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
-						}else{
-							$x ++;
-						}
 					}
+				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
 				}else{
 					if($Overflows < $wFrameOverflow){
 						$number01 ++;
-
-						$Overflows ++;
+					}else{
 					}
-				}	
+				}
+
 				$ban_rooms ++;
 				if($ban_rooms > $limit_ban){
 					$ban_rooms = 1;
@@ -1470,9 +1552,6 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 		}
 		$WakuZanSuu = $number01;
 	}
-
-
-
 	return $WakuZanSuu;
 }
 
@@ -1644,8 +1723,62 @@ function getAkiWakuTime($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $T
 			$ID[$i] = $myListObject->GetValue($i, 3);
 			$Reserve[$AMPM][] = $ID[$i];
 			$UserData['ReplyFlg'][$ID[$i]] 	= $myListObject->GetValue($i, 12);
+			$UserData['ConfirmFlg'][$ID[$i]] 	= $myListObject->GetValue($i, 13);
 			$arrHanNo[$ID[$i]] 	= $myListObject->GetValue($i, 14);
 		}
+
+		// 初期予約情報を取得します。
+		$myListObjectInit = new SPFWListObject($myDB);
+		$sql  = "SELECT ";
+		$sql .= "r.ReservationCD, "; #0
+		$sql .= "DATE(r.TimeFrom) AS Date, "; #1
+		if($wWakuPattern == '0' || $wWakuPattern == '1' || $wWakuPattern == '2'){ // 2枠
+			$sql .= "CASE ";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '18:00:00' THEN 'PM'";
+			$sql .= " ELSE 'Other'";
+			$sql .= " END AS AMPM ,"; #2
+		}else{ // 3枠
+			$sql .= "CASE ";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '09:00:00' AND '12:00:00' THEN 'AM'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '13:00:00' AND '14:59:00' THEN 'PM1'";
+			$sql .= " WHEN TIME(r.TimeFrom) BETWEEN '15:00:00' AND '18:00:00' THEN 'PM2'";
+			$sql .= " ELSE 'Other'";
+			$sql .= " END AS AMPM ,"; #2
+		}
+		$sql .= "r.ID, "; #3
+		$sql .= "r.UserCD, "; #4
+		$sql .= "r.TimeFrom, "; #5
+		$sql .= "r.TimeTo, "; #6
+		$sql .= "r.HanNo, "; #7
+		$sql .= "r.ViewOrderNo "; #8
+
+		$myListObjectInit->SelectSQL = $sql;
+		$sql  = " FROM tReservationInitF r, tUserM u ";
+		$sql .= " WHERE r.Status = 1 AND r.MukouFlg = FALSE AND r.UserCD = u.UserCD";
+		$sql .= " AND r.BukkenCD = " . $editBukkenCD;
+		if($editBuildingCD){
+			$sql .= " AND r.BuildingCD = " . $editBuildingCD;
+		}else{
+			$sql .= " AND r.BuildingCD IS NULL ";
+		}
+		$sql .= " AND date_format(r.TimeFrom, '%Y/%m/%d') = date_format('" . $TargetDate . "', '%Y/%m/%d')";
+
+		$myListObjectInit->Condition = $sql;
+		$myListObjectInit->Order = "Date, AMPM, r.HanNo, r.TimeFrom, r.Updated, r.ReservationCD";
+		$myListObjectInit->Limit = "allpage";
+
+		if (!($myListObjectInit->GetList(1)))
+			trigger_error("Getting Reservation List Failed.", E_USER_ERROR);
+
+		$ReservationLoopInit = $myListObjectInit->Rows;
+		for ($i = 0; $i < $ReservationLoopInit; $i++) {
+			$AMPM = $myListObjectInit->GetValue($i, 2);
+			$ID[$i] = $myListObjectInit->GetValue($i, 3);
+			$HanNo = $myListObjectInit->GetValue($i, 7);
+			$ReserveInit[$AMPM][$HanNo][] = $ID[$i];
+		}
+
 		$rowCountforDay = $wHansu;
 		for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
 			$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$i];
@@ -1711,24 +1844,50 @@ function getAkiWakuTime($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $T
 					if(isset($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && $UserData['ReplyFlg'][$Reserve[$WakuName][$x]] == '3'){
 						$x ++;
 					}else{
-						$bReservedRooms = 0;
-						foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
-							if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($TargetDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
-								$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+						// 仮日程の場合は、チェックを行わずに表示します。
+						if(empty($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && empty($UserData['ConfirmFlg'][$Reserve[$WakuName][$x]])){
+							$x ++;
+						}else{
+							$bReservedRooms = 0;
+							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($TargetDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+							// 		$bReservedRooms += intval($FloorReserveInfo["wFloorCols"]);
+							// 	}
+							// }
+							if(isset($ReserveInit[$WakuName][$dis_ban]) && is_array($ReserveInit[$WakuName][$dis_ban])){
+								$bReservedRooms = count($ReserveInit[$WakuName][$dis_ban]);
+							}
+							if($ban_rooms > $bReservedRooms){
+							}else{
+								$bCorrectFloor = false;
+								// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
+								// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
+								// 		if (preg_match('/^'.$floor.'\d{2}$/', $Reserve[$SenyuDate][$WakuName][$x])) {
+								// 			$bCorrectFloor = true;
+								// 			break;
+								// 		}
+								// 	}
+								// }
+								if(isset($ReserveInit[$WakuName][$dis_ban]) && is_array($ReserveInit[$WakuName][$dis_ban])){
+									foreach($ReserveInit[$WakuName][$dis_ban] as $ReserveInitRoom){
+										if($ReserveInitRoom == $Reserve[$WakuName][$x]){
+											$bCorrectFloor = true;
+											break;
+										}
+									}
+								}
+								$x ++;
 							}
 						}
-						if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
-						}else{
-							$x ++;
-						}
 					}
+				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
 				}else{
 					if($Overflows < $wFrameOverflow){
 						$ReserveCount[$j] ++;
-
-						$Overflows ++;
+					}else{
 					}
-				}	
+				}
+
 				$ban_rooms ++;
 				if($ban_rooms > $limit_ban){
 					$ban_rooms = 1;

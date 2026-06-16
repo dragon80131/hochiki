@@ -205,7 +205,7 @@ class Sign {
 			}
 		}
 // #調査ミサイル
-// $fh = fopen("D:/xampp/htdocs/kotei3/httpdocs/aaa.txt", "a");
+// $fh = fopen("C:/xampp/htdocs/kotei3/httpdocs/aaa.txt", "a");
 // fwrite($fh,"\n Signクラス内:END");
 // fclose($fh);
 // #調査ミサイルEnd

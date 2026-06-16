@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 
@@ -23,6 +23,7 @@ include_once _CLS_DIR . "SPUSGyosya.cls";
 include_once _CLS_DIR . "SPUSReservation.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationInit.cls";
+include_once _CLS_DIR . "SPUSReservationTemp.cls";
 
 
 // データベースコネクト
@@ -78,14 +79,47 @@ if(!$rowCountforDay)
 if(empty($wWakuPM1col))$wWakuPM1col = 0;
 if(empty($wWakuPM2col))$wWakuPM2col = 0;
 $hensyu = SPFWParameter::getValues('hensyu');
-if ($hensyu == 1) {
-	$wKoteihyouEX = SPFWParameter::getValues('wwKoteihyouEX');
-} else {
-	$wKoteihyouEX = SPFWParameter::getValues('wKoteihyouEX');
-	$wKoteihyouEX = SPFWTools::decodePluralValue($wKoteihyouEX); #配列
+
+$wKoteihyouEX = array();
+$wHansuEX = array();
+
+$wKoteihyouEX_count = SPFWParameter::getValues('wKoteihyouEX_count');
+$wHansuEX_count = SPFWParameter::getValues('wHansuEX_count');
+if(empty($wKoteihyouEX_count) || $wKoteihyouEX_count == ''){
+	$wKoteihyouEX_count = 0;
 }
-$wHansuEX = SPFWParameter::getValues('wHansuEX');
-$wHansuEX = SPFWTools::decodePluralValue($wHansuEX); #配列
+if(empty($wHansuEX_count) || $wHansuEX_count == ''){
+	$wHansuEX_count = 0;
+}
+if($wKoteihyouEX_count == 0 || $wHansuEX_count == 0){
+	echo ('<script>
+		alert("工程表作成中にエラーが発生いたしました。");
+		location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+	</script>');
+	exit;		
+}
+for($i=0; $i<$wKoteihyouEX_count; $i++){
+	$wKoteihyouEX_temp = SPFWParameter::getValues('wKoteihyouEX_'.$i);
+	if(empty($wKoteihyouEX_temp) || $wKoteihyouEX_temp == ''){
+		echo ('<script>
+			alert("工程表作成中にエラーが発生いたしました。");
+			location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+		</script>');
+		exit;		
+	}
+	$wKoteihyouEX = array_merge($wKoteihyouEX, SPFWTools::decodePluralValue($wKoteihyouEX_temp));
+}
+for($i=0; $i<$wHansuEX_count; $i++){
+	$wHansuEX_temp = SPFWParameter::getValues('wHansuEX_'.$i);
+	if(empty($wHansuEX_temp) || $wHansuEX_temp == ''){
+		echo ('<script>
+			alert("工程表作成中にエラーが発生いたしました。");
+			location.href="../s_menu.php?rKey='.$rKey.'&editBukkenCD='.$editBukkenCD.'";
+		</script>');
+		exit;		
+	}
+	$wHansuEX = array_merge($wHansuEX, SPFWTools::decodePluralValue($wHansuEX_temp));
+}
 
 
 // 空き室のない部屋を優先的に再配置します。
@@ -93,7 +127,6 @@ $wWakuAMcol = intval($wWakuAMcol);
 $wWakuPM1col = intval($wWakuPM1col);
 $wWakuPM2col = intval($wWakuPM2col);
 $wHansuRows = intval($rowCountforDay / $wHansu);
-
 $wKoteihyouIndex = 0;
 $curAMPM = 'AM';
 $curAMPMColIndex = 0;
@@ -166,6 +199,7 @@ while($wKoteihyouIndex < count($wKoteihyouEX)){
 	}
 
 	$rowIndex ++;
+
 	if($rowIndex >= $wHansuRows){
 		$AM_Index = 0;
 		$AM_IsRoom = true;
@@ -370,6 +404,42 @@ if (!$myGyosya->executeSelect("GyosyaCD = " . $GyosyaCD, "")) {
 $SekoShutai = $myGyosya->GyosyaName;
 $TelNumber = $myGyosya->GyosyaTEL;
 
+########################################################
+# 受付連絡先（クライアント）
+########################################################
+$ClientTEL = '';
+$BusinessHours = '';
+$BusinessHoursNote = '';
+$BusinessHoursDisplay = '';
+$ReceptionHoursCell = '（工事期間中無休　９：００～１７：３０）';
+
+$wClientCD = $myBukken->ClientCD;
+if ($wClientCD) {
+	$myListObject = new SPFWListObject($myDB);
+	$sql = "SELECT ";
+	$sql .= "ClientName, TEL, BusinessHours, BusinessHoursNote ";
+	$myListObject->SelectSQL = $sql;
+	$sql = " FROM tClientM";
+	$sql .= " WHERE MukouFlg = FALSE AND ClientCD='" . $wClientCD . "'";
+
+	$myListObject->Condition	= $sql;
+	$myListObject->Order 		= "";
+	$myListObject->Limit 		= "1";
+
+	if ($myListObject->GetList(1)) {
+		$ClientTEL = $myListObject->GetValue(0, 1) ?? '';
+		$BusinessHours = $myListObject->GetValue(0, 2) ?? '';
+		$BusinessHoursNote = $myListObject->GetValue(0, 3) ?? '';
+	}
+	unset($myListObject);
+}
+
+$BusinessHoursDisplay = trim($BusinessHours . $BusinessHoursNote);
+if ($BusinessHoursDisplay !== '') {
+	$ReceptionHoursCell = (mb_strpos($BusinessHoursDisplay, '（') === 0)
+		? $BusinessHoursDisplay
+		: '（' . $BusinessHoursDisplay . '）';
+}
 
 // $KyoyoStartDate = $myKoji->KyoyoStartDate;
 // $KyoyoEndDate = $myKoji->KyoyoEndDate;
@@ -792,8 +862,6 @@ for ($i = 0; $i < $SenyuDateCnt * $rowCountforDay; $i++) { #1 専有部日数　
 	}
 
 
-
-
 	if ($y == 0) {
 		for ($j = 0; $j < $wWakuAMPM; $j++) {
 			if ($wFirstDateFeature > 0 && $j < $wWakuAMcol && $i >= 0 && $i < $rowCountforDay) {
@@ -1026,14 +1094,14 @@ $sheet->setCellValue('B' . $wCellStart, "　　<お部屋訪問日時変更の�
 $wCellStart++;
 $sheet->setCellValue('B' . $wCellStart, "　　　■受付連絡先");
 $wCellStart++;
-$sheet->setCellValue('B' . $wCellStart, "電話番号:　※※※※※※※※※※");
+$sheet->setCellValue('B' . $wCellStart, "電話番号:　" . ($ClientTEL !== '' ? $ClientTEL : '※※※※※※※※※※'));
 $spreadsheet->getSheetByName('Sheet1')->getStyle('B' . $wCellStart)->getFont()->setSize(18);
 $spreadsheet->getSheetByName('Sheet1')->getStyle('B' . $wCellStart)->getFont()->setUnderline(true);
 $sheet->mergeCells('B' . $wCellStart . ':L' . $wCellStart);
 $spreadsheet->getSheetByName('Sheet1')->getStyle('B' . $wCellStart)
 	->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 $wCellStart++;
-$sheet->setCellValue('F' . $wCellStart, "（工事期間中無休　９：００～１７：３０）");
+$sheet->setCellValue('F' . $wCellStart, $ReceptionHoursCell);
 $wCellStart++;
 $sheet->setCellValue('B' . $wCellStart, "　　　■お願い");
 $wCellStart++;
@@ -1209,6 +1277,7 @@ for ($i = 0; $i < count($KojiDate['RoomID']); $i++) {
 		$ErrorString[] = 'ユーザ登録時にエラーがおこりました。';
 		showAdminSorryPage($ErrorString);
 	}
+	// $myLog->debug("Insert User : ".$myUser->ID);
 	$tUserCD  = $myUser->UserCD; #登録されたUserCD
 	$ReservationCD = '-1';
 /*
@@ -1296,6 +1365,7 @@ for ($i = 0; $i < count($KojiDate['RoomID']); $i++) {
 			$ErrorString[] = '予約情報登録時にエラーがおこりました。';
 			showAdminSorryPage($ErrorString);
 		}
+		// $myLog->debug("Insert Reservation : ".$myReservation->ID);
 
 
 		$myReservationInit = new ReservationInit($myDB);
@@ -1329,6 +1399,7 @@ for ($i = 0; $i < count($KojiDate['RoomID']); $i++) {
 			$ErrorString[] = '予約情報登録時にエラーがおこりました。';
 			showAdminSorryPage($ErrorString);
 		}		
+		// $myLog->debug("Insert reservationInit : ".$myReservationInit->ID);
 	}
 	$No++;
 } //ForのEnd
@@ -1385,8 +1456,17 @@ for ($i = 0; $i < count($KojiDate['RoomID']); $i++) {
 
 
 
-
-
+// 一時保存されたデータを削除します。
+$myReservationTemp = new ReservationTemp($myDB);
+if($editBuildingCD){
+	if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD = '".$editBuildingCD."'", "")) 
+		trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+}else{
+	if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."' AND BuildingCD IS NULL", "")) 
+		trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+}
+if($myReservationTemp->RecCnt > 0)
+	$myReservationTemp->executeDelete();
 
 
 

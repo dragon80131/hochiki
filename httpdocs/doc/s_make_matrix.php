@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-	include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+	include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	include_once _INC_DIR . "carrier.inc";
 	include_once _INC_DIR . "global.inc";
 
@@ -240,7 +240,7 @@ function numberToCircled($number) {
 					$wRoomSuu++;
 				}
 
-				$Pic[$j] = "<input type=checkbox class='check-range' name=KaiRoom[] value=$Kai$Room ".${$Kai.$Room."checked"}." onchange='RoomCheck()'>".$Kai.$Room;
+				$Pic[$j] = "<label><input type=checkbox class='check-range' name=KaiRoom[] value=$Kai$Room ".${$Kai.$Room."checked"}." onchange='RoomCheck()'>".$Kai.$Room."</label>";
 			}
 
 		}else{#新規
@@ -255,7 +255,7 @@ function numberToCircled($number) {
 					${$Kai.$Room."checked"} = "checked" ;
 					$wRoomSuu++;
 				}
-				$Pic[$j] = "<input type=checkbox class='check-range' name=KaiRoom[] value=$Kai$Room ".${$Kai.$Room."checked"}." onchange='RoomCheck()'>".$Kai.$Room;
+				$Pic[$j] = "<label><input type=checkbox class='check-range' name=KaiRoom[] value=$Kai$Room ".${$Kai.$Room."checked"}." onchange='RoomCheck()'>".$Kai.$Room."</label>";
 			}
 		}
 

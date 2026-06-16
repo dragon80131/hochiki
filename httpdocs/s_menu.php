@@ -1,6 +1,6 @@
 <?php
 $isAdminMode = TRUE;
-include_once "D:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
+include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 include_once _INC_DIR . "carrier.inc";
 include_once _INC_DIR . "global.inc";
 
@@ -21,6 +21,7 @@ include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSGyosya.cls";
 include_once _CLS_DIR . "SPUSClient.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once _CLS_DIR . "SPUSReservationTemp.cls";
 
 include_once "./include/kenmei_connect.php";
 
@@ -194,6 +195,13 @@ for ($i = 0; $i < $BuildingLoop; $i++) {
 }
 unset($myListObject);
 
+
+$myReservationTemp = new ReservationTemp($myDB);
+if (!$myReservationTemp->executeSelect("  BukkenCD = '".$editBukkenCD."'", "")) 
+	trigger_error("Getting Temp Reservation Failed.", E_USER_ERROR);
+$IfTempSave = false;
+if($myReservationTemp->RecCnt > 0)
+	$IfTempSave = true;
 
 #######################################################
 #関数

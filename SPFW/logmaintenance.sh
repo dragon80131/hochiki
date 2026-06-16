@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ROOTPATH=D:/xampp/htdocs/kotei/
+ROOTPATH=C:/xampp/htdocs/kotei/
 
 LIBPATH=${ROOTPATH}SPFW/
 GENERATION=3
