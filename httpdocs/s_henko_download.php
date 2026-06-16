@@ -318,6 +318,7 @@ require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
 use PhpOffice\PhpSpreadsheet\Style\Style;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 $reader = new XlsxReader();
@@ -379,6 +380,18 @@ $rightAlignStyle->applyFromArray([
 
 $sheet->duplicateStyle($rightAlignStyle, ('B6:' . 'B'.$row_index));
 $sheet->duplicateStyle($centerAlignStyle, ('C6:' . 'K'.$row_index));
+
+for ($i = 0; $i < $ResidentsFormLoop; $i++) {
+	if ($Status[$i] == '辞退') {
+		$declinedRow = 6 + $i;
+		$sheet->getStyle('B' . $declinedRow . ':K' . $declinedRow)->applyFromArray([
+			'fill' => [
+				'fillType' => Fill::FILL_SOLID,
+				'startColor' => ['rgb' => 'C1C3C5'],
+			],
+		]);
+	}
+}
 
 header("Content-Description: File Transfer");
 

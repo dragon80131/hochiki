@@ -27,6 +27,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSBranche.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/bukken_alert.php";
 
 
 // データベースコネクト
@@ -652,6 +653,8 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 
 	if (!$myReservation->executeUpdate())
 		trigger_error("Updating Reservation Failed.", E_USER_ERROR);
+
+	recordBukkenWebActivity($myDB, $editBukkenCD);
 
 	if ($wLang == 1) { #英語のときの　日付表示を　　31/03/2016 に変更
 		$wTimeFrom = substr($myReservation->TimeFrom, 8, 2) . "/" . substr($myReservation->TimeFrom, 5, 2) . "/" . substr($myReservation->TimeFrom, 0, 4) . " " . substr($myReservation->TimeFrom, 10, 6);

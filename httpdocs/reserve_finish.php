@@ -21,6 +21,7 @@ include_once _CLS_DIR . "SPFWParameter.cls";
 include_once _CLS_DIR . "SPUSTaio.cls";
 
 include_once "./include/common.php";
+include_once "./include/bukken_alert.php";
 
 
 // データベースコネクト
@@ -495,6 +496,8 @@ $myReservation->Updater = $UserCD;
 
 if (!$myReservation->executeUpdate())
 	trigger_error("Updating Reservation Failed.", E_USER_ERROR);
+
+recordBukkenWebActivity($myDB, $myUser->BukkenCD);
 
 if ($Lang <> 'ja') {
 	$wTimeFrom = substr($myReservation->TimeFrom, 8, 2) . "/" . substr($myReservation->TimeFrom, 5, 2) . "/" . substr($myReservation->TimeFrom, 0, 4) . " " . substr($myReservation->TimeFrom, 10, 6);

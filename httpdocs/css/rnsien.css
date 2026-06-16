@@ -520,6 +520,100 @@ ul.menu_list > li.brown:hover {
   top: 5px;
   z-index: 10;
 }
+.bukken-alert-wrap{
+  position: absolute;
+  right: 30px;
+  top: 50px;
+  z-index: 10;
+}
+.bukken-alert-bell{
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  user-select: none;
+}
+.bukken-alert-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+.bukken-alert-icon svg{
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: #5a6570;
+}
+.bukken-alert-badge{
+  display: none;
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #e53935;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+.bukken-alert-badge--visible{
+  display: block;
+}
+.bukken-alert-dropdown{
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 260px;
+  max-width: 360px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-align: left;
+}
+.bukken-alert-title{
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+  border-bottom: 1px solid #eee;
+  background: #f8f8f8;
+}
+.bukken-alert-item{
+  display: block;
+  padding: 10px 12px;
+  color: #212529;
+  text-decoration: none;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  white-space: normal;
+}
+.bukken-alert-item:hover{
+  background: #fff3e0;
+  color: #212529;
+  text-decoration: none;
+}
+.bukken-alert-empty{
+  padding: 12px;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
 
 tr.trholiday td{
   background-color: #d3d3d3 !important;
