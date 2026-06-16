@@ -32,7 +32,7 @@ $items = getRecentBukkenAlerts(
 	$myUser->UserType,
 	$myUser->BrancheCD,
 	$myUser->GyosyaCD,
-	5
+	8
 );
 $unreadCount = getUnreadBukkenAlertCount(
 	$myDB,

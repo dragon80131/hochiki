@@ -59,7 +59,7 @@
     }
     var diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
     if (diffSec < 60) {
-      return 'たった今';
+      return '今';
     }
     if (diffSec < 3600) {
       return '約' + Math.floor(diffSec / 60) + '分前';
@@ -181,6 +181,19 @@
     }
   }
 
+  function markAllAlertsRead() {
+    var rKey = getRKey();
+    if (!rKey) {
+      return;
+    }
+    updateBadge(0);
+    cachedItems = cachedItems.map(function (item) {
+      return Object.assign({}, item, { IsUnread: false });
+    });
+    fetch('mark_bukken_alert_read.php?rKey=' + encodeURIComponent(rKey) + '&markAll=1')
+      .catch(function () {});
+  }
+
   function toggleDropdown() {
     var dropdown = getDropdown();
     if (!dropdown) {
@@ -192,6 +205,9 @@
       return;
     }
 
+    if (unreadCount > 0) {
+      markAllAlertsRead();
+    }
     renderDropdownItems(cachedItems);
     dropdown.style.display = 'block';
     dropdownOpen = true;
