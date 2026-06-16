@@ -231,7 +231,8 @@ $sql .= "u.Updated,";
 $sql .= "u.ReplyFlg,";
 $sql .= "s.FilePath,";
 $sql .= "r.TimeExact,";
-$sql .= "r.TimeMeaning";
+$sql .= "r.TimeMeaning,";
+$sql .= "u.ConfirmFlg";
 $myListObject->SelectSQL = $sql;
 
 $sql = " FROM tUserM u left outer join tReservationF r on r.UserCD = u.UserCD ";
@@ -284,6 +285,14 @@ for ($i = 0; $i < $ResidentsFormLoop; $i++) {
 	$FilePath[$i] = $myListObject->GetValue($i, 8);
 	$TimeExact[$i] = $myListObject->GetValue($i, 9);
 	$TimeMeaning[$i] = $myListObject->GetValue($i, 10);
+	$ConfirmFlg[$i] = $myListObject->GetValue($i, 11);
+	if($ReplyFlg[$i] == '3'){
+		$Status[$i] = '辞退';
+	}else if($ReplyFlg[$i] == '1' || $ReplyFlg[$i] == '2' || $ConfirmFlg[$i] == '1'){
+		$Status[$i] = '確定';
+	}else{
+		$Status[$i] = '仮日程';
+	}
 
 	$RowClass[$i] = '';
 	if($FilePath[$i])
@@ -345,6 +354,8 @@ for ($i = 0; $i < $ResidentsFormLoop; $i++) {
 	$sheet->setCellValue('I' . $row_index, isset($DispReply[$i])&&$DispReply[$i]?$DispReply[$i]:'');
 	// 受付担当
 	$sheet->setCellValue('J' . $row_index, isset($DispUpdater[$i])&&$DispUpdater[$i]?$DispUpdater[$i]:'');
+	// ステータス
+	$sheet->setCellValue('K' . $row_index, isset($Status[$i])&&$Status[$i]?$Status[$i]:'');
 
 	$row_index ++;
 }
@@ -367,7 +378,7 @@ $rightAlignStyle->applyFromArray([
 ]);
 
 $sheet->duplicateStyle($rightAlignStyle, ('B6:' . 'B'.$row_index));
-$sheet->duplicateStyle($centerAlignStyle, ('C6:' . 'J'.$row_index));
+$sheet->duplicateStyle($centerAlignStyle, ('C6:' . 'K'.$row_index));
 
 header("Content-Description: File Transfer");
 
