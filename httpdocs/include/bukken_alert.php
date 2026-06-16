@@ -13,9 +13,18 @@ function ensureBukkenAlertTables($myDB) {
 	$sql = "CREATE TABLE IF NOT EXISTS tBukkenWebActivityF (
 		BukkenCD int NOT NULL,
 		LastWebActivityAt datetime NOT NULL,
+		LastActivityType tinyint NOT NULL DEFAULT 1 COMMENT '1:予約 2:更新',
 		PRIMARY KEY (BukkenCD)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='WEB予約・更新通知用'";
 	$myDB->executeQuery($sql);
+
+	$rtn = $myDB->executeQuery("SHOW COLUMNS FROM tBukkenWebActivityF LIKE 'LastActivityType'");
+	if ($rtn && $myDB->getNumberOfRows($rtn) == 0) {
+		$myDB->executeQuery("ALTER TABLE tBukkenWebActivityF ADD COLUMN LastActivityType tinyint NOT NULL DEFAULT 1 COMMENT '1:予約 2:更新' AFTER LastWebActivityAt");
+	}
+	if ($rtn) {
+		$myDB->freeResult($rtn);
+	}
 
 	$sql = "CREATE TABLE IF NOT EXISTS tBukkenAlertReadF (
 		UserCD int NOT NULL,
@@ -26,15 +35,20 @@ function ensureBukkenAlertTables($myDB) {
 	$myDB->executeQuery($sql);
 }
 
-function recordBukkenWebActivity($myDB, $BukkenCD) {
+function recordBukkenWebActivity($myDB, $BukkenCD, $activityType = 1) {
 	$BukkenCD = intval($BukkenCD);
+	$activityType = ($activityType == 2) ? 2 : 1;
 	if ($BukkenCD <= 0) {
 		return;
 	}
 	ensureBukkenAlertTables($myDB);
-	$sql = "INSERT INTO tBukkenWebActivityF (BukkenCD, LastWebActivityAt) VALUES (" . $BukkenCD . ", NOW())";
-	$sql .= " ON DUPLICATE KEY UPDATE LastWebActivityAt = NOW()";
+	$sql = "INSERT INTO tBukkenWebActivityF (BukkenCD, LastWebActivityAt, LastActivityType) VALUES (" . $BukkenCD . ", NOW(), " . $activityType . ")";
+	$sql .= " ON DUPLICATE KEY UPDATE LastWebActivityAt = NOW(), LastActivityType = " . $activityType;
 	$myDB->executeQuery($sql);
+}
+
+function getBukkenActivityLabel($activityType) {
+	return ($activityType == 2) ? '更新' : '予約';
 }
 
 function markBukkenAlertRead($myDB, $UserCD, $BukkenCD) {
@@ -79,6 +93,57 @@ function getBukkenAlertScopeSql($myDB, $UserKbn, $ClientCD, $UserType, $BrancheC
 		$sql .= " AND (b.GyosyaCD = " . $GyosyaCD . " OR b.GyosyaBousaiCD = " . $GyosyaCD . ")";
 	}
 	return $sql;
+}
+
+function getUnreadBukkenAlertCount($myDB, $UserCD, $UserKbn, $ClientCD, $UserType, $BrancheCD, $GyosyaCD) {
+	return count(getUnreadBukkenAlerts($myDB, $UserCD, $UserKbn, $ClientCD, $UserType, $BrancheCD, $GyosyaCD));
+}
+
+function getRecentBukkenAlerts($myDB, $UserCD, $UserKbn, $ClientCD, $UserType, $BrancheCD, $GyosyaCD, $limit = 5) {
+	ensureBukkenAlertTables($myDB);
+	$UserCD = intval($UserCD);
+	$limit = intval($limit);
+	if ($limit <= 0) {
+		$limit = 5;
+	}
+	if ($UserCD <= 0 || $UserKbn == 4) {
+		return array();
+	}
+
+	$sql = "SELECT b.BukkenCD, b.BukkenName, a.LastWebActivityAt, a.LastActivityType,";
+	$sql .= " CASE WHEN a.LastWebActivityAt > COALESCE(r.LastReadAt, '1970-01-01 00:00:00') THEN 1 ELSE 0 END AS IsUnread";
+	$sql .= " FROM tBukkenWebActivityF a";
+	$sql .= " INNER JOIN tBukkenM b ON b.BukkenCD = a.BukkenCD AND b.MukouFlg = FALSE";
+	$sql .= " LEFT JOIN tBukkenAlertReadF r ON r.UserCD = " . $UserCD . " AND r.BukkenCD = a.BukkenCD";
+	$sql .= " WHERE 1=1";
+	$sql .= getBukkenAlertScopeSql($myDB, $UserKbn, $ClientCD, $UserType, $BrancheCD, $GyosyaCD);
+	$sql .= " ORDER BY a.LastWebActivityAt DESC";
+	$sql .= " LIMIT " . $limit;
+
+	$rtn = $myDB->executeQuery($sql);
+	if (!$rtn) {
+		return array();
+	}
+
+	$items = array();
+	$rows = $myDB->getNumberOfRows($rtn);
+	for ($i = 0; $i < $rows; $i++) {
+		$row = $myDB->fetchRow($rtn, $i);
+		$bukkenName = $row[1];
+		if ($bukkenName === false || $bukkenName === null || $bukkenName === '') {
+			$bukkenName = '物件CD:' . $row[0];
+		}
+		$items[] = array(
+			'BukkenCD' => $row[0],
+			'BukkenName' => $bukkenName,
+			'LastWebActivityAt' => $row[2],
+			'ActivityType' => intval($row[3]),
+			'ActivityLabel' => getBukkenActivityLabel($row[3]),
+			'IsUnread' => ($row[4] == 1),
+		);
+	}
+	$myDB->freeResult($rtn);
+	return $items;
 }
 
 function getUnreadBukkenAlerts($myDB, $UserCD, $UserKbn, $ClientCD, $UserType, $BrancheCD, $GyosyaCD) {

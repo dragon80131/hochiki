@@ -24,7 +24,17 @@ if (!$myUser) {
 	exit;
 }
 
-$items = getUnreadBukkenAlerts(
+$items = getRecentBukkenAlerts(
+	$myDB,
+	$myUser->UserCD,
+	$myUser->UserKbn,
+	$myUser->ClientCD,
+	$myUser->UserType,
+	$myUser->BrancheCD,
+	$myUser->GyosyaCD,
+	5
+);
+$unreadCount = getUnreadBukkenAlertCount(
 	$myDB,
 	$myUser->UserCD,
 	$myUser->UserKbn,
@@ -36,7 +46,7 @@ $items = getUnreadBukkenAlerts(
 unset($myUser);
 
 echo json_encode(array(
-	'count' => count($items),
+	'count' => $unreadCount,
 	'items' => $items,
 	'm' => $m,
 ), JSON_UNESCAPED_UNICODE);

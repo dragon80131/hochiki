@@ -654,7 +654,7 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 	if (!$myReservation->executeUpdate())
 		trigger_error("Updating Reservation Failed.", E_USER_ERROR);
 
-	recordBukkenWebActivity($myDB, $editBukkenCD);
+	recordBukkenWebActivity($myDB, $editBukkenCD, ($Identifier == 'kakutei') ? 2 : 1);
 
 	if ($wLang == 1) { #英語のときの　日付表示を　　31/03/2016 に変更
 		$wTimeFrom = substr($myReservation->TimeFrom, 8, 2) . "/" . substr($myReservation->TimeFrom, 5, 2) . "/" . substr($myReservation->TimeFrom, 0, 4) . " " . substr($myReservation->TimeFrom, 10, 6);

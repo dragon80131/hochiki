@@ -1,7 +1,7 @@
 (function () {
   var cachedItems = [];
-  var badgeCount = 0;
   var dropdownOpen = false;
+  var unreadCount = 0;
 
   function getRKey() {
     var input = document.querySelector('input[name="rKey"]');
@@ -34,7 +34,7 @@
   }
 
   function updateBadge(count) {
-    badgeCount = count;
+    unreadCount = count;
     var badge = document.querySelector('.bukken-alert-badge');
     if (!badge) {
       return;
@@ -48,26 +48,72 @@
     }
   }
 
+  function formatRelativeTime(dateStr) {
+    if (!dateStr) {
+      return '';
+    }
+    var normalized = String(dateStr).replace(' ', 'T');
+    var date = new Date(normalized);
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    var diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (diffSec < 60) {
+      return 'たった今';
+    }
+    if (diffSec < 3600) {
+      return '約' + Math.floor(diffSec / 60) + '分前';
+    }
+    if (diffSec < 86400) {
+      return '約' + Math.floor(diffSec / 3600) + '時間前';
+    }
+    if (diffSec < 86400 * 2) {
+      return '1日前';
+    }
+    if (diffSec < 86400 * 7) {
+      return Math.floor(diffSec / 86400) + '日前';
+    }
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    return month + '/' + day;
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function renderDropdownItems(items) {
     var dropdown = getDropdown();
     if (!dropdown) {
       return;
     }
 
-    var html = '<div class="bukken-alert-title">WEB予約・更新</div>';
+    var html = '<div class="bukken-alert-list">';
     if (items.length === 0) {
-      html += '<div class="bukken-alert-empty">未読はありません</div>';
+      html += '<div class="bukken-alert-empty">お知らせはありません</div>';
     } else {
       items.forEach(function (item) {
         var name = item.BukkenName;
         if (name === false || name === null || name === undefined) {
           name = '物件CD:' + item.BukkenCD;
         }
-        html += '<a href="#" class="bukken-alert-item" data-bukkencd="' + item.BukkenCD + '">';
-        html += name;
+        var label = item.ActivityLabel || (item.ActivityType == 2 ? '更新' : '予約');
+        var activeClass = item.IsUnread ? ' bukken-alert-item--active' : ' bukken-alert-item--read';
+        var timeLabel = formatRelativeTime(item.LastWebActivityAt);
+        html += '<a href="#" class="bukken-alert-item' + activeClass + '" data-bukkencd="' + item.BukkenCD + '">';
+        html += '<div class="bukken-alert-item-head">';
+        html += '<span class="bukken-alert-item-label">' + escapeHtml(label) + '</span>';
+        html += '<span class="bukken-alert-item-time">' + escapeHtml(timeLabel) + '</span>';
+        html += '</div>';
+        html += '<div class="bukken-alert-item-body">' + escapeHtml(name) + '</div>';
         html += '</a>';
       });
     }
+    html += '</div>';
     dropdown.innerHTML = html;
 
     dropdown.querySelectorAll('.bukken-alert-item').forEach(function (el) {
@@ -82,16 +128,25 @@
           url += '&m=' + encodeURIComponent(m);
         }
 
+        var wasUnread = el.classList.contains('bukken-alert-item--active');
+        if (!wasUnread) {
+          window.location.href = url;
+          return;
+        }
+
         fetch('mark_bukken_alert_read.php?rKey=' + encodeURIComponent(rKey) + '&editBukkenCD=' + encodeURIComponent(bukkenCD))
           .then(function (res) { return res.json(); })
           .then(function (data) {
             if (!data || !data.ok) {
               return;
             }
-            cachedItems = cachedItems.filter(function (item) {
-              return String(item.BukkenCD) !== String(bukkenCD);
+            cachedItems = cachedItems.map(function (item) {
+              if (String(item.BukkenCD) === String(bukkenCD)) {
+                return Object.assign({}, item, { IsUnread: false });
+              }
+              return item;
             });
-            updateBadge(cachedItems.length);
+            updateBadge(Math.max(0, unreadCount - 1));
             renderDropdownItems(cachedItems);
             window.location.href = url;
           })
@@ -106,13 +161,24 @@
       return;
     }
 
-    var count = (data && data.count) ? data.count : 0;
+    var count = (data && data.count !== undefined) ? data.count : 0;
     var items = (data && data.items) ? data.items : [];
-    cachedItems = items.slice();
+    cachedItems = items.map(function (item) {
+      return {
+        BukkenCD: item.BukkenCD,
+        BukkenName: item.BukkenName,
+        LastWebActivityAt: item.LastWebActivityAt,
+        ActivityType: item.ActivityType,
+        ActivityLabel: item.ActivityLabel || (item.ActivityType == 2 ? '更新' : '予約'),
+        IsUnread: !!item.IsUnread,
+      };
+    });
 
     bell.style.display = 'inline-flex';
     updateBadge(count);
-    renderDropdownItems(cachedItems);
+    if (dropdownOpen) {
+      renderDropdownItems(cachedItems);
+    }
   }
 
   function toggleDropdown() {
@@ -132,10 +198,6 @@
   }
 
   function loadAlerts() {
-    if (dropdownOpen) {
-      return;
-    }
-
     var rKey = getRKey();
     if (!rKey) {
       return;
