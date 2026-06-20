@@ -497,10 +497,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							$passed_rooms ++;
 							$x ++;
 						}else{
-							if($wArrangeType == '1')
-								${'Waku' . $WakuName . 'Room'}[] = "時間外";
-							else
-								${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						}
 						$EmptyFrameCount ++;
@@ -518,7 +515,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							}
 						}
 						if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
-							${'Waku' . $WakuName . 'Room'}[] = "余地";
+							${'Waku' . $WakuName . 'Room'}[] = "空き";
 							$passed_rooms ++;
 							$EmptyFrameCount ++;
 						}else{
@@ -532,19 +529,13 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					$passed_rooms ++;
 					$x ++;
 				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-					if($wArrangeType == '1')
-						${'Waku' . $WakuName . 'Room'}[] = "余地";
-					else
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+					${'Waku' . $WakuName . 'Room'}[] = "空き";
 
 					$passed_rooms ++;
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
-						if($wArrangeType == '1')
-							${'Waku' . $WakuName . 'Room'}[] = "時間外";
-						else
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
 					}else{
@@ -612,10 +603,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 							$passed_rooms ++;
 							$x ++;
 						}else{
-							if($wArrangeType == '1')
-								${'Waku' . $WakuName . 'Room'}[] = "時間外";
-							else
-								${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = "枠越";
 						}
 						$EmptyFrameCount ++;
 						$Overflows ++;
@@ -635,19 +623,13 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						$x ++;
 					}
 				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-					if($wArrangeType == '1')
-						${'Waku' . $WakuName . 'Room'}[] = "余地";
-					else
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+					${'Waku' . $WakuName . 'Room'}[] = "空き";
 
 					$passed_rooms ++;
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
-						if($wArrangeType == '1')
-							${'Waku' . $WakuName . 'Room'}[] = "時間外";
-						else
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
 						$EmptyFrameCount ++;
@@ -722,10 +704,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 							$passed_rooms ++;
 							$x ++;
 						}else{
-							if($wArrangeType == '1')
-								${'Waku' . $WakuName . 'Room'}[] = "時間外";
-							else
-								${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = "枠越";
 						}
 						$EmptyFrameCount ++;
 						$Overflows ++;
@@ -742,7 +721,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 							}
 						}
 						if(($dis_ban - 1) * $max_ban + $ban_rooms > $bReservedRooms){
-							${'Waku' . $WakuName . 'Room'}[] = "余地";
+							${'Waku' . $WakuName . 'Room'}[] = "空き";
 							$passed_rooms ++;
 							$EmptyFrameCount ++;
 						}else{
@@ -756,19 +735,13 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					$passed_rooms ++;
 					$x ++;
 				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-					if($wArrangeType == '1')
-						${'Waku' . $WakuName . 'Room'}[] = "余地";
-					else
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+					${'Waku' . $WakuName . 'Room'}[] = "空き";
 
 					$passed_rooms ++;
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
-						if($wArrangeType == '1')
-							${'Waku' . $WakuName . 'Room'}[] = "時間外";
-						else
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
 					}else{
@@ -882,11 +855,11 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					} else {
 						$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffffcf;'>";
 					}
-					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ($wArrangeType == '1' && ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "余地")) {
+					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#d3d3d3; cursor:default'>";
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "時間外") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き") {
 						if ($k % 2 == 0) {
 							$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffff9e;'>";
 						} else {
@@ -902,8 +875,6 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffffcf;'>";
 						}
 
-						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == '余地'){
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$tID = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
@@ -986,11 +957,11 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 					} else {
 						$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffffcf;'>";
 					}
-					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ($wArrangeType == '1' && ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "余地")) {
+					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#d3d3d3; cursor:default'>";
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "時間外") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き") {
 						if ($k % 2 == 0) {
 							$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffff9e;'>";
 						} else {
@@ -1007,8 +978,6 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 
-					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == '余地') {
-						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$tID = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 
@@ -1097,11 +1066,11 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					} else {
 						$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffffcf;'>";
 					}
-					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ($wArrangeType == '1' && ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "時間外")) {
+					if (!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#d3d3d3; cursor:default'>";
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "時間外") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き") {
 						if ($k % 2 == 0) {
 							$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffff9e;'>";
 						} else {
@@ -1114,8 +1083,6 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						} else {
 							$Koteihyou_temp = "<td class='link_cell' style='background-color:#ffffcf;'>";
 						}
-						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == '余地') {
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					}else if(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]) {
 						$tID = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];

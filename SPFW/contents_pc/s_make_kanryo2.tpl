@@ -848,7 +848,7 @@
 								最大工事枠数<font color="red">※</font>
 							</div>
 							<div class="arrangeTypeElement1">
-								最大枠数<font color="red">※</font>
+								最大工事枠数<font color="red">※</font>
 							</div>
 						</td>
 						<td><br>
@@ -867,7 +867,7 @@
 								枠越え
 							</div>
 							<div class="arrangeTypeElement1">
-								時間指定枠
+								 枠越え
 							</div>
 
 						</td>

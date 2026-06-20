@@ -371,7 +371,7 @@ $wMaxWakuSu = $myBukken->MaxWakuSu;
 $wFirstDateFeature = $myBukken->FirstDateFeature;
 $Holiday1 = $myBukken->Holiday1;
 $ReserveDay = $myBukken->ReserveDay;
-$wFrameOverflow = $myBukken->FrameOverflow;
+$wFrameOverflow = $myBukken->FrameOverflow; // 枠越え枠数（工程表セル表記は「枠越」）
 $wArrangeType = $myBukken->ArrangeType;
 $wFloorReserveInfo = $myBukken->FloorReserveInfo;
 

@@ -423,7 +423,7 @@
               <button type="submit" class="btn btn-success btn-sm ml-2" name="bikoreg" value="yes">登録</button>
               </div> 
               <div class="mt-1">
-              部屋番号をクリック、次に、「空き」をクリックしてください。<a href="#reg_form_start">ページ下部</a>のお客さま情報を入力し登録します。
+              部屋番号をクリック、次に、「空き」または「枠越」をクリックしてください。<a href="#reg_form_start">ページ下部</a>のお客さま情報を入力し登録します。
               </div> 
               <div class="mt-1 serch_panel">
               <input type="text" id="srch_room" class="form-control">
