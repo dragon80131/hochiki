@@ -47,6 +47,7 @@ function shListRestoreRemovedRoomSlot(&$rooms, &$slotMeta, $index, $roomId) {
 	if (!isset($rooms[$index])) {
 		return;
 	}
+	$roomId = strval($roomId);
 	if ($rooms[$index] === $roomId) {
 		$rooms[$index] = '空き';
 	} else if ($rooms[$index] === 'overflow@' . $roomId) {
@@ -58,15 +59,23 @@ function shListRestoreRemovedRoomSlot(&$rooms, &$slotMeta, $index, $roomId) {
 	}
 }
 
-function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType) {
+function shListNormalizeReservationDate($timeFrom) {
+	if ($timeFrom === null || $timeFrom === '') {
+		return null;
+	}
+	return date('Y-m-d', strtotime($timeFrom));
+}
+
+function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array()) {
 	if (empty($rooms) || empty($slotMeta)) {
 		return;
 	}
 
 	foreach ($arrSlotType as $roomId => $slotType) {
-		if ($slotType !== SH_LIST_SLOT_AKI) {
+		if ($slotType !== SH_LIST_SLOT_AKI && $slotType !== SH_LIST_SLOT_WAKUOVER) {
 			continue;
 		}
+		$roomId = strval($roomId);
 
 		$targetViewOrderNo = intval($arrViewOrderNo[$roomId] ?? 0);
 		$targetBan = intval($arrHanNo[$roomId] ?? 0);
@@ -77,32 +86,39 @@ function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $ar
 			$targetBan = 1;
 		}
 
+		$targetDate = isset($arrTimeFrom[$roomId]) ? shListNormalizeReservationDate($arrTimeFrom[$roomId]) : null;
+
 		$targetIdx = -1;
-		$targetDate = null;
 		for ($i = 0; $i < count($rooms); $i++) {
 			if (!isset($slotMeta[$i])) {
 				continue;
 			}
 			$meta = $slotMeta[$i];
+			if ($targetDate !== null && $meta['date'] !== $targetDate) {
+				continue;
+			}
 			if (intval($meta['viewOrderNo']) !== $targetViewOrderNo) {
 				continue;
 			}
 			if (intval($meta['ban']) !== $targetBan) {
 				continue;
 			}
-			if ($rooms[$i] !== '空き' && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
+			if ($slotType === SH_LIST_SLOT_AKI) {
+				if ($rooms[$i] !== '空き' && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
+					continue;
+				}
+			} else if ($rooms[$i] !== '枠越' && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
 				continue;
 			}
 			$targetIdx = $i;
-			$targetDate = $meta['date'];
 			break;
 		}
-		if ($targetIdx < 0 || $targetDate === null) {
+		if ($targetIdx < 0) {
 			continue;
 		}
 
 		for ($i = 0; $i < count($rooms); $i++) {
-			if (!isset($slotMeta[$i]) || $slotMeta[$i]['date'] !== $targetDate) {
+			if ($i === $targetIdx) {
 				continue;
 			}
 			if ($rooms[$i] === $roomId || $rooms[$i] === 'overflow@' . $roomId) {
@@ -110,6 +126,14 @@ function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $ar
 			}
 		}
 
-		$rooms[$targetIdx] = $roomId;
+		if ($slotType === SH_LIST_SLOT_AKI) {
+			$rooms[$targetIdx] = $roomId;
+		} else {
+			$rooms[$targetIdx] = 'overflow@' . $roomId;
+		}
 	}
+}
+
+function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array()) {
+	shListApplyBlankSlotAssignments($rooms, $slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom);
 }

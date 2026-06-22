@@ -882,9 +882,9 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							}
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
+							$passed_rooms ++;
+							$x ++;
 						}
-						$passed_rooms ++;
-						$x ++;
 					}
 				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
 					${'Waku' . $WakuName . 'Room'}[] = "空き";
@@ -1202,9 +1202,9 @@ foreach($afterReserveDay as $key => $aReserveDay){
 							}
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
+							$passed_rooms ++;
+							$x ++;
 						}
-						$passed_rooms ++;
-						$x ++;
 					}
 				}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
 					${'Waku' . $WakuName . 'Room'}[] = "空き";
@@ -1233,12 +1233,13 @@ foreach($afterReserveDay as $key => $aReserveDay){
 }
 for ($wi = 0; $wi < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $wi++) {
 	$wn = $WAKUPATTERN[$wWakuPattern]['AMPM'][$wi];
-	shListApplyAkiSlotAssignments(
+	shListApplyBlankSlotAssignments(
 		${'Waku' . $wn . 'Room'},
 		${'Waku' . $wn . 'SlotMeta'},
 		$arrViewOrderNo,
 		$arrHanNo,
-		$arrSlotType
+		$arrSlotType,
+		$arrTimeFrom
 	);
 }
 ########################################################
