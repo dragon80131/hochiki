@@ -66,7 +66,7 @@ function shListNormalizeReservationDate($timeFrom) {
 	return date('Y-m-d', strtotime($timeFrom));
 }
 
-function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array()) {
+function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array(), $currentWakuName = null, $arrAmpm = array()) {
 	if (empty($rooms) || empty($slotMeta)) {
 		return;
 	}
@@ -76,6 +76,10 @@ function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $
 			continue;
 		}
 		$roomId = strval($roomId);
+
+		if ($currentWakuName !== null && isset($arrAmpm[$roomId]) && $arrAmpm[$roomId] !== $currentWakuName) {
+			continue;
+		}
 
 		$targetViewOrderNo = intval($arrViewOrderNo[$roomId] ?? 0);
 		$targetBan = intval($arrHanNo[$roomId] ?? 0);
@@ -134,6 +138,6 @@ function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $
 	}
 }
 
-function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array()) {
-	shListApplyBlankSlotAssignments($rooms, $slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom);
+function shListApplyAkiSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom = array(), $currentWakuName = null, $arrAmpm = array()) {
+	shListApplyBlankSlotAssignments($rooms, $slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom, $currentWakuName, $arrAmpm);
 }

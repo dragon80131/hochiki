@@ -567,6 +567,7 @@ $TimeMeaning = [];
 $arrHanNo = [];
 $arrViewOrderNo = [];
 $arrSlotType = [];
+$arrAmpm = [];
 
 for ($i = 0; $i < $ReservationLoop; $i++) {
 	$ReservationCD[$i] = $myListObject->GetValue($i, 0);
@@ -602,6 +603,7 @@ for ($i = 0; $i < $ReservationLoop; $i++) {
 	$arrViewOrderNo[$ID[$i]] 	= $myListObject->GetValue($i, 15);
 	$arrTimeFrom[$ID[$i]] 	= $myListObject->GetValue($i, 5);
 	$arrSlotType[$ID[$i]] 	= $myListObject->GetValue($i, 17);
+	$arrAmpm[$ID[$i]] 	= $AMPM;
 }
 
 // 初期予約情報を取得します。
@@ -1239,7 +1241,9 @@ for ($wi = 0; $wi < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $wi++) {
 		$arrViewOrderNo,
 		$arrHanNo,
 		$arrSlotType,
-		$arrTimeFrom
+		$arrTimeFrom,
+		$wn,
+		$arrAmpm
 	);
 }
 ########################################################
