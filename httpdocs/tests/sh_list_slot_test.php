@@ -134,6 +134,30 @@ assertSameValue('空き', $amRooms[1], 'AM: PM移動の部屋209は入れない'
 assertSameValue('603', $amRooms[2], 'AM: 他部屋はそのまま');
 assertSameValue('209', $pmRooms[1], 'PM: 空き枠に部屋209を配置');
 
+// 枠越行の青字部屋番号を空きへ移動しても、枠越行は枠越のまま
+$rooms = array('806', '807', '空き', '706', '707', '706');
+$slotMeta = array(
+	array('viewOrderNo' => 1, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => 'room'),
+	array('viewOrderNo' => 2, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => 'room'),
+	array('viewOrderNo' => 3, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => '空き'),
+	array('viewOrderNo' => 4, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => '枠越'),
+	array('viewOrderNo' => 5, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => '枠越'),
+	array('viewOrderNo' => 6, 'ban' => 1, 'date' => '2026-08-27', 'slotType' => '枠越'),
+);
+$arrViewOrderNo = array('706' => 3);
+$arrHanNo = array('706' => 1);
+$arrSlotType = array('706' => SH_LIST_SLOT_AKI);
+$arrTimeFrom = array('706' => '2026-08-27 13:00:00');
+$arrAmpm = array('706' => 'PM');
+
+shListApplyBlankSlotAssignments($rooms, $slotMeta, $arrViewOrderNo, $arrHanNo, $arrSlotType, $arrTimeFrom, 'PM', $arrAmpm);
+
+assertSameValue('806', $rooms[0], '枠越行修正: 他部屋はそのまま');
+assertSameValue('706', $rooms[2], '枠越行修正: 空き枠に706を配置');
+assertSameValue('枠越', $rooms[3], '枠越行修正: 旧枠越行の706は枠越に戻す');
+assertSameValue('707', $rooms[4], '枠越行修正: 他部屋707はそのまま');
+assertSameValue('枠越', $rooms[5], '枠越行修正: 重複706も枠越に戻す');
+
 if ($failed > 0) {
 	echo "\n{$failed} test(s) failed.\n";
 	exit(1);

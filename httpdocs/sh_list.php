@@ -803,10 +803,12 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 		for ($k = 0; $k < ${'wWaku' . $WakuName . 'ColSum'}; $k++) {#10,8,8
 			$dis_ban = floor($k / $limit_ban) + 1;
 			if (!$beforeKojiHoliday[$key]) { //休工日以外
+				$wakuRecordSlotType = null;
 				if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 					${'Waku' . $WakuName . 'Room'}[] = "";
 				} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						if(isset($Reserve[$SenyuDate][$WakuName][$x]) 
 							&& (!$arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] || $arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] == $dis_ban)){
 							// 辞退
@@ -895,6 +897,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
@@ -907,7 +910,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
-				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate, $wakuRecordSlotType);
 				$ViewOrderNo ++;
 			}
 		}
@@ -956,10 +959,12 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 		for ($k = 0; $k < ${'wWaku' . $WakuName . 'ColSum'}; $k++) {#10,8,8
 			$dis_ban = floor($k / $limit_ban) + 1;
 			if (!$KojiHoliday[$i]) { //休工日以外
+				$wakuRecordSlotType = null;
 				if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 					${'Waku' . $WakuName . 'Room'}[] = "";
 				} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						if(isset($Reserve[$SenyuDate][$WakuName][$x]) 
 							&& (!$arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] || $arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] == $dis_ban)){
 							// 辞退
@@ -1056,6 +1061,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
@@ -1069,7 +1075,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
-				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate, $wakuRecordSlotType);
 				$ViewOrderNo ++;
 			}
 			// if (!$KojiHoliday[$i]) { //休工日以外
@@ -1124,10 +1130,12 @@ foreach($afterReserveDay as $key => $aReserveDay){
 		for ($k = 0; $k < ${'wWaku' . $WakuName . 'ColSum'}; $k++) {#10,8,8
 			$dis_ban = floor($k / $limit_ban) + 1;
 			if (!$afterKojiHoliday[$key]) { //休工日以外
+				$wakuRecordSlotType = null;
 				if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 					${'Waku' . $WakuName . 'Room'}[] = "";
 				} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						if(isset($Reserve[$SenyuDate][$WakuName][$x]) 
 							&& (!$arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] || $arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] == $dis_ban)){
 							// 辞退
@@ -1215,6 +1223,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					$EmptyFrameCount ++;
 				}else{
 					if($Overflows < $wFrameOverflow){
+						$wakuRecordSlotType = '枠越';
 						${'Waku' . $WakuName . 'Room'}[] = "枠越";
 
 						$Overflows ++;
@@ -1227,7 +1236,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
-				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate, $wakuRecordSlotType);
 				$ViewOrderNo ++;
 			}
 		}

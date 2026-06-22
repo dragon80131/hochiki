@@ -23,14 +23,16 @@ function shListFormatOverflowRoom($roomId, $arrSlotType) {
 	return 'overflow@' . $roomId;
 }
 
-function shListRecordWakuSlotMeta(&$rooms, &$slotMeta, $viewOrderNo, $ban, $senyuDate) {
+function shListRecordWakuSlotMeta(&$rooms, &$slotMeta, $viewOrderNo, $ban, $senyuDate, $forceSlotType = null) {
 	$lastIdx = count($rooms) - 1;
 	if ($lastIdx < 0) {
 		return;
 	}
 	$slotVal = $rooms[$lastIdx];
 	$slotType = 'room';
-	if ($slotVal === '空き') {
+	if ($forceSlotType !== null && $forceSlotType !== '') {
+		$slotType = $forceSlotType;
+	} else if ($slotVal === '空き') {
 		$slotType = '空き';
 	} else if ($slotVal === '枠越') {
 		$slotType = '枠越';
@@ -48,11 +50,12 @@ function shListRestoreRemovedRoomSlot(&$rooms, &$slotMeta, $index, $roomId) {
 		return;
 	}
 	$roomId = strval($roomId);
-	if ($rooms[$index] === $roomId) {
-		$rooms[$index] = '空き';
-	} else if ($rooms[$index] === 'overflow@' . $roomId) {
-		$restore = '枠越';
-		if (isset($slotMeta[$index]['slotType']) && $slotMeta[$index]['slotType'] === '空き') {
+	$metaSlotType = isset($slotMeta[$index]['slotType']) ? $slotMeta[$index]['slotType'] : null;
+	if ($rooms[$index] === $roomId || $rooms[$index] === 'overflow@' . $roomId) {
+		$restore = '空き';
+		if ($metaSlotType === '枠越') {
+			$restore = '枠越';
+		} else if ($rooms[$index] === 'overflow@' . $roomId && $metaSlotType === '空き') {
 			$restore = '空き';
 		}
 		$rooms[$index] = $restore;
