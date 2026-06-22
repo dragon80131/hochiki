@@ -1,4 +1,7 @@
 <?php
+define('SH_LIST_SLOT_AKI', 'aki');
+define('SH_LIST_SLOT_WAKUOVER', 'wakuover');
+
 $isAdminMode = TRUE;
 include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	include_once _INC_DIR . "carrier.inc";
@@ -17,6 +20,7 @@ include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	// include_once _CLS_DIR . "SPUSHenkoRoom.cls";
 	// include_once _CLS_DIR . "SPUSHenkoDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once __DIR__ . "/include/sh_list_slot_helpers.php";
 
 
 
@@ -291,6 +295,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 	$aTimeFromTime = SPFWParameter::getValues('TimeFromTime');
 	$aHanNo = SPFWParameter::getValues('HanNo');
 	$aViewOrderNo = SPFWParameter::getValues('ViewOrderNo');
+	$aBlankSlotType = SPFWParameter::getValues('BlankSlotType');
 	$aRoomNo = SPFWParameter::getValues('RoomNo');
 	$aLastName = SPFWParameter::getValues('Name');
 	$aTEL = SPFWParameter::getValues('TEL');
@@ -353,6 +358,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			if($aViewOrderNo){
 				$myReservation->ViewOrderNo = $aViewOrderNo;
 			}
+			shListApplyBlankSlotTypeToReservation($myReservation, $aBlankSlotType);
 			$myReservation->Updater = $myUserCD;
 			$myReservation->Updated = "NOW()";
 
@@ -399,6 +405,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			$myReservation->TimeMeaning = $aTimeMeaning;
 			$myReservation->HanNo = $aHanNo;
 			$myReservation->ViewOrderNo = $aViewOrderNo;
+			shListApplyBlankSlotTypeToReservation($myReservation, $aBlankSlotType);
 			$myReservation->Updater = $myUserCD;
 			$myReservation->Updated = "NOW()";
 
@@ -527,10 +534,11 @@ $sql .= "u.ConfirmFlg, "; #13
 $sql .= "r.HanNo, "; #14
 $sql .= "r.ViewOrderNo, "; #15
 $sql .= "u.EMail, "; #16
+$sql .= "r.R003, "; #17 TEL受付: aki=空き枠, wakuover=枠越枠
 $sql .= "CASE ";
 $sql .= " WHEN u.ReplyFlg = 3 THEN '2'";
 $sql .= " ELSE '1'";
-$sql .= " END AS SubOrder"; #17
+$sql .= " END AS SubOrder"; #18
 
 
 $myListObject->SelectSQL = $sql;
@@ -558,6 +566,7 @@ $TimeExactMinutes = [];
 $TimeMeaning = [];
 $arrHanNo = [];
 $arrViewOrderNo = [];
+$arrSlotType = [];
 
 for ($i = 0; $i < $ReservationLoop; $i++) {
 	$ReservationCD[$i] = $myListObject->GetValue($i, 0);
@@ -592,6 +601,7 @@ for ($i = 0; $i < $ReservationLoop; $i++) {
 	$arrHanNo[$ID[$i]] 	= $myListObject->GetValue($i, 14);
 	$arrViewOrderNo[$ID[$i]] 	= $myListObject->GetValue($i, 15);
 	$arrTimeFrom[$ID[$i]] 	= $myListObject->GetValue($i, 5);
+	$arrSlotType[$ID[$i]] 	= $myListObject->GetValue($i, 17);
 }
 
 // 初期予約情報を取得します。
@@ -751,6 +761,11 @@ $wWakuSum2 = 0;
 
 $week = ['日', '月', '火', '水', '木', '金', '土'];
 
+for ($wi = 0; $wi < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $wi++) {
+	$wn = $WAKUPATTERN[$wWakuPattern]['AMPM'][$wi];
+	${'Waku' . $wn . 'SlotMeta'} = array();
+}
+
 foreach($beforeReserveDay as $key => $aReserveDay){
 	$date = new DateTime($aReserveDay);
 	$aSyoniti = false;
@@ -799,7 +814,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 								$passed_rooms ++;
 								$x ++;
 							}else{
-								${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+								${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 								$passed_rooms ++;
 								$x ++;
 							}
@@ -859,7 +874,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 								if($bCorrectFloor){
 									${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 								}else{
-									${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+									${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 									// $Overflows ++;
 								}
 								$passed_rooms ++;
@@ -890,6 +905,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
 				$ViewOrderNo ++;
 			}
 		}
@@ -951,7 +967,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 								$passed_rooms ++;
 								$x ++;
 							}else{
-								${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+								${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 								$passed_rooms ++;
 								$x ++;
 							}
@@ -1017,7 +1033,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 									if($bCorrectFloor){
 										${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 									}else{
-										${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+										${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 										// $Overflows ++;
 									}
 									$passed_rooms ++;
@@ -1051,6 +1067,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
 				$ViewOrderNo ++;
 			}
 			// if (!$KojiHoliday[$i]) { //休工日以外
@@ -1118,7 +1135,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 								$passed_rooms ++;
 								$x ++;
 							}else{
-								${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+								${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 								$passed_rooms ++;
 								$x ++;
 							}
@@ -1177,7 +1194,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 								if($bCorrectFloor){
 									${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
 								}else{
-									${'Waku' . $WakuName . 'Room'}[] = 'overflow@'.$Reserve[$SenyuDate][$WakuName][$x];
+									${'Waku' . $WakuName . 'Room'}[] = shListFormatOverflowRoom($Reserve[$SenyuDate][$WakuName][$x], $arrSlotType);
 									// $Overflows ++;
 								}
 								$passed_rooms ++;
@@ -1208,10 +1225,21 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					$ban_rooms = 1;
 					$Overflows = 0;
 				}
+				shListRecordWakuSlotMeta(${'Waku' . $WakuName . 'Room'}, ${'Waku' . $WakuName . 'SlotMeta'}, $ViewOrderNo, $dis_ban, $SenyuDate);
 				$ViewOrderNo ++;
 			}
 		}
 	}
+}
+for ($wi = 0; $wi < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $wi++) {
+	$wn = $WAKUPATTERN[$wWakuPattern]['AMPM'][$wi];
+	shListApplyAkiSlotAssignments(
+		${'Waku' . $wn . 'Room'},
+		${'Waku' . $wn . 'SlotMeta'},
+		$arrViewOrderNo,
+		$arrHanNo,
+		$arrSlotType
+	);
 }
 ########################################################
 # 詳細工程表（イメージ）部分
@@ -1351,7 +1379,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
 						if($NextBlankTime[$WakuName] > $WakuEndtime)
@@ -1368,7 +1396,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'wakuover')\"";
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
 						if($NextBlankTime[$WakuName] > $WakuEndtime)
 							$NextBlankTime[$WakuName] = $WakuEndtime;
@@ -1567,7 +1595,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
 
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
@@ -1586,7 +1614,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'wakuover')\"";
 
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
 						if($NextBlankTime[$WakuName] > $WakuEndtime)
@@ -1789,7 +1817,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
 
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
@@ -1807,7 +1835,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."')\"";
+						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'wakuover')\"";
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
 						if($NextBlankTime[$WakuName] > $WakuEndtime)
 							$NextBlankTime[$WakuName] = $WakuEndtime;

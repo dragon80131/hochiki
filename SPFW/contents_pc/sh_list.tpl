@@ -56,12 +56,13 @@
     $('.link_cell_blank').removeClass('active');
   }
 
-  function clickBtn7(HenkoDate,TimeFromTime,DispWaku,BanNo,ViewOrderNo) {
+  function clickBtn7(HenkoDate,TimeFromTime,DispWaku,BanNo,ViewOrderNo,BlankSlotType) {
     if(document.getElementById("befor").style.display == "flex" || document.getElementById("decline_blank").style.display == "block"){
       document.getElementById("hiddenHenkoDate").value = HenkoDate;
       document.getElementById("hiddenTimeFromTime").value = TimeFromTime;
       document.getElementById("hiddenHanNo").value = BanNo;
       document.getElementById("hiddenViewOrderNo").value = ViewOrderNo;
+      document.getElementById("hiddenBlankSlotType").value = BlankSlotType || '';
 
       document.getElementById("span15").textContent = document.getElementById("hiddenHenkoDate").value;
       document.getElementById("span16").textContent = DispWaku;
@@ -177,6 +178,7 @@
     document.getElementById("hiddenTimeFromTime").value = TimeFromTime;
     document.getElementById("hiddenHanNo").value = BanNo;
     document.getElementById("hiddenViewOrderNo").value = ViewOrderNo;
+    document.getElementById("hiddenBlankSlotType").value = '';
 
     document.getElementById("hiddenOldTimeFromTime").value = TimeFromTime;
     document.getElementById("hiddenOldViewOrderNo").value = ViewOrderNo;
@@ -488,6 +490,7 @@
                 <input type="hidden" name="TimeFromTime" value="red" id="hiddenTimeFromTime" />
                 <input type="hidden" name="HanNo" value="1" id="hiddenHanNo" />
                 <input type="hidden" name="ViewOrderNo" value="0" id="hiddenViewOrderNo" />
+                <input type="hidden" name="BlankSlotType" value="" id="hiddenBlankSlotType" />
 
                 <input type="hidden" name="OldTimeFromTime" value="" id="hiddenOldTimeFromTime" />
                 <input type="hidden" name="OldViewOrderNo" value="0" id="hiddenOldViewOrderNo" />
