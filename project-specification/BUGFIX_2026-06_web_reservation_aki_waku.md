@@ -295,3 +295,49 @@ After the fix, all 13 in-capacity bookings are genuine; rows 16–18 are just th
 3. Confirm a day that exceeds capacity (e.g. **10/9 AM = 18 > 15**) still shows exactly the **3** over-capacity bookings as 枠越.
 4. Compare against the 工事 property (BukkenCD 11) — the layout/behavior should match.
 5. Reversibility: set `RESERVE_USE_FLOOR_BINDING` to `true` to restore the previous floor-based classification.
+
+---
+
+## 10. Full day still bookable — self-exclusion of own booking (2026/06, follow-up)
+
+### 10.1 Symptom
+
+For **0625テストマンション**, 10/9 was completely full on the staff 工程表 (`AM:0 PM:0`, all genuine cells filled, overflow empty), yet the WEB calendar showed `△` and still offered a PM time (`13:00～17:00`), allowing the reservation to proceed.
+
+### 10.2 Root cause
+
+The three availability functions subtract the **logged-in resident's own** reservations before counting:
+
+```php
+if ($loginUserCD) // 自分の予約は除く（同じ時間に修正できる）
+    $sql .= " AND r.UserCD != '$loginUserCD' ";
+```
+
+- `getAkiWaku()` (calendar symbol) — `reserve_form_kakutei.php` ~1265
+- `getAkiWakuTime()` (time dropdown) — `reserve_form_kakutei.php` ~1607
+- `getAkiWakuAMPMTime()` (final write validator) — `reserve_finish_kakutei.php` ~1009
+
+`$loginUserCD` is always the current resident. So for a resident **who already holds a slot that day**, their own booking is hidden from the count. On a full day (`MaxWakuSu=15-15`, PM genuine = 15) the calendar then sees PM = 14 → `残数 1 → △` and offers PM. A resident with no booking that day correctly sees `×`.
+
+Confirmed on real data (kawamoto BukkenCD 10, 10/9): counting everyone → PM = 14; excluding the viewer's own booking → PM = 13. The `−1` is exactly the viewer's own slot. On the live full day (PM = 15) this `−1` turns `×` into `△`.
+
+> Note: this did **not** create a new 枠越 — `reserve_finish_kakutei.php` (line ~360-379) allows **one reservation per resident per property**, so re-submitting **updates** the resident's existing booking in place instead of adding one.
+
+### 10.3 Fix
+
+Count **true occupancy** (include the resident's own bookings) in the two **display** functions, so a full day shows `×` for everyone (`残数0→×`):
+
+| File | Function | Change |
+|---|---|---|
+| `httpdocs/reserve_form_kakutei.php` | `getAkiWaku()` (calendar symbol) | self-exclusion commented out |
+| `httpdocs/reserve_form_kakutei.php` | `getAkiWakuTime()` (time dropdown) | self-exclusion commented out |
+
+The final write validator `getAkiWakuAMPMTime()` in `reserve_finish_kakutei.php` **keeps** its self-exclusion, so a resident can still re-confirm/move their **own** booking when changing a reservation on a day that has space.
+
+### 10.4 Trade-off
+
+A resident who already holds a slot on a **now-full** day can no longer change their time **within that same full day** via the WEB (the day is `×`). They can still move to any other day/band that has genuine space, and staff can still adjust manually. This matches the client's strict-capacity intent ("工事と同じ条件 / 残数0→×").
+
+### 10.5 Verification
+
+`php -l httpdocs/reserve_form_kakutei.php` passes. For a full day (`15-15`, AM 15 / PM 15): per-band clamped = `max(0,15−15) + max(0,15−15) = 0` → `×`, and `getAkiWakuTime()` offers no times. For a day with genuine free slots (e.g. PM 14/15) it still returns `△` and offers PM.

@@ -1262,8 +1262,14 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 			$sql .= " AND r.BuildingCD IS NULL ";
 		}
 
-		if ($loginUserCD) // 自分の予約は除く（同じ時間に修正できる）
-			$sql .= " AND r.UserCD != '$loginUserCD' ";
+		// 【2026/06 不具合対応】満枠の日でも「自分の予約」を件数から除外すると、
+		// 既に予約済みの本人にだけ 残数1=△ が見え、満枠日でも申込/変更を
+		// 進められてしまう（残数0→×にならない）。実際の残数を正しく表示する
+		// ため、カレンダー記号・時間帯候補では自分の予約も件数に含める。
+		// （予約変更の最終確定 getAkiWakuAMPMTime() では従来どおり自分を除外し、
+		//   空きのある日での予約変更は引き続き可能）
+		// if ($loginUserCD) // 自分の予約は除く（同じ時間に修正できる）
+		// 	$sql .= " AND r.UserCD != '$loginUserCD' ";
 	$sqltest2 = $sql;
 	#echo $sql;
 		$myListObject->Condition = $sql;
@@ -1604,8 +1610,14 @@ function getAkiWakuTime($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $T
 			$sql .= " AND r.BuildingCD IS NULL " ;
 		}
 
-		if ($loginUserCD) // 自分の予約は除く（同じ時間に修正できる）
-			$sql .= " AND r.UserCD != '$loginUserCD' ";
+		// 【2026/06 不具合対応】満枠の日でも「自分の予約」を件数から除外すると、
+		// 既に予約済みの本人にだけ 残数1=△ が見え、満枠日でも申込/変更を
+		// 進められてしまう（残数0→×にならない）。実際の残数を正しく表示する
+		// ため、カレンダー記号・時間帯候補では自分の予約も件数に含める。
+		// （予約変更の最終確定 getAkiWakuAMPMTime() では従来どおり自分を除外し、
+		//   空きのある日での予約変更は引き続き可能）
+		// if ($loginUserCD) // 自分の予約は除く（同じ時間に修正できる）
+		// 	$sql .= " AND r.UserCD != '$loginUserCD' ";
 
 		$myListObject->Condition = $sql;
 		$myListObject->Group = "orderTimeFrom";
