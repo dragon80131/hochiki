@@ -210,6 +210,10 @@ if($editBuildingCD){
 }
 $wFloorReserveInfo = html_entity_decode($wFloorReserveInfo, ENT_QUOTES, 'UTF-8');
 
+// 【2026/06 Option B】点検物件も工事と同様に「容量（バンド）のみ」で空き/枠越を判定し、
+// フロア紐付け（FloorReserveInfo）による枠越判定は行わない。元の挙動に戻す場合は true にする。
+if(!defined('RESERVE_USE_FLOOR_BINDING')) define('RESERVE_USE_FLOOR_BINDING', false);
+
 
 $wHoliday = SPFWTools::decodePluralValue($Holiday1);
 sort($wHoliday);
@@ -507,7 +511,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 					}
 				}elseif(isset($Reserve[$SenyuDate][$WakuName][$x]) 
 					&& (!$arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] || $arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] == $dis_ban)){
-					if($wArrangeType == '1'){
+					if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){
 						$bReservedRooms = 0;
 						foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
 							if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
@@ -713,7 +717,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 					}
 				}elseif(isset($Reserve[$SenyuDate][$WakuName][$x]) 
 					&& (!$arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] || $arrHanNo[$Reserve[$SenyuDate][$WakuName][$x]] == $dis_ban)){
-					if($wArrangeType == '1'){
+					if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){
 						$bReservedRooms = 0;
 						foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
 							if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){

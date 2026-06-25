@@ -230,3 +230,68 @@ Threshold behavior (unchanged, already matches the request `残数3→△ / 残�
 2. **`FirstDateFeature` (first-day) properties.** `getAkiWaku()` now skips the excluded leading band(s) via `$startBand` (count side fixed), but the construction path of `getAkiWakuTime()` still does **not** apply `ExcludePattern`, so on the special first day the *time dropdown* could still offer the excluded first band. 0625テストマンション has `FirstDateFeature = 0`, so this has no effect here; flag for a separate fix if a first-day-feature property is used on the WEB.
 3. **Other reservation entry points.** The legacy 3-preference flow (`reserve_form.php`) has a different/older `getAkiWakuTime()` and is not used by this kakutei flow. Confirm with the client whether any inspection property still uses that legacy flow on the WEB.
 4. **Scope.** This change makes **all** inspection properties' WEB booking use the genuine-空き (construction) logic. The client's wording ("工事と同じ条件がいい") indicates this is the intended global behavior; please confirm there is no inspection property that intentionally relies on offering overflow slots on the WEB.
+
+---
+
+## 9. Option B — Remove floor-binding from the staff 工程表 (2026/06, follow-up)
+
+### 9.1 Why a second fix was needed
+
+After the WEB form was fixed (sections 2–6), the client reported that web bookings for **1003 / 1004** (0625テストマンション) **still appeared as 枠越 (overflow)** on the staff 工程表 — even though the day was within capacity.
+
+Root cause (confirmed against `kawamoto_check` data):
+
+- On **2026-10-08** the property has **AM 13 + PM 2 = 15** bookings — **within** the 15-15 band capacity, so this is **not** a capacity overflow.
+- The 工程表 (`sh_list.php`) classified a booked room as genuine **only if it matched the planned floor schedule** (`tReservationInitF` / `$ReserveInit`) for that day/band. Rooms 1003/1004 are floor-10 units booked on a day whose plan expected a different floor, so they were pushed to 枠越 purely by **floor mismatch**, not capacity.
+
+The WEB availability (sections 2–6) ignores floors; the staff 工程表 did not. That mismatch is what produced the recurring 枠越.
+
+### 9.2 Decision: Option B (global, capacity-only)
+
+Per the client ("工事と同じ条件がいい"), the system should treat each day purely by **band capacity** (e.g. 15-15) for both the WEB **and** the 工程表 — **no floor binding**. Any unit booking any day is genuine as long as the band still has capacity; 枠越 appears **only** when the band's bookings exceed capacity.
+
+Selected scope: **global** — all inspection (`ArrangeType = 1`) properties now place slots by capacity only (no floor-by-floor planning in the 空き/枠越 classification).
+
+### 9.3 What changed
+
+A single reversible flag gates the floor-binding placement. To restore the old floor-based behavior, set it to `true`:
+
+```php
+if(!defined('RESERVE_USE_FLOOR_BINDING')) define('RESERVE_USE_FLOOR_BINDING', false);
+```
+
+Files / placement blocks gated (inspection placement now falls through to the existing construction branch, which places rooms sequentially up to capacity):
+
+| File | Role | Gated lines |
+|---|---|---|
+| `httpdocs/sh_list.php` | Staff 工程表 (main view) | 3 placement blocks |
+| `httpdocs/s_format.php` | Formatted / print 工程表 | 2 placement blocks |
+
+Each gated condition changed from `if($wArrangeType == '1'){` to `if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){`.
+
+**Not changed (intentional):**
+
+- `reserve_form_kakutei.php` — WEB availability already routed through the construction (no-floor) path by the section 2–6 fix.
+- `reserve_finish_kakutei.php` — only assigns the booking's `HanNo` (班); with `Hansu = 1` it is always 班1 and the booking itself is legitimate (within capacity). The mislabel was display-only.
+- `reserve_detail_yotei_EXCEL.php` (line ~295) — selects the **resident announcement** template (which floor is scheduled which day). That is the floor *plan notice*, not the 空き/枠越 classification, so it is left as-is.
+- `s_format.php` line ~619 — both branches were already identical (no floor binding).
+
+### 9.4 Verification
+
+A faithful simulation of the `sh_list.php` cell loop (lines ~803–905) was run with the real 10/08 data (13 AM bookings incl. 1003/908/1004, `Max=15-15`, `Overflow=3`, `Hansu=1`):
+
+| Room | Floor-binding ON (before) | Floor-binding OFF (Option B) |
+|---|---|---|
+| 306 / 307 / 308 | 枠越 | genuine (rows 8–10) |
+| 1003 / 908 / 1004 | 枠越 | genuine (rows 11–13) |
+| **Overflow rooms total** | 306,307,308,1003,908,1004 | **none** |
+
+After the fix, all 13 in-capacity bookings are genuine; rows 16–18 are just the empty `FrameOverflow=3` placeholders — identical to how the `ArrangeType=0` 工事 property (BukkenCD 11, also `FrameOverflow=3`) renders. `php -l` passes for both files.
+
+### 9.5 How to test (staff side)
+
+1. Open the staff 工程表 (`sh_list.php`) for **0625テストマンション** in 2026-10.
+2. Confirm **10/8** shows 1003 / 1004 (and 306/307/308) as **genuine** room cells, **not** 枠越.
+3. Confirm a day that exceeds capacity (e.g. **10/9 AM = 18 > 15**) still shows exactly the **3** over-capacity bookings as 枠越.
+4. Compare against the 工事 property (BukkenCD 11) — the layout/behavior should match.
+5. Reversibility: set `RESERVE_USE_FLOOR_BINDING` to `true` to restore the previous floor-based classification.

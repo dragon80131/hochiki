@@ -234,6 +234,11 @@ if($wArrangeType == '1'){
 	$arrFloorReserveInfo = json_decode($wFloorReserveInfo, true);
 }
 
+// 【2026/06 Option B】点検物件も工事と同様に「容量（バンド）のみ」で空き/枠越を判定し、
+// フロア紐付け（FloorReserveInfo / tReservationInitF）による枠越判定は行わない。
+// 元の挙動に戻す場合は true にする。
+if(!defined('RESERVE_USE_FLOOR_BINDING')) define('RESERVE_USE_FLOOR_BINDING', false);
+
 $MaxWaku = explode("-",$MaxWakuSu);
 $wWakuAM = $MaxWaku[0];
 $wWakuPM = $MaxWaku[1];
@@ -840,7 +845,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 						$passed_rooms ++;
 						$EmptyFrameCount ++;
 					}else{
-						if($wArrangeType == '1'){
+						if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){
 							$bReservedRooms = 0;
 							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
 							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
@@ -996,7 +1001,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						$EmptyFrameCount ++;
 						$x ++;
 					}else{
-						if($wArrangeType == '1'){
+						if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){
 							// 仮日程の場合は、チェックを行わずに表示します。
 							if(empty($UserData['ReplyFlg'][$Reserve[$SenyuDate][$WakuName][$x]]) && empty($UserData['ConfirmFlg'][$Reserve[$SenyuDate][$WakuName][$x]])){
 								${'Waku' . $WakuName . 'Room'}[] = $Reserve[$SenyuDate][$WakuName][$x];
@@ -1166,7 +1171,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						$passed_rooms ++;
 						$EmptyFrameCount ++;
 					}else{
-						if($wArrangeType == '1'){
+						if($wArrangeType == '1' && RESERVE_USE_FLOOR_BINDING){
 							$bReservedRooms = 0;
 							// foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
 							// 	if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($SenyuDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
