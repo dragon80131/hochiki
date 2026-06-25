@@ -1275,44 +1275,37 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 			trigger_error("Getting Reservation List Failed.", E_USER_ERROR);
 
 		$ReservationLoop = $myListObject->Rows;
+		// 枠（バンド）ごとの予約数を band番号(1始まり) => 件数 で集計する。
+		// orderTimeFrom: 1=AM, 2=PM(または PM1), 3=PM2 ... 99=枠の時間外
+		$bookedByBand = array();
 		for ($i = 0; $i < $ReservationLoop; $i++) {
-			$ReserveCount[$i] = $myListObject->GetValue($i, 0);
-			#$orderTimeFrom[$i] = $myListObject->GetValue($i, 1);
+			$band = $myListObject->GetValue($i, 1);
+			$bookedByBand[$band] = (int)$myListObject->GetValue($i, 0);
 		}
 		$WakuRangeArray = explode("-", $WakuRange);
 
-	// if($TargetDate == '2024-09-17' ){
-	// 	// print_r($ReserveCount);
-	// 	echo "<br> ".__LINE__." Hensu :".$sqltest1.$sqltest2 ;
-	// 	echo "<br> ".__LINE__." Hensu :".$TargetDate." ".array_sum($ReserveCount);
-	// 	echo " - ".array_sum($WakuRangeArray);
+		// 初日特例（FirstDateFeature）で先頭枠を除外する場合は対象外にする。
+		$startBand = 1;
+		if($ExcludePattern == 1)
+			$startBand = 2; // 先頭1枠を除外
+		else if($ExcludePattern == 2)
+			$startBand = 3; // 先頭2枠を除外
 
-	// }
-
-		//echo $myListObject->GetValue(0, 0)."<br>";
-		$number01 = 0;
-		if(is_array($WakuRangeArray) && count($WakuRangeArray) > 0){
-			if($ExcludePattern == 1)
-				array_shift($WakuRangeArray);
-			else if($ExcludePattern == 2)
-				array_splice($WakuRangeArray, 0, 2);
-
-			$number01 = array_sum($WakuRangeArray);
+		// 【2026/06 不具合対応】枠越（オーバーフロー）を含まない実空きのみを
+		// 枠単位で数える。ある枠が定員超過（枠越使用）でも、その超過分が他枠の
+		// 空きを相殺しないよう、枠ごとに 0 未満を切り捨ててから合計する。
+		// （例: 定員15-15で AM=18,PM=14 → AM=0(切捨), PM=1 → 残数1=△）
+		$WakuZanSuu = 0;
+		for ($i = 0; $i < count($WakuRangeArray); $i++) {
+			$band = $i + 1;
+			if ($band < $startBand)
+				continue; // 初日特例で除外された枠
+			$max_i = (int)$WakuRangeArray[$i];
+			$booked_i = isset($bookedByBand[$band]) ? $bookedByBand[$band] : 0;
+			$free_i = $max_i - $booked_i;
+			if ($free_i > 0)
+				$WakuZanSuu += $free_i; // 実空きのみ加算（枠越は含めない）
 		}
-
-		$number02 = 0;
-		if(is_array($ReserveCount) && count($ReserveCount) > 0)
-			$number02 = array_sum($ReserveCount);
-
-		// $WakuZanSuu = $number01 - $number02 + $wFrameOverflow;
-		$WakuZanSuu = $number01 - $number02;
-
-		#	$WakuZanSuu = 0;
-		#	for( $i=0; $i<$WakuSuu;$i++){ #WakuSuuとReservationLoopは同じはず
-		#		if( $ReserveCount[$i] < $WakuRangeArray[$i] ){#空きあり
-		#			$WakuZanSuu += ($WakuRangeArray[$i] - $ReserveCount[$i]); // 空きの数を足していく
-		#		}
-		#	}		
 
 	}else{
 		$MaxWaku = explode("-",$WakuRange);

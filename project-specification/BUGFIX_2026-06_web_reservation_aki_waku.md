@@ -146,16 +146,11 @@ The symbol thresholds in the caller were already what the client asked for (no c
 
 ## 5. The fix
 
-The client explicitly asked for "**工事と同じ条件**" (same as construction). The construction path already implements precisely what they want:
+The client asked for "**工事と同じ条件**" (same as construction) — i.e. count **only genuine empty (空き) slots, per band, excluding overflow (枠越)**. The fix has two parts, both confined to `reserve_form_kakutei.php`:
 
-- **`getAkiWaku()` construction path:** `remaining = Σ(MaxWakuSu) − Σ(reservations that day)`. Overflow is never added; if genuine slots are exhausted (reservations ≥ max), `remaining ≤ 0` → `×`.
-- **`getAkiWakuTime()` construction path:** for each waku, the start-time is offered **only if `reservations < max`** for that waku. So a full AM is hidden and an open PM is correctly offered.
+### Part A — bypass the inspection overflow-grid (both functions)
 
-The required parameters (`$WakuSuu`, `$STimeList`, `$ETimeList`, `$WakuRange`) are built from `$WAKUPATTERN[$WakuPattern]` for **every** property regardless of `ArrangeType` (lines 159–163), so the construction path is valid for inspection properties too.
-
-### Change applied
-
-At the top of **both** `getAkiWaku()` and `getAkiWakuTime()`, the WEB availability calc is forced onto the construction logic (overflow excluded). The variables are function-local (passed by value), so the rest of the page — the staff grid rendering, the confirm/finish flow, and the real `ArrangeType`/`FrameOverflow` — are **not** affected.
+At the top of **both** `getAkiWaku()` and `getAkiWakuTime()`, the WEB availability calc is forced onto the construction logic. The variables are function-local (passed by value), so the staff grid rendering, the confirm/finish flow, and the real `ArrangeType`/`FrameOverflow` are **not** affected.
 
 ```php
 // getAkiWaku() / getAkiWakuTime() — top of function body
@@ -163,24 +158,56 @@ $wArrangeType = '0'; // 工事と同じ集計ロジックを使用（枠越を�
 $wFrameOverflow = 0; // 枠越は空き数に含めない
 ```
 
-This is a minimal, self-contained, easily reversible change (delete the two lines + comment to revert to the old behavior).
+- **`getAkiWakuTime()`** (time-band list) — the construction path already offers a band **only if `booked < max`** for that band, so a full AM is hidden and an open PM is offered. **No further change needed.**
+
+### Part B — per-band clamp on the count (`getAkiWaku()` only)
+
+> ⚠️ **Important correction found while verifying against the real production data.**
+> The construction path's original count was the *aggregate* `remaining = Σ(max) − Σ(booked)`. That is correct for true construction (which never overflows), **but wrong for an inspection property that already has overflow bookings**, because one band's over-capacity cancels another band's genuine free slots.
+>
+> Real example (0625テストマンション, max `15-15`, **2026-10-09**): AM booked **18** (3 in overflow), PM booked **14** (1 genuine free).
+> - Aggregate: `30 − 32 = −2` → **× and the day becomes unclickable** ❌ (resident can't book the real PM slot).
+> - Per-band clamp: `max(0,15−18) + max(0,15−14) = 0 + 1 = 1` → **△, PM bookable** ✅ (exactly what the client expects).
+
+So the count in `getAkiWaku()` was changed from the aggregate to a **per-band, floor-at-zero sum**, aligned to bands via the `orderTimeFrom` column:
+
+```php
+$WakuZanSuu = 0;
+for ($i = 0; $i < count($WakuRangeArray); $i++) {
+    $band = $i + 1;
+    if ($band < $startBand) continue;          // FirstDateFeature exclusion
+    $max_i    = (int)$WakuRangeArray[$i];
+    $booked_i = isset($bookedByBand[$band]) ? $bookedByBand[$band] : 0;
+    $free_i   = $max_i - $booked_i;
+    if ($free_i > 0) $WakuZanSuu += $free_i;    // count genuine empties only
+}
+```
+
+This also fixes the `FirstDateFeature`/`ExcludePattern` handling (the excluded leading bands are skipped explicitly via `$startBand`, instead of the old `array_shift` that mis-aligned the count). For a genuine construction property (no band ever exceeds its max), the per-band clamp equals the old aggregate, so **construction behavior is unchanged**.
 
 ---
 
-## 6. Before vs after (10/9, AM:0 PM:1)
+## 6. Verified against the real server data (kawamoto_dia dump)
 
-| | Before fix | After fix |
-|---|---|---|
-| Calendar symbol | `△` (from overflow count) | `△` — now from the **1 genuine PM** free slot |
-| Time dropdown | `09:00～12:00` (AM, an overflow cell) | `13:00～…` (PM, the genuine free slot) |
-| Proceeding | lands in 枠外 (overflow) | books the real PM slot |
-| When genuine slots are full but overflow remains | shows `△`/`○`, allows overflow booking | shows `×`, no time offered |
+The production dump was imported and the fixed logic was reproduced for **0625テストマンション** (BukkenCD 10, `ArrangeType=1`, WakuPattern 0 = AM 09:00–12:00 / PM 13:00–17:00, `MaxWakuSu=15-15`, `FrameOverflow=3`):
 
-Threshold behavior (unchanged, already matches the request):
+| Date | AM booked | PM booked | Remaining (genuine, clamped) | Symbol | Times offered |
+|---|---|---|---|---|---|
+| 10/05 | 1 | 4 | 25 | ○ | AM + PM |
+| 10/06 | 8 | 10 | 12 | ○ | AM + PM |
+| 10/07 | 10 | 8 | 12 | ○ | AM + PM |
+| 10/08 | 13 | 2 | 15 | ○ | AM + PM |
+| **10/09** | **18** (overflow) | **14** | **1** | **△** | **PM only** |
+
+10/09 now matches the client's report exactly: `△` and **PM only** (no more `09:00～12:00`).
+
+Threshold behavior (unchanged, already matches the request `残数3→△ / 残数0→×`):
 
 - remaining `≥ 4` → `○`
 - remaining `1–3` → `△`
 - remaining `0` (or negative) → `×`
+
+> Note: BukkenCD 11 = "0625**工事**テストマンション" is `ArrangeType=0` (construction) — the comparison property the client referenced ("工事と同じ条件").
 
 ---
 
@@ -200,6 +227,6 @@ Threshold behavior (unchanged, already matches the request):
 ## 8. Follow-ups / things to confirm with the client
 
 1. **Downstream booking validation.** This fix corrects what the **form** offers. The pages that actually write the reservation (`reserve_confirm_kakutei.php` / `reserve_finish_kakutei.php`) should be reviewed to ensure they re-validate against genuine capacity and never silently accept an overflow booking that the form no longer offers. (Out of scope of this change; recommended next.)
-2. **`FirstDateFeature` (first-day) properties.** The construction path of `getAkiWaku()` applies `ExcludePattern` (skips the first waku on the special first day), but the construction path of `getAkiWakuTime()` does **not**. This is a pre-existing gap unrelated to this bug; if 0625テストマンション does not use `FirstDateFeature`, it has no effect here. Flag for a separate fix if needed.
+2. **`FirstDateFeature` (first-day) properties.** `getAkiWaku()` now skips the excluded leading band(s) via `$startBand` (count side fixed), but the construction path of `getAkiWakuTime()` still does **not** apply `ExcludePattern`, so on the special first day the *time dropdown* could still offer the excluded first band. 0625テストマンション has `FirstDateFeature = 0`, so this has no effect here; flag for a separate fix if a first-day-feature property is used on the WEB.
 3. **Other reservation entry points.** The legacy 3-preference flow (`reserve_form.php`) has a different/older `getAkiWakuTime()` and is not used by this kakutei flow. Confirm with the client whether any inspection property still uses that legacy flow on the WEB.
 4. **Scope.** This change makes **all** inspection properties' WEB booking use the genuine-空き (construction) logic. The client's wording ("工事と同じ条件がいい") indicates this is the intended global behavior; please confirm there is no inspection property that intentionally relies on offering overflow slots on the WEB.
