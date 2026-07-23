@@ -175,6 +175,7 @@
                     __IfShowHeader2__
                     <th width="8%">受付担当</th>
                     <th width="10%">ステータス</th>
+                    <th width="14%">最終更新日時</th>
                     __IfShowHeader2__
                   </tr>
                   __ResidentsFormLoop__
@@ -193,6 +194,7 @@
                     __IfShowColumn2__
                     <td>__DispUpdater__</td>
                     <td align="center">__Status__</td>
+                    <td>__Updated__</td>
                     __IfShowColumn2__
                   </tr>
                   __ResidentsFormLoop__

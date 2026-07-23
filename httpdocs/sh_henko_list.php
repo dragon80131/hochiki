@@ -236,7 +236,7 @@ for ($i = 0; $i < $TimeLoop; $i++) { #時間選択し
 
 
 
-// SELECT r.ID, r.TimeFrom, r.Memo, u.LastName, u.TEL, u.Updater, u.Updated, u.ReplyFlg
+// SELECT r.ID, r.TimeFrom, r.Memo, u.LastName, u.TEL, u.Updater, r.Updated, u.ReplyFlg
 // FROM tUserM u
 // LEFT OUTER JOIN tReservationF r 
 //   ON r.UserCD = u.UserCD
@@ -254,7 +254,7 @@ $sql .= "r.Memo, ";
 $sql .= "u.LastName, ";
 $sql .= "u.TEL, ";
 $sql .= "u.Updater,";
-$sql .= "u.Updated,";
+$sql .= "r.Updated,"; // 最終更新日時（予約の更新日時）
 $sql .= "u.ReplyFlg,";
 $sql .= "s.FilePath,";
 $sql .= "r.TimeExact,";
@@ -314,7 +314,10 @@ for ($i = 0; $i < $ResidentsFormLoop; $i++) {
 
 	$TEL[$i] = $myListObject->GetValue($i, 4);
 	$Updater[$i] = $myListObject->GetValue($i, 5);
-	$Updated[$i] = $myListObject->GetValue($i, 6);
+	$rawUpdated = $myListObject->GetValue($i, 6);
+	$Updated[$i] = ($rawUpdated && $rawUpdated != '0000-00-00 00:00:00')
+		? date('Y/m/d H:i', strtotime($rawUpdated))
+		: '';
 	$ReplyFlg[$i] = $myListObject->GetValue($i, 7);
 	$FilePath[$i] = $myListObject->GetValue($i, 8);
 	$TimeExact[$i] = $myListObject->GetValue($i, 9);
