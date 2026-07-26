@@ -101,6 +101,7 @@ CREATE TABLE `tBuildingM` (
   `Kojijun` int DEFAULT NULL COMMENT '作業順',
   `SenyuStartDate` date DEFAULT NULL COMMENT '専有部工事開始日',
   `SenyuEndDate` date DEFAULT NULL COMMENT '専有部工事終了日',
+  `YoyakuEndDate` date DEFAULT NULL COMMENT '受付締切日',
   `ReserveDay` text COMMENT '予備日',
   `FrameOverflow` int DEFAULT NULL COMMENT '枠越え',
   `ArrangeType` int DEFAULT '0' COMMENT '点検の場合は1、工事の場合は0',

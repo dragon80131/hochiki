@@ -20,6 +20,7 @@ include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/building_period_helpers.php";
 
 // データベースコネクト
 $myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
@@ -153,29 +154,11 @@ $wWEBReceptType = $myBukken->WEBReceptType;
 $MansionName 	= $myBukken->BukkenName;
 $wBuildingName 	= $myBukken->BuildingName;
 
-
-$YoyakuEndDate  = $myBukken->YoyakuEndDate;
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate  = $resolvedPeriod['YoyakuEndDate'];
 $wCloseDate 	= $YoyakuEndDate;
-
-// $KetteiTeikyoDate  = $myBukken->KetteiTeikyoDate;
-// $SenyuStartDate = $myBukken->SenyuStartDate;
-// $SenyuEndDate  	= $myBukken->SenyuEndDate;
-
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
-
-$YoyakuEndDate = $myBukken->YoyakuEndDate;
 $DispYoyakuEndDate = date('Y年n月j日', strtotime($YoyakuEndDate));
 
 // $KyoyuStartDate = $myBukken->KyoyuStartDate;

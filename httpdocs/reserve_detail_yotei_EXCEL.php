@@ -28,6 +28,7 @@ include_once _CLS_DIR . "SPUSGyosya.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/building_period_helpers.php";
 ########################################################
 # データベース接続
 ########################################################
@@ -59,8 +60,6 @@ if($editBuildingCD){
 
 
 $wClientCD		= $myBukken->ClientCD; #顧客CD
-$YoyakuEndDate 		= $myBukken->YoyakuEndDate; #受付締め切り日
-
 
 $MansionName 		= str_replace("'", "\'", $myBukken->BukkenName);
 $wBuildingName 		= $myBukken->BuildingName;
@@ -148,19 +147,10 @@ $Created 		= $myBukken->Created;
 $CreatedYear 		= substr($Created, 0, 4); // パスの2019を取得（tSettingMのCreatedの年を取得）
 $Company 			= $myBukken->Company;
 $wConstTime 		= $myBukken->MinuteTime;#20分
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate']; #受付締め切り日
 
 $SenyuDateCnt = (( strtotime( $SenyuEndDate ) -  strtotime( $SenyuStartDate )) / 86400) + 1 ;#専有部日数
 

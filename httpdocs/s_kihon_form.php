@@ -104,6 +104,7 @@ if ($wEditBukkenCD) {
 	$sql .= "u.Kaidaka, ";
 	$sql .= "u.SenyuStartDate, ";
 	$sql .= "u.SenyuEndDate, ";
+	$sql .= "u.YoyakuEndDate, ";
 	$sql .= "u.Holiday1, ";
 	$sql .= "u.ReserveDay ";
 
@@ -126,6 +127,7 @@ if ($wEditBukkenCD) {
 	$BuildingNo = [];
 	$BuildingSenyuStartDate = [];
 	$BuildingSenyuEndDate = [];
+	$BuildingYoyakuEndDate = [];
 	$BuildingSenyuDate = [];
 
 	$BuildingHoliday1 = [];
@@ -155,8 +157,9 @@ if ($wEditBukkenCD) {
 		if ($IfUpdate) {
 			$BuildingSenyuStartDate[$i] = $myListObject->GetValue($i, 4);
 			$BuildingSenyuEndDate[$i] = $myListObject->GetValue($i, 5);
-			$Holiday1Data = $myListObject->GetValue($i, 6);
-			$ReserveDay1Data = $myListObject->GetValue($i, 7);
+			$BuildingYoyakuEndDate[$i] = $myListObject->GetValue($i, 6);
+			$Holiday1Data = $myListObject->GetValue($i, 7);
+			$ReserveDay1Data = $myListObject->GetValue($i, 8);
 			if($BuildingSenyuStartDate[$i] || $BuildingSenyuEndDate[$i]){
 				$BuildingSenyuDate[$i] = $BuildingSenyuStartDate[$i] . ' ～ ' . $BuildingSenyuEndDate[$i];
 			}
@@ -215,6 +218,7 @@ if ($wEditBukkenCD) {
 			// $ReserveDay1Data = $myListObject->GetValue($i, 7);
 			$BuildingSenyuStartDate[$i] = null;
 			$BuildingSenyuEndDate[$i] = null;
+			$BuildingYoyakuEndDate[$i] = null;
 			$Holiday1Data = null;
 			$ReserveDay1Data = null;
 
@@ -363,12 +367,19 @@ if ($wEditBukkenCD) {
 		$SenyuEndDate = $myBukken->SenyuEndDate;#作業終了日
 		$KyoyobuStartDate = $myBukken->KyoyobuStartDate;#共用部作業開始日
 		$KyoyobuEndDate = $myBukken->KyoyobuEndDate;#共用部作業終了日
-		$SenyubuStartDate = $myBukken->SenyubuStartDate;#専有部作業開始日
-		$SenyubuEndDate = $myBukken->SenyubuEndDate;#専有部作業終了日
-		$YoyakuEndDate = $myBukken->YoyakuEndDate;#受付締切日
+		$YoyakuEndDate = $myBukken->YoyakuEndDate;#受付締切日（棟1）
 		$wBukkenMemo = $myBukken->BukkenMemo;
 		$MinuteTime = $myBukken->MinuteTime;#工事所要時間（ex 20分）
 		$Biko = $myBukken->Biko;
+
+		// 既存棟で受付締切が未設定の場合は物件（棟1）の値を初期表示
+		if (isset($BuildingLoop) && $BuildingLoop > 0) {
+			for ($bi = 0; $bi < $BuildingLoop; $bi++) {
+				if (empty($BuildingYoyakuEndDate[$bi]) && $YoyakuEndDate) {
+					$BuildingYoyakuEndDate[$bi] = $YoyakuEndDate;
+				}
+			}
+		}
 
 		// 休工日
 		if ($myBukken->Holiday1) {

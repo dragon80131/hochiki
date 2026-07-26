@@ -68,7 +68,7 @@
 
 <script>
 	$(function() {
-		$("#YoyakuEndDate").datepicker({
+		$(".yoyaku-end-datepicker").datepicker({
 			numberOfMonths: 2,   // 2カ月表示
 			showButtonPanel: true
 		});
@@ -256,7 +256,7 @@
 
 						<tr>
 							<th class="yb">作業期間(全体)<font color="red">※</font>
-								<span style="display: block; color: red">*棟毎の作業期間の入力がない場合、作業期間(全体)が適用されます。</span>
+								<span style="display: block; color: red">*棟毎の専有部の入力がない場合、作業期間(全体)が適用されます。</span>
 							</th>
 							<td>
 								<input type="text" name="SenyuStartDate" id="SenyuStartDate"  class="datepicker" value="__SenyuStartDate__">～
@@ -272,21 +272,6 @@
 								<input type="text" name="KyoyobuEndDate" id="KyoyobuEndDate"  class="datepicker" value="__KyoyobuEndDate__">
 							</td>
 						</tr>
-						<tr>
-							<th class="yb">専有部
-							</th>
-							<td>
-								<input type="text" name="SenyubuStartDate" id="SenyubuStartDate"  class="datepicker" value="__SenyubuStartDate__">～
-								<input type="text" name="SenyubuEndDate" id="SenyubuEndDate"  class="datepicker" value="__SenyubuEndDate__">
-							</td>
-						</tr>
-
-						<tr>
-							<th class="yb"><span>受付締切日<font color="red">※</font></span>
-							<td>
-								<input type="text" name="YoyakuEndDate"  id="YoyakuEndDate"  value="__YoyakuEndDate__" class="datepicker">
-							</td>
-						</tr>	
 						<tr>
 							<th class="yb">
 								<span>作業時間<font color="red">※</font></span>
@@ -351,10 +336,16 @@
 							</td>
 						</tr>
 						<tr>
-							<th class="yb">作業期間</th>
+							<th class="yb">専有部</th>
 							<td>
 								<input type="text" name="SenyuStartDate1" id="SenyuStartDate1"  class="datepicker senyubucls" value="__SenyuStartDate1__">～
 								<input type="text" name="SenyuEndDate1" id="SenyuEndDate1"  class="datepicker senyubucls" value="__SenyuEndDate1__">
+							</td>
+						</tr>
+						<tr>
+							<th class="yb"><span>受付締切日<font color="red">※</font></span></th>
+							<td>
+								<input type="text" name="YoyakuEndDate" id="YoyakuEndDate" value="__YoyakuEndDate__" class="datepicker yoyaku-end-datepicker">
 							</td>
 						</tr>
 						<tr>
@@ -435,10 +426,16 @@
 								</td>
 							</tr>
 							<tr>
-								<th class="yb">作業期間</th>
+								<th class="yb">専有部</th>
 								<td>
 									<input type="text" name="editSenyuStartDate__BuildingCD__"  class="datepicker senyubucls" value="__BuildingSenyuStartDate__" id="SenyuStartDate__BuildingNo__">～
 									<input type="text" name="editSenyuEndDate__BuildingCD__"  class="datepicker senyubucls" value="__BuildingSenyuEndDate__" id="SenyuEndDate__BuildingNo__">
+								</td>
+							</tr>
+							<tr>
+								<th class="yb"><span>受付締切日<font color="red">※</font></span></th>
+								<td>
+									<input type="text" name="editYoyakuEndDate__BuildingCD__" id="YoyakuEndDate__BuildingNo__" value="__BuildingYoyakuEndDate__" class="datepicker yoyaku-end-datepicker building-yoyaku-end">
 								</td>
 							</tr>
 							<tr>
@@ -523,10 +520,16 @@
 								</td>
 							</tr>
 							<tr>
-								<th class="yb">作業期間</th>
+								<th class="yb">専有部</th>
 								<td>
 									<input type="text" name="newSenyuStartDate[]"  class="datepicker senyubucls" value="__BuildingSenyuStartDate__" id="SenyuStartDate__BuildingNo__">～
 									<input type="text" name="newSenyuEndDate[]"  class="datepicker senyubucls" value="__BuildingSenyuEndDate__" id="SenyuEndDate__BuildingNo__">
+								</td>
+							</tr>
+							<tr>
+								<th class="yb"><span>受付締切日<font color="red">※</font></span></th>
+								<td>
+									<input type="text" name="newYoyakuEndDate[]" id="YoyakuEndDate__BuildingNo__" value="__BuildingYoyakuEndDate__" class="datepicker yoyaku-end-datepicker building-yoyaku-end">
 								</td>
 							</tr>
 							<tr>
@@ -639,7 +642,7 @@
 						</tr>
 						<tr>
 							<th class="yb">作業期間(全体)
-								<span style="display: block; color: red">*棟毎の作業期間の入力がない場合、作業期間(全体)が適用されます。</span>
+								<span style="display: block; color: red">*棟毎の専有部の入力がない場合、作業期間(全体)が適用されます。</span>
 							</th>
 							<td>
 								__SenyuStartDate__ ～ __SenyuEndDate__
@@ -652,19 +655,6 @@
 								__KyoyobuStartDate__ ～ __KyoyobuEndDate__
 							</td>
 						</tr>
-						<tr>
-							<th class="yb">専有部
-							</th>
-							<td>
-								__SenyubuStartDate__ ～ __SenyubuEndDate__
-							</td>
-						</tr>
-						<tr>
-							<th class="yb"><span>受付締切日</span>
-							<td>
-								__YoyakuEndDate__
-							</td>
-						</tr>	
 						<tr>
 							<th class="yb">
 								<span>作業時間</span>
@@ -727,9 +717,15 @@
 							</td>
 						</tr>
 						<tr>
-							<th class="yb">作業期間</th>
+							<th class="yb">専有部</th>
 							<td>
 								__wkSenyuDate1__
+							</td>
+						</tr>
+						<tr>
+							<th class="yb">受付締切日</th>
+							<td>
+								__YoyakuEndDate__
 							</td>
 						</tr>
 						<tr>
@@ -776,9 +772,15 @@
 								</td>
 							</tr>
 							<tr>
-								<th class="yb">作業期間</th>
+								<th class="yb">専有部</th>
 								<td>
 									__BuildingSenyuDate__
+								</td>
+							</tr>
+							<tr>
+								<th class="yb">受付締切日</th>
+								<td>
+									__BuildingYoyakuEndDate__
 								</td>
 							</tr>
 							<tr>
@@ -1345,18 +1347,6 @@
 			numberOfMonths: 2,
 			showButtonPanel: true
 		});
-
-		jQuery("#SenyubuStartDate").datepicker({
-			maxDate: new Date($("#SenyubuEndDate").val()),
-			numberOfMonths: 2,
-			showButtonPanel: true
-		});
-
-		jQuery("#SenyubuEndDate").datepicker({
-			minDate: new Date($("#SenyubuStartDate").val()),
-			numberOfMonths: 2,
-			showButtonPanel: true
-		});
 /*
 		jQuery(".senyubucls").datepicker({
 			numberOfMonths: 2,
@@ -1393,18 +1383,6 @@
 		$('#KyoyobuEndDate').on('change', function() {
 			$("#KyoyobuStartDate").datepicker('option', {
 				maxDate: new Date($("#KyoyobuEndDate").val()),
-			});
-		});	
-
-		$('#SenyubuStartDate').on('change', function() {
-			$("#SenyubuEndDate").datepicker('option', {
-				minDate: new Date($("#SenyubuStartDate").val()),
-			});
-		});	
-
-		$('#SenyubuEndDate').on('change', function() {
-			$("#SenyubuStartDate").datepicker('option', {
-				maxDate: new Date($("#SenyubuEndDate").val()),
 			});
 		});	
 
@@ -1510,10 +1488,16 @@
 								</td>\
 							</tr>\
 							<tr>\
-								<th class="yb">作業期間</th>\
+								<th class="yb">専有部</th>\
 								<td>\
 									<input type="text" name="newSenyuStartDate[]"  class="datepicker senyubucls" value="" id="SenyuStartDate'+LastBuildingNo+'">～\
 									<input type="text" name="newSenyuEndDate[]"  class="datepicker senyubucls" value="" id="SenyuEndDate'+LastBuildingNo+'">\
+								</td>\
+							</tr>\
+							<tr>\
+								<th class="yb"><span>受付締切日<font color="red">※</font></span></th>\
+								<td>\
+									<input type="text" name="newYoyakuEndDate[]" id="YoyakuEndDate'+LastBuildingNo+'" value="" class="datepicker yoyaku-end-datepicker building-yoyaku-end">\
 								</td>\
 							</tr>\
 							<tr>\
@@ -1569,6 +1553,10 @@
 		});
 */		
 		applyDatepicker();
+		$(".yoyaku-end-datepicker").datepicker({
+			numberOfMonths: 2,
+			showButtonPanel: true
+		});
 		calcDwellingCount();
 	}
 	
@@ -1645,13 +1633,22 @@
 			ErrorString += "作業期間は必須項目です。";
 		}
 
-		// 受付締切日
+		// 受付締切日（棟ごと）
 		let YoyakuEndDateVal = document.getElementById("YoyakuEndDate").value;
 		if(YoyakuEndDateVal == ""){
 			if(ErrorString != '')
 				ErrorString += '<br>';
 			ErrorString += "受付締切日は必須項目です。";
 		}
+		$(".building-yoyaku-end").each(function() {
+			if($(this).val() == ""){
+				if(ErrorString.indexOf("受付締切日は必須項目です。") < 0){
+					if(ErrorString != '')
+						ErrorString += '<br>';
+					ErrorString += "受付締切日は必須項目です。";
+				}
+			}
+		});
 
 		// 作業時間
 		let MinuteTimeVal = document.getElementById("MinuteTime").value;

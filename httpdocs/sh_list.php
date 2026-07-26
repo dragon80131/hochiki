@@ -21,6 +21,7 @@ include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	// include_once _CLS_DIR . "SPUSHenkoDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once __DIR__ . "/include/sh_list_slot_helpers.php";
+include_once __DIR__ . "/include/building_period_helpers.php";
 
 
 
@@ -247,21 +248,10 @@ if(count($MaxWaku)>2){
 	$wWakuPM2 = $MaxWaku[2];
 }
 $TargetClientCD = $myBukken->ClientCD;#111
-// $SenyuStartDate = $myBukken->SenyuStartDate;
-// $SenyuEndDate = $myBukken->SenyuEndDate;
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 $SenyuDateCnt = ((strtotime($SenyuEndDate) -  strtotime($SenyuStartDate)) / 86400) + 1; #専有部日数
 $MinuteTime = $myBukken->MinuteTime; #20ぷん

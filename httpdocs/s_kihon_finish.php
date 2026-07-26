@@ -110,8 +110,6 @@ if ($work == 1) { #新規、修正
 	$SenyuEndDate = SPFWParameter::getValues("SenyuEndDate");
 	$KyoyobuStartDate = SPFWParameter::getValues("KyoyobuStartDate");
 	$KyoyobuEndDate = SPFWParameter::getValues("KyoyobuEndDate");
-	$SenyubuStartDate = SPFWParameter::getValues("SenyubuStartDate");
-	$SenyubuEndDate = SPFWParameter::getValues("SenyubuEndDate");
 	$SenyuStartDate1 = SPFWParameter::getValues("SenyuStartDate1");
 	$SenyuEndDate1 = SPFWParameter::getValues("SenyuEndDate1");
 	$YoyakuEndDate 			= SPFWParameter::getValues("YoyakuEndDate");
@@ -122,6 +120,7 @@ if ($work == 1) { #新規、修正
 	$newKaidaka 			= SPFWParameter::getValues("newKaidaka"); // 配列
 	$newSenyuStartDate 		= SPFWParameter::getValues("newSenyuStartDate"); // 配列
 	$newSenyuEndDate 		= SPFWParameter::getValues("newSenyuEndDate"); // 配列
+	$newYoyakuEndDate 		= SPFWParameter::getValues("newYoyakuEndDate"); // 配列
 	$newBuilingNo 			= SPFWParameter::getValues("newBuilingNo"); // 配列
 
 	########################################################
@@ -196,8 +195,6 @@ if ($work == 1) { #新規、修正
 	$myBukken->SenyuEndDate = $SenyuEndDate;
 	$myBukken->KyoyobuStartDate = $KyoyobuStartDate;
 	$myBukken->KyoyobuEndDate = $KyoyobuEndDate;
-	$myBukken->SenyubuStartDate = $SenyubuStartDate;
-	$myBukken->SenyubuEndDate = $SenyubuEndDate;
 	$myBukken->SenyuStartDate1 = $SenyuStartDate1;
 	$myBukken->SenyuEndDate1 = $SenyuEndDate1;
 	$myBukken->YoyakuEndDate = $YoyakuEndDate;
@@ -309,6 +306,7 @@ if ($work == 1) { #新規、修正
 				$editKaidaka = SPFWParameter::getValues("editKaidaka".$BuildingCD[$i]);
 				$editSenyuStartDate = SPFWParameter::getValues("editSenyuStartDate".$BuildingCD[$i]);
 				$editSenyuEndDate = SPFWParameter::getValues("editSenyuEndDate".$BuildingCD[$i]);
+				$editYoyakuEndDate = SPFWParameter::getValues("editYoyakuEndDate".$BuildingCD[$i]);
 				$editHoliday = SPFWParameter::getValues("editHoliday".$BuildingCD[$i]);
 				$editReserveDay = SPFWParameter::getValues("editReserveDay".$BuildingCD[$i]);
 				$editBuildingData = new Building($myDB);
@@ -321,6 +319,7 @@ if ($work == 1) { #新規、修正
 				$editBuildingData->Kaidaka = $editKaidaka;
 				$editBuildingData->SenyuStartDate = $editSenyuStartDate;
 				$editBuildingData->SenyuEndDate = $editSenyuEndDate;
+				$editBuildingData->YoyakuEndDate = $editYoyakuEndDate ? $editYoyakuEndDate : $YoyakuEndDate;
 
 				$Holiday = array();
 				if ($wUseAppOnly != '1') {
@@ -382,6 +381,7 @@ if ($work == 1) { #新規、修正
 					$newBuildingData->Kaidaka = isset($newKaidaka[$i])?$newKaidaka[$i]:'';
 					$newBuildingData->SenyuStartDate = isset($newSenyuStartDate[$i])?$newSenyuStartDate[$i]:'';
 					$newBuildingData->SenyuEndDate = isset($newSenyuEndDate[$i])?$newSenyuEndDate[$i]:'';
+					$newBuildingData->YoyakuEndDate = (isset($newYoyakuEndDate[$i]) && $newYoyakuEndDate[$i]) ? $newYoyakuEndDate[$i] : $YoyakuEndDate;
 
 					$builingNo = $newBuilingNo[$i];
 					$wHoliday = SPFWParameter::getValues("newHoliday".$builingNo); // 配列

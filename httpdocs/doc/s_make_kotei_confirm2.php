@@ -19,6 +19,7 @@ include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
+include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 
 
 // データベースコネクト
@@ -189,27 +190,10 @@ if($wArrangeType != '1'){
 $BukkenName = $myBukken->BukkenName;
 $wBuildingName = $myBukken->BuildingName;
 
-// $myKoji = new Koji($myDB);
-
-// if (!$myKoji->executeSelect("BukkenCD = " . $editBukkenCD, "")) {
-// 	$ErrorString = array();
-// 	$ErrorString[] = "tKojiF情報の抽出に失敗しました。";
-// 	showAdminSorryPage($ErrorString);
-// }
-// $KyoyoStartDate = $myBukken->KyoyoStartDate;
-// $KyoyoEndDate = $myBukken->KyoyoEndDate;
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 $SenyuDateCnt = ((strtotime($SenyuEndDate) -  strtotime($SenyuStartDate)) / 86400) + 1; #専有部日数
 #$myBukken->MinuteTime = $wMinuteTime;
 

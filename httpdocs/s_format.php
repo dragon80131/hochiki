@@ -17,6 +17,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/building_period_helpers.php";
 
 
 $myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
@@ -161,22 +162,11 @@ else
 
 // $wBukkenName_Hurigana	= $myBukken->BukkenName_Hurigana;
 $Created 				= $myBukken->Created;#作成日
-// $SenyuStartDate = $myBukken->SenyuStartDate;
-// $SenyuEndDate = $myBukken->SenyuEndDate;
 
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 
 $SenyuDateCnt = (( strtotime( $SenyuEndDate ) -  strtotime( $SenyuStartDate )) / 86400) + 1 ;#専有部日数

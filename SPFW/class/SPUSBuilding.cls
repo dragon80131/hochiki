@@ -48,6 +48,7 @@ class Building {
 	var $Kojijun;
 	var $SenyuStartDate;
 	var $SenyuEndDate;
+	var $YoyakuEndDate;
 	var $FrameOverflow;
 	var $ArrangeType;
 	var $FloorReserveInfo;
@@ -122,6 +123,7 @@ class Building {
 		$this->Kojijun = "";
 		$this->SenyuStartDate = "";
 		$this->SenyuEndDate = "";
+		$this->YoyakuEndDate = "";
 		$this->FrameOverflow = "";
 		$this->ArrangeType = "";
 		$this->FloorReserveInfo = "";
@@ -164,6 +166,7 @@ class Building {
 		$sqlMoji .= ", Kojijun";
 		$sqlMoji .= ", SenyuStartDate";
 		$sqlMoji .= ", SenyuEndDate";
+		$sqlMoji .= ", YoyakuEndDate";
 		$sqlMoji .= ", FrameOverflow";
 		$sqlMoji .= ", ArrangeType";
 		$sqlMoji .= ", FloorReserveInfo";
@@ -224,6 +227,7 @@ class Building {
 				$this->Kojijun,
 				$this->SenyuStartDate,
 				$this->SenyuEndDate,
+				$this->YoyakuEndDate,
 				$this->FrameOverflow,
 				$this->ArrangeType,
 				$this->FloorReserveInfo,
@@ -294,6 +298,7 @@ class Building {
 					if ($this->Kojijun != "") $sqlMoji .= ", Kojijun";
 					if ($this->SenyuStartDate != "") $sqlMoji .= ", SenyuStartDate";
 					if ($this->SenyuEndDate != "") $sqlMoji .= ", SenyuEndDate";
+					if ($this->YoyakuEndDate != "") $sqlMoji .= ", YoyakuEndDate";
 					if ($this->FrameOverflow != "") $sqlMoji .= ", FrameOverflow";
 					if ($this->ArrangeType != "") $sqlMoji .= ", ArrangeType";
 					if ($this->FloorReserveInfo != "") $sqlMoji .= ", FloorReserveInfo";
@@ -318,6 +323,7 @@ class Building {
 					if ($this->Kojijun != "") $sqlMoji .= ", '" . addslashes($this->Kojijun) . "'";
 					if ($this->SenyuStartDate != "") $sqlMoji .= ", '" . addslashes($this->SenyuStartDate) . "'";
 					if ($this->SenyuEndDate != "") $sqlMoji .= ", '" . addslashes($this->SenyuEndDate) . "'";
+					if ($this->YoyakuEndDate != "") $sqlMoji .= ", '" . addslashes($this->YoyakuEndDate) . "'";
 					if ($this->FrameOverflow != "") $sqlMoji .= ", '" . addslashes($this->FrameOverflow) . "'";
 					if ($this->ArrangeType != "") $sqlMoji .= ", '" . addslashes($this->ArrangeType) . "'";
 					if ($this->FloorReserveInfo != "") $sqlMoji .= ", '" . addslashes($this->FloorReserveInfo) . "'";
@@ -366,6 +372,7 @@ class Building {
 			$sqlMoji .= ", Kojijun = " . $this->convertNullStringValue($this->Kojijun);
 			$sqlMoji .= ", SenyuStartDate = " . $this->convertNullStringValue($this->SenyuStartDate);
 			$sqlMoji .= ", SenyuEndDate = " . $this->convertNullStringValue($this->SenyuEndDate);
+			$sqlMoji .= ", YoyakuEndDate = " . $this->convertNullStringValue($this->YoyakuEndDate);
 			$sqlMoji .= ", FrameOverflow = " . $this->convertNullStringValue($this->FrameOverflow);
 			$sqlMoji .= ", ArrangeType = " . $this->convertNullStringValue($this->ArrangeType);
 			$sqlMoji .= ", FloorReserveInfo = " . $this->convertNullStringValue($this->FloorReserveInfo);

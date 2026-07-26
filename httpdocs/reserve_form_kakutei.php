@@ -24,6 +24,7 @@ include_once _CLS_DIR . "SPFWParameter.cls";
 include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once "./include/common_489.php";
+include_once "./include/building_period_helpers.php";
 
 
 $wLang = SPFWParameter::getValues('wLang');
@@ -172,21 +173,10 @@ $lowWaku = $Waku - 2;
 $ReserveFrom = "120"; #固定で$mySetting->ReserveFrom;
 $ReserveTo = "5"; #固定で $mySetting->ReserveTo;
 
-// $SenyuStartDate = $myBukken->SenyuStartDate;
-// $SenyuEndDate = $myBukken->SenyuEndDate;
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 $wHoliday = SPFWTools::decodePluralValue($Holiday);
 sort($wHoliday);

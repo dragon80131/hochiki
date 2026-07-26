@@ -19,6 +19,7 @@ $isAdminMode = TRUE;
 	include_once _CLS_DIR . "SPUSKoji.cls";
 	include_once _CLS_DIR . "SPUSBuilding.cls";
 	include_once _CLS_DIR . "SPUSReservationTemp.cls";
+	include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 
 	function normalizeKoteihyouSlotLabel($label) {
 		if ($label === '余地') {
@@ -255,19 +256,10 @@ $isAdminMode = TRUE;
 	// $SenyuStartDate = $myBukken->SenyuStartDate;
 	// $SenyuEndDate = $myBukken->SenyuEndDate;
 
-	$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-	$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-	$SenyuStartDate = $myBukken->SenyuStartDate1;
-	$SenyuEndDate = $myBukken->SenyuEndDate1;
-	if($editBuildingCD){
-		$SenyuStartDate = $myBuilding->SenyuStartDate;
-		$SenyuEndDate = $myBuilding->SenyuEndDate;
-	}
-	if(!$SenyuStartDate || !$SenyuEndDate){
-		$SenyuStartDate = $SenyuStartDateGeneral;
-		$SenyuEndDate = $SenyuEndDateGeneral;
-	}
+	$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+	$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+	$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+	$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 	$SenyuDateCnt = (( strtotime( $SenyuEndDate ) -  strtotime( $SenyuStartDate )) / 86400) + 1 ;#専有部日数
 	// 休工日

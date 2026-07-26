@@ -22,6 +22,7 @@ include_once _CLS_DIR . "SPFWParameter.cls";
 include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSKojiDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 
 // データベースコネクト
 
@@ -340,27 +341,16 @@ $wColsBlock = SPFWTools::encodePluralValue($ColsBlock);
 $IfKoji = TRUE;
 // $IfNotKoji = FALSE;
 
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 $SenyuDateCnt = ((strtotime($SenyuEndDate) -  strtotime($SenyuStartDate)) / 86400) + 1; #専有部日数
 //echo "<br>236行目".$SenyuDateCnt."-".$SenyuEndDate."-".$SenyuStartDate;
 
 $DateStart = date("Y,n,d", strtotime('-1 month', strtotime($SenyuStartDate)));
 $DateEnd = date("Y,n,d", strtotime('-1 month', strtotime($SenyuEndDate)));
-
-$YoyakuEndDate = $myBukken->YoyakuEndDate;
 
 $wHansu = $myBukken->Hansu;
 // $wMinuteTime = $myKoji->MinuteTime;

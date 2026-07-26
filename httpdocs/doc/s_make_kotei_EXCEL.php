@@ -24,6 +24,7 @@ include_once _CLS_DIR . "SPUSReservation.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationInit.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
+include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 
 
 // データベースコネクト
@@ -453,22 +454,12 @@ if ($BusinessHoursDisplay !== '') {
 // $SenyuStartDate = $myBukken->SenyuStartDate;
 // $SenyuEndDate = $myBukken->SenyuEndDate;
 
-$SenyuStartDateGeneral = $myBukken->SenyuStartDate;
-$SenyuEndDateGeneral = $myBukken->SenyuEndDate;
-
-$SenyuStartDate = $myBukken->SenyuStartDate1;
-$SenyuEndDate = $myBukken->SenyuEndDate1;
-if($editBuildingCD){
-	$SenyuStartDate = $myBuilding->SenyuStartDate;
-	$SenyuEndDate = $myBuilding->SenyuEndDate;
-}
-if(!$SenyuStartDate || !$SenyuEndDate){
-	$SenyuStartDate = $SenyuStartDateGeneral;
-	$SenyuEndDate = $SenyuEndDateGeneral;
-}
+$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+$SenyuStartDate = $resolvedPeriod['SenyuStartDate'];
+$SenyuEndDate = $resolvedPeriod['SenyuEndDate'];
+$ReceptionDate = $resolvedPeriod['YoyakuEndDate'];#予約受付締切日
 
 $SenyuDateCnt = ((strtotime($SenyuEndDate) -  strtotime($SenyuStartDate)) / 86400) + 1; #専有部日数
-$ReceptionDate = $myBukken->YoyakuEndDate;#予約受付締切日
 $wMinuteTime = $myBukken->MinuteTime;		#工事施工時間（リアル）
 
 if(!$wMinuteTime){

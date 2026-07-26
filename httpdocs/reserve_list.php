@@ -22,6 +22,7 @@ include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/building_period_helpers.php";
 
 
 // データベースコネクト
@@ -143,7 +144,8 @@ if($BuildingLoop < 1){
 
 // $TatoFlg = $mySetting->TatoFlg;
 // if(empty($TatoFlg)){
-	$YoyakuEndDate  = $myBukken->YoyakuEndDate; //受付締切日
+	$resolvedPeriod = resolveBuildingSenyuAndYoyaku($myBukken, $editBuildingCD ? $myBuilding : null, $editBuildingCD);
+	$YoyakuEndDate  = $resolvedPeriod['YoyakuEndDate']; //受付締切日
 
 
 	$Today = new DateTime();
