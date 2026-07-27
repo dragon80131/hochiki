@@ -499,6 +499,7 @@ if ($wWakuPattern > 5) {
 	$wWakuPM1 = $wWakuSu[1];
 }
 $wHolidayItems = parseHoliday1($wHoliday1);
+$Kyujitu = array();
 $HolidayLoop  = count($wHolidayItems);
 for ($i = 0; $i < $HolidayLoop; $i++) {
 	// Excel日単位の休工マークは全日のみ（半日は工程セル側で表現）
@@ -729,9 +730,6 @@ if ($wWakuPattern > 7) {
 	$aPM1 = $WAKUPATTERN[$wWakuPattern]['StartTime'][1];
 	$ePM1 = $WAKUPATTERN[$wWakuPattern]['EndTime'][1];
 	$DispPM1 = $aPM1 . "～" . $ePM1;
-	echo "<br> ".__LINE__." Hensu :".$DispPM1;
-	echo "<br> ".__LINE__." Hensu :".$cellPM1r;
-	echo "<br> ".__LINE__." Hensu :".$wWakuPM1col;
 
 	if($wWakuPM2col>0){
 		$aPM2 = $WAKUPATTERN[$wWakuPattern]['StartTime'][2];
@@ -820,8 +818,8 @@ for ($i = 0; $i < $beforeReserveDayDateCnt * $rowCountforDay; $i++) {
 				#セルに値をセットする
 				$sheet->setCellValue($cell, "");
 			// } elseif ($wKoteihyouEX[$k] == "") {
-			}else if ($wKoteihyouEX[$k] == "枠越"){
-				$sheet->setCellValue($cell, "");
+			}else if ($wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工"){
+				$sheet->setCellValue($cell, $wKoteihyouEX[$k] == "休工" ? "休工" : "");
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()->setARGB('cccccc');
@@ -880,7 +878,10 @@ for ($i = 0; $i < $SenyuDateCnt * $rowCountforDay; $i++) { #1 専有部日数　
 				if ($wKoteihyouEX[$k] == "空き") {
 					#セルに値をセットする
 					$sheet->setCellValue($cell, "");
-				} elseif ($wKoteihyouEX[$k] == "" || $wKoteihyouEX[$k] == "枠越") {
+				} elseif ($wKoteihyouEX[$k] == "" || $wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工") {
+					if ($wKoteihyouEX[$k] == "休工") {
+						$sheet->setCellValue($cell, "休工");
+					}
 					#セルの色をグレーにする
 					$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 						->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
@@ -956,8 +957,8 @@ for ($i = 0; $i < $afterReserveDayDateCnt * $rowCountforDay; $i++) {
 				#セルに値をセットする
 				$sheet->setCellValue($cell, "");
 			// } elseif ($wKoteihyouEX[$k] == "") {
-			}else if ($wKoteihyouEX[$k] == "枠越"){
-				$sheet->setCellValue($cell, "");
+			}else if ($wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工"){
+				$sheet->setCellValue($cell, $wKoteihyouEX[$k] == "休工" ? "休工" : "");
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()->setARGB('cccccc');
