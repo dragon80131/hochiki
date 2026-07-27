@@ -226,12 +226,13 @@
 
 				cell1.innerHTML =
 					"<a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='../images/icon_delete.png'></a>";
+				var periodSelect = "<select name='wHolidayPeriod[]' class='holiday-period' style='width:70px;margin-left:2px;'><option value='ALL' selected>全日</option><option value='AM'>午前</option><option value='PM'>午後</option></select>";
 				cell2.innerHTML =
-					"<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>";
+					"<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>"+periodSelect;
 				cell2.innerHTML +=
-					"　<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>";
+					"　<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>"+periodSelect;
 				cell2.innerHTML +=
-					"　<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>";
+					"　<input type='text' name='wHoliday[]' value='' class='wHoliday' style='width:120px' autocomplete='off'>"+periodSelect;
 
 				//商品用の1行追加するボタンをクリックした時
 				i = parseInt(i) + 3; //通るたび(ボタン押す度)に+3する→idに名前つけるときに使う
@@ -910,11 +911,11 @@
 									</td>
 									<td>
 										<input type="text" name="wHoliday[]" value="__wHoliday1__" class="wHoliday"
-											style="width: 120px" autocomplete="off">
+											style="width: 120px" autocomplete="off">__wHolidayPeriodSelect1__
 										　<input type="text" name="wHoliday[]" value="__wHoliday2__" class="wHoliday"
-											style="width: 120px" autocomplete="off">
+											style="width: 120px" autocomplete="off">__wHolidayPeriodSelect2__
 										　<input type="text" name="wHoliday[]" value="__wHoliday3__" class="wHoliday"
-											style="width: 120px" autocomplete="off">
+											style="width: 120px" autocomplete="off">__wHolidayPeriodSelect3__
 									</td>
 								</tr>
 								__KyukoTable__

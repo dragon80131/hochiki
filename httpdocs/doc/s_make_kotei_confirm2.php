@@ -20,6 +20,7 @@ include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
+include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 
 
 // データベースコネクト
@@ -150,22 +151,16 @@ if($editBuildingCD){
 
 // 休工日登録
 $wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
-$Holiday = array();
+$wHolidayPeriod			= SPFWParameter::getValues("wHolidayPeriod"); // 配列
+$Holiday = combineHolidayInputs($wHoliday, $wHolidayPeriod);
 $wHolidayHTML = '';
-// if ($wUseAppOnly != '1') {
-	if(is_array($wHoliday) && count($wHoliday) > 0){
-		for ($i = 0; $i < count($wHoliday); $i++) {
-			if ($wHoliday[$i]) {
-				$Holiday[] = $wHoliday[$i];
-				$wHolidayHTML .= '<input type="hidden" name="wHoliday[]" value="'.$wHoliday[$i].'">';
-			}
-		}
-	}
-	if($editBuildingCD)
-		$myBuilding->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
-	else
-		$myBukken->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
-// }
+foreach ($Holiday as $token) {
+	$wHolidayHTML .= '<input type="hidden" name="wHoliday[]" value="'.htmlspecialchars($token, ENT_QUOTES, 'UTF-8').'">';
+}
+if($editBuildingCD)
+	$myBuilding->Holiday1 = encodeHoliday1($Holiday);
+else
+	$myBukken->Holiday1 = encodeHoliday1($Holiday);
 
 if($wArrangeType != '1'){
 	// 予備日登録
@@ -318,7 +313,11 @@ else
 unset($myBukken);
 unset($myBuilding);
 
-$wHoliday = SPFWTools::decodePluralValue($Holiday1);
+$wHolidayItems = parseHoliday1($Holiday1);
+$wHoliday = array();
+foreach ($wHolidayItems as $hi) {
+	$wHoliday[] = $hi['date'];
+}
 sort($wHoliday);
 
 $beforeReserveDay = [];
@@ -595,8 +594,8 @@ if($wArrangeType == '1'){
 		if ($result !== false || $YoubiCD == 0 || $YoubiCD == 6) {
 			$holiday[$i] = true;
 		}
-		if (count($wHoliday) > 0) { //休工日
-			$KojiHoliday[$i] = (array_search($SenyuDate, $wHoliday) === false) ? false : true;
+		if (count($wHolidayItems) > 0) { //休工日
+			$KojiHoliday[$i] = isFullDayHoliday($wHolidayItems, $SenyuDate);
 		}
 
 		for ($j = 0; $j < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $j++) {
@@ -660,8 +659,8 @@ if($wArrangeType == '1'){
 		if ($result !== false || $YoubiCD == 0 || $YoubiCD == 6) {
 			$beforeHoliday[$key] = true;
 		}
-		if (count($wHoliday) > 0) { //休工日
-			$beforeKojiHoliday[$key] = (array_search($SenyuDate, $wHoliday) === false) ? false : true;
+		if (count($wHolidayItems) > 0) { //休工日
+			$beforeKojiHoliday[$key] = isFullDayHoliday($wHolidayItems, $SenyuDate);
 		}
 		for ($j = 0; $j < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $j++) {
 			$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$j];
@@ -683,6 +682,8 @@ if($wArrangeType == '1'){
 				if (!$beforeKojiHoliday[$key]) { //休工日以外
 					if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 						${'Waku' . $WakuName . 'Room'}[] = "";
+					} else if (isSlotHoliday($wHolidayItems, $SenyuDate, $WakuName)) {
+						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
 							${'Waku' . $WakuName . 'Room'}[] = "枠越";
@@ -731,8 +732,8 @@ if($wArrangeType == '1'){
 		if ($result !== false || $YoubiCD == 0 || $YoubiCD == 6) {
 			$holiday[$i] = true;
 		}
-		if (count($wHoliday) > 0) { //休工日
-			$KojiHoliday[$i] = (array_search($SenyuDate, $wHoliday) === false) ? false : true;
+		if (count($wHolidayItems) > 0) { //休工日
+			$KojiHoliday[$i] = isFullDayHoliday($wHolidayItems, $SenyuDate);
 		}
 		for ($j = 0; $j < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $j++) {
 			$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$j];
@@ -754,6 +755,8 @@ if($wArrangeType == '1'){
 				if (!$KojiHoliday[$i]) { //休工日以外
 					if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 						${'Waku' . $WakuName . 'Room'}[] = "";
+					} else if (isSlotHoliday($wHolidayItems, $SenyuDate, $WakuName)) {
+						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
 							${'Waku' . $WakuName . 'Room'}[] = "枠越";
@@ -800,8 +803,8 @@ if($wArrangeType == '1'){
 		if ($result !== false || $YoubiCD == 0 || $YoubiCD == 6) {
 			$afterHoliday[$key] = true;
 		}
-		if (count($wHoliday) > 0) { //休工日
-			$afterKojiHoliday[$key] = (array_search($SenyuDate, $wHoliday) === false) ? false : true;
+		if (count($wHolidayItems) > 0) { //休工日
+			$afterKojiHoliday[$key] = isFullDayHoliday($wHolidayItems, $SenyuDate);
 		}
 		for ($j = 0; $j < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $j++) {
 			$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$j];
@@ -823,6 +826,8 @@ if($wArrangeType == '1'){
 				if (!$afterKojiHoliday[$key]) { //休工日以外
 					if ($SyonitiKouryo) { //初日考慮でAMなら　空を入れる
 						${'Waku' . $WakuName . 'Room'}[] = "";
+					} else if (isSlotHoliday($wHolidayItems, $SenyuDate, $WakuName)) {
+						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
 							${'Waku' . $WakuName . 'Room'}[] = "枠越";
@@ -961,7 +966,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 			for ($k = 0; $k < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $k++) {
 				$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$k];
 				for ($l = 0; $l < ${'wWaku' . $WakuName . 'Col'}; $l++) {
-					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]){
+					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工"){
 						$Koteihyou .= "<td class='link_cell' style='background-color:#d3d3d3;'>";
 					}else{
 						if ($k % 2 == 0) {
@@ -970,7 +975,7 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							$Koteihyou .= "<td class='link_cell' style='background-color:#ffffcf;'>";
 						}
 					}
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';
@@ -1041,7 +1046,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 			for ($k = 0; $k < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $k++) {
 				$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$k];
 				for ($l = 0; $l < ${'wWaku' . $WakuName . 'Col'}; $l++) {
-					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]){
+					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工"){
 						$Koteihyou .= "<td class='link_cell' style='background-color:#d3d3d3;'>";
 					}else{
 						if ($k % 2 == 0) {
@@ -1051,7 +1056,7 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						}
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';
@@ -1121,7 +1126,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 			for ($k = 0; $k < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $k++) {
 				$WakuName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$k];
 				for ($l = 0; $l < ${'wWaku' . $WakuName . 'Col'}; $l++) {
-					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}]){
+					if(!${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工"){
 						$Koteihyou .= "<td class='link_cell' style='background-color:#d3d3d3;'>";
 					}else{
 						if ($k % 2 == 0) {
@@ -1131,7 +1136,7 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						}
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越") {
+					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';

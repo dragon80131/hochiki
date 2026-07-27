@@ -28,6 +28,7 @@ include_once _CLS_DIR . "SPUSBranche.cls";
 
 include_once "./include/common_489.php";
 include_once "./include/bukken_alert.php";
+include_once "./include/holiday_helpers.php";
 
 
 // データベースコネクト
@@ -84,6 +85,7 @@ $wArrangeType = $myBukken->ArrangeType;
 $wFrameOverflow = $myBukken->FrameOverflow;
 $wFloorReserveInfo = $myBukken->FloorReserveInfo;
 $wWakuPattern = $myBukken->WakuPattern;
+$Holiday1 = $myBukken->Holiday1;
 
 if($editBuildingCD){
 	$wBuildingName 	= $myBuilding->BuildingName;
@@ -94,6 +96,7 @@ if($editBuildingCD){
 	$wFrameOverflow = $myBuilding->FrameOverflow;
 	$wFloorReserveInfo = $myBuilding->FloorReserveInfo;
 	$wWakuPattern = $myBuilding->WakuPattern;
+	$Holiday1 = $myBuilding->Holiday1;
 }
 
 // 棟一覧
@@ -174,6 +177,21 @@ $wTime = SPFWParameter::getValues('wTime'); #20171230追加
 $wTimeFrom = $wDate . " " . $wTime; #20171230追加 メール用
 $WakuTime = getWakuTime2($WakuPattern, $wTimeFrom);
 $wTimeTo = $WakuTime['ETime']; // メール用
+
+// 休工日（半日含む）のサーバ側ガード
+$finishHolidayItems = parseHoliday1($Holiday1);
+$finishSlotName = isset($WakuTime['AMPM']) ? $WakuTime['AMPM'] : '';
+if ($finishSlotName === '' && isset($WakuTime['STime'])) {
+	for ($hi = 0; $hi < count($WAKUPATTERN[$WakuPattern]['AMPM']); $hi++) {
+		if ($WAKUPATTERN[$WakuPattern]['StartTime'][$hi] == $WakuTime['STime']) {
+			$finishSlotName = $WAKUPATTERN[$WakuPattern]['AMPM'][$hi];
+			break;
+		}
+	}
+}
+if ($finishSlotName !== '' && isSlotHoliday($finishHolidayItems, $wDate, $finishSlotName)) {
+	trigger_error("Selected time is a holiday slot.", E_USER_ERROR);
+}
 $editReservationCD = SPFWParameter::getValues('editReservationCD'); #20171230追加
 $wUserMemo = SPFWParameter::getValues('wUserMemo'); #20171230追加
 $wSecondChoice = SPFWParameter::getValues('wSecondChoice'); #20171230追加

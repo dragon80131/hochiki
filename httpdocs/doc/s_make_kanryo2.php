@@ -23,6 +23,7 @@ include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSKojiDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
+include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 
 // データベースコネクト
 
@@ -440,49 +441,48 @@ $wakupattern_json = json_encode($WAKUPATTERN);
 // echo "</tr></table>";
 // exit();
 
-$Holiday = SPFWTools::decodePluralValue($Holiday1);
+$HolidayItems = parseHoliday1($Holiday1);
+$Holiday = array();
+foreach ($HolidayItems as $hi) {
+	$Holiday[] = $hi['date'];
+}
 sort($Holiday);
 
 $ReserveDay = SPFWTools::decodePluralValue($ReserveDay);
 sort($ReserveDay);
 
 $MINWaku = ($RoomSuu / $SenyuDateCnt) + 4;
-/*
-$HolidayDisp = "<table class='table table-bordered table-sm'><tr>";
-for ($i = 1; $i <= count($Holiday); $i++) {
-	if ($i % 3 == 1) {
-		$HolidayDisp .= "<tr>";
-	}
-	${"wHoliday" . $i} = $Holiday[$i - 1];
-	$HolidayDisp .= "<td>" . ${"wHoliday" . $i} . "</td>";
-	if ($i % 3 == 0) {
-		$HolidayDisp .= "</tr>";
-	}
-	$HolidayFlg = true;
-}
-$HolidayDisp .= "</table>";
-*/
 
 // 休工日
 $maxNo = 0; // デフォルト
 $KyukoTable = "";
+$wHolidayPeriod1 = "ALL";
+$wHolidayPeriod2 = "ALL";
+$wHolidayPeriod3 = "ALL";
 if ($Holiday1) {
-	$Holiday = SPFWTools::decodePluralValue($Holiday1);
-	for ($i = 1; $i <= count($Holiday); $i++) {
-		${"wHoliday" . $i} = $Holiday[$i - 1];
+	for ($i = 1; $i <= count($HolidayItems); $i++) {
+		${"wHoliday" . $i} = $HolidayItems[$i - 1]['date'];
+		${"wHolidayPeriod" . $i} = $HolidayItems[$i - 1]['period'];
 	}
-	$maxNo 	= count($Holiday);
+	$maxNo 	= count($HolidayItems);
 	$maxNo1 = ceil($maxNo / 3);
 	$maxNo 	= $maxNo1 * 3 + 1;
 	$j = 4;
 	for ($i = 1; $i < $maxNo1; $i++) {
 		$KyukoTable .= "<tr><td><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='../images/icon_delete.png'></a></td>";
-		$KyukoTable .= "<td><input type='text' name='wHoliday[]' value='__wHoliday" . $j . "__' class='wHoliday' style='width:120px' >";
-		$KyukoTable .= "　<input type='text' name='wHoliday[]' value='__wHoliday" . ($j + 1) . "__' class='wHoliday' style='width:120px' >";
-		$KyukoTable .= "　<input type='text' name='wHoliday[]' value='__wHoliday" . ($j + 2) . "__' class='wHoliday' style='width:120px' ></td></tr>";
+		$KyukoTable .= "<td>";
+		$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . $j}, ${"wHolidayPeriod" . $j}, 'wHoliday');
+		$KyukoTable .= "　";
+		$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 1)}, ${"wHolidayPeriod" . ($j + 1)}, 'wHoliday');
+		$KyukoTable .= "　";
+		$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 2)}, ${"wHolidayPeriod" . ($j + 2)}, 'wHoliday');
+		$KyukoTable .= "</td></tr>";
 		$j += 3;
 	}
 }
+$wHolidayPeriodSelect1 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod1);
+$wHolidayPeriodSelect2 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod2);
+$wHolidayPeriodSelect3 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod3);
 
 // 予備日
 $maxNo = 0; // デフォルト

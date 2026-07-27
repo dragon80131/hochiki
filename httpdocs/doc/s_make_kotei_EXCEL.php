@@ -25,6 +25,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationInit.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
+include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 
 
 // データベースコネクト
@@ -328,14 +329,8 @@ if($editBuildingCD){
 // 「工程表 作成」ボタンをクリックした場合、保管
 
 $wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
-$Holiday = array();
-if(is_array($wHoliday) && count($wHoliday) > 0){
-	for ($i = 0; $i < count($wHoliday); $i++) {
-		if ($wHoliday[$i]) {
-			$Holiday[] = $wHoliday[$i];
-		}
-	}
-}
+$wHolidayPeriod			= SPFWParameter::getValues("wHolidayPeriod"); // 配列
+$Holiday = combineHolidayInputs($wHoliday, $wHolidayPeriod);
 $wReserveDay 				= SPFWParameter::getValues("wReserveDay"); // 配列
 $ReserveDay = array();
 if(is_array($wReserveDay) && count($wReserveDay) > 0){
@@ -363,7 +358,7 @@ for ($i = 0; $i < count($WAKUPATTERN[$wWakuPattern]['AMPM']); $i++) {
 
 
 if($editBuildingCD){
-	$myBuilding->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+	$myBuilding->Holiday1 = encodeHoliday1($Holiday); #パイプつなぎ
 	$myBuilding->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
 	$myBuilding->Hansu = $wHansu;
 	$myBuilding->WakuPattern = $wWakuPattern;
@@ -388,7 +383,7 @@ if($editBuildingCD){
 	$myBukken->FloorReserveInfo = $wFloorReserveInfo;
 
 
-	$myBukken->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+	$myBukken->Holiday1 = encodeHoliday1($Holiday); #パイプつなぎ
 	$myBukken->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
 
 	if (!$myBukken->executeUpdate()) {
@@ -503,10 +498,14 @@ if ($wWakuPattern > 5) {
 	$wWakuAM = $wWakuSu[0];
 	$wWakuPM1 = $wWakuSu[1];
 }
-$wHoliday = SPFWTools::decodePluralValue($wHoliday1);
-$HolidayLoop  = is_countable($wHoliday) ? count($wHoliday) : 0;
-for ($i = 1; $i <= $HolidayLoop; $i++) {
-	$Kyujitu[] = (strtotime($wHoliday[$i - 1]) - strtotime($SenyuStartDate)) / 86400;
+$wHolidayItems = parseHoliday1($wHoliday1);
+$HolidayLoop  = count($wHolidayItems);
+for ($i = 0; $i < $HolidayLoop; $i++) {
+	// Excel日単位の休工マークは全日のみ（半日は工程セル側で表現）
+	if ($wHolidayItems[$i]['period'] !== 'ALL') {
+		continue;
+	}
+	$Kyujitu[] = (strtotime($wHolidayItems[$i]['date']) - strtotime($SenyuStartDate)) / 86400;
 }
 
 $wReserveDay = SPFWTools::decodePluralValue($wReserveDay);

@@ -20,6 +20,7 @@ $isAdminMode = TRUE;
 	include_once _CLS_DIR . "SPUSBuilding.cls";
 	include_once _CLS_DIR . "SPUSReservationTemp.cls";
 	include_once dirname(__DIR__) . "/include/building_period_helpers.php";
+include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 
 	function normalizeKoteihyouSlotLabel($label) {
 		if ($label === '余地') {
@@ -340,18 +341,15 @@ function numberToCircled($number) {
 	// $wHoliday = SPFWTools::decodePluralValue($Holiday1);
 	if($temp_show == '1' && $act != 'temp_save'){
 		$wHoliday = $arrtempReservationInfo['wHoliday'] ?? array();
+		$wHolidayPeriod = $arrtempReservationInfo['wHolidayPeriod'] ?? array();
 	}else{
 		$wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
+		$wHolidayPeriod			= SPFWParameter::getValues("wHolidayPeriod"); // 配列
 	}
-	$Holiday = array();
+	$Holiday = combineHolidayInputs($wHoliday, $wHolidayPeriod);
 	$wHolidayHTML = '';
-	if(is_array($wHoliday) && count($wHoliday) > 0){
-		for ($i = 0; $i < count($wHoliday); $i++) {
-			if ($wHoliday[$i]) {
-				$Holiday[] = $wHoliday[$i];
-				$wHolidayHTML .= '<input type="hidden" name="wHoliday[]" value="'.$wHoliday[$i].'">';
-			}
-		}
+	foreach ($Holiday as $token) {
+		$wHolidayHTML .= '<input type="hidden" name="wHoliday[]" value="'.htmlspecialchars($token, ENT_QUOTES, 'UTF-8').'">';
 	}
 	sort($Holiday);
 
@@ -399,7 +397,7 @@ function numberToCircled($number) {
 			$MaxWakuSu .= ${'wWaku' . $WAKUPATTERN[$wWakuPattern]['AMPM'][$i]};
 		}
 		if($editBuildingCD){
-			$myBuilding->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+			$myBuilding->Holiday1 = encodeHoliday1($Holiday); #パイプつなぎ
 			$myBuilding->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
 			$myBuilding->Hansu = $wHansu;
 			$myBuilding->WakuPattern = $wWakuPattern;
@@ -424,7 +422,7 @@ function numberToCircled($number) {
 			$myBukken->FloorReserveInfo = $wFloorReserveInfo;
 
 
-			$myBukken->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+			$myBukken->Holiday1 = encodeHoliday1($Holiday); #パイプつなぎ
 			$myBukken->ReserveDay = SPFWTools::encodePluralValue($ReserveDay); #パイプつなぎ
 
 			if (!$myBukken->executeUpdate()) {
@@ -584,7 +582,7 @@ function numberToCircled($number) {
 		#★１休工日なら
 		$KojiHoliday_ = false;
 		if (count($Holiday) > 0) { //休工日
-			$KojiHoliday_ = (array_search($SenyuDate, $Holiday) === false) ? false : true;
+			$KojiHoliday_ = isFullDayHoliday($Holiday, $SenyuDate);
 		}
 	
 		if($KojiHoliday_){
@@ -627,6 +625,11 @@ function numberToCircled($number) {
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
@@ -653,6 +656,11 @@ function numberToCircled($number) {
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
@@ -683,7 +691,12 @@ function numberToCircled($number) {
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m] != ''){
+						}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -726,7 +739,7 @@ function numberToCircled($number) {
 		#★１休工日なら
 		$KojiHoliday[$i] = false;
 		if (count($Holiday) > 0) { //休工日
-			$KojiHoliday[$i] = (array_search($SenyuDate, $Holiday) === false) ? false : true;
+			$KojiHoliday[$i] = isFullDayHoliday($Holiday, $SenyuDate);
 		}
 	
 		if($KojiHoliday[$i]){
@@ -769,6 +782,11 @@ function numberToCircled($number) {
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
@@ -795,6 +813,11 @@ function numberToCircled($number) {
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
@@ -825,7 +848,12 @@ function numberToCircled($number) {
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m] != ''){
+						}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -867,7 +895,7 @@ function numberToCircled($number) {
 		#★１休工日なら
 		$KojiHoliday_ = false;
 		if (count($Holiday) > 0) { //休工日
-			$KojiHoliday_ = (array_search($SenyuDate, $Holiday) === false) ? false : true;
+			$KojiHoliday_ = isFullDayHoliday($Holiday, $SenyuDate);
 		}
 	
 		if($KojiHoliday_){
@@ -910,6 +938,11 @@ function numberToCircled($number) {
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
@@ -936,6 +969,11 @@ function numberToCircled($number) {
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m] != ''){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d2e5ff;'>";
@@ -966,7 +1004,12 @@ function numberToCircled($number) {
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m] != ''){
+						}else if($wKoteihyouEX[$m]=="休工"){
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d3d3d3;'>";
+						$Koteihyou .= "休工";
+						$Koteihyou .= "<input type='hidden' id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
+						$Koteihyou .="</td>";
+					}else if($wKoteihyouEX[$m] != ''){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";

@@ -359,11 +359,11 @@
 										</td>
 										<td>
 											<input type="text" name="wHoliday[]" value="__wHoliday1__" class="wHoliday"
-												style="width: 120px" autocomplete="off">
+												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect1__
 											　<input type="text" name="wHoliday[]" value="__wHoliday2__" class="wHoliday"
-												style="width: 120px" autocomplete="off">
+												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect2__
 											　<input type="text" name="wHoliday[]" value="__wHoliday3__" class="wHoliday"
-												style="width: 120px" autocomplete="off">
+												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect3__
 										</td>
 									</tr>
 									__KyukoTable__
@@ -449,11 +449,11 @@
 											</td>
 											<td>
 												<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect1__
 												　<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect2__
 												　<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect3__
 											</td>
 										</tr>
 										__BuildingKyukoTable__
@@ -543,11 +543,11 @@
 											</td>
 											<td>
 												<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
 												　<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
 												　<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
 											</td>
 										</tr>
 										__BuildingKyukoTable__
@@ -1396,6 +1396,13 @@
 	});
 
 
+	function holidayPeriodSelectHtmlJs(name){
+		return "<select name='"+name+"' class='holiday-period' style='width:70px;margin-left:2px;'>"
+			+"<option value='ALL' selected>全日</option>"
+			+"<option value='AM'>午前</option>"
+			+"<option value='PM'>午後</option></select>";
+	}
+
 	function addHoliday(tableId, objName, aBuildingNo){
 		var table = document.getElementById(tableId);
 		// 行を行末に追加
@@ -1403,15 +1410,16 @@
 		// セルの挿入
 		var cell1 = row.insertCell(-1);
 		var cell2 = row.insertCell(-1);
+		var periodName = objName.replace('Holiday', 'HolidayPeriod');
 
 		cell1.innerHTML =
 			"<a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a>";
 		cell2.innerHTML =
-			"<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>";
+			"<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
 		cell2.innerHTML +=
-			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>";
+			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
 		cell2.innerHTML +=
-			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>";
+			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
 
 		applyDatepicker();
 	}
@@ -1510,11 +1518,11 @@
 											</td>\
 											<td>\
 												<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off">\
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
 												　<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off">\
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
 												　<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off">\
+													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
 											</td>\
 										</tr>\
 									</table>\

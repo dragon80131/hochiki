@@ -17,6 +17,7 @@ include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSKojiNittei.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once "./include/holiday_helpers.php";
 
 $myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
 if (!$myDB->Connection)
@@ -114,6 +115,7 @@ if ($work == 1) { #新規、修正
 	$SenyuEndDate1 = SPFWParameter::getValues("SenyuEndDate1");
 	$YoyakuEndDate 			= SPFWParameter::getValues("YoyakuEndDate");
 	$wHoliday 				= SPFWParameter::getValues("wHoliday"); // 配列
+	$wHolidayPeriod			= SPFWParameter::getValues("wHolidayPeriod"); // 配列
 	$wReserveDay 				= SPFWParameter::getValues("wReserveDay"); // 配列
 	$newBuilding 			= SPFWParameter::getValues("newBuilding"); // 配列
 	$newKosu 				= SPFWParameter::getValues("newKosu"); // 配列
@@ -201,14 +203,8 @@ if ($work == 1) { #新規、修正
 
 	$Holiday = array();
 	if ($wUseAppOnly != '1') {
-		if(is_array($wHoliday) && count($wHoliday) > 0){
-			for ($i = 0; $i < count($wHoliday); $i++) {
-				if ($wHoliday[$i]) {
-					$Holiday[] = $wHoliday[$i];
-				}
-			}
-		}
-		$myBukken->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+		$Holiday = combineHolidayInputs($wHoliday, $wHolidayPeriod);
+		$myBukken->Holiday1 = encodeHoliday1($Holiday);
 	}
 
 	$ReserveDay = array();
@@ -308,6 +304,7 @@ if ($work == 1) { #新規、修正
 				$editSenyuEndDate = SPFWParameter::getValues("editSenyuEndDate".$BuildingCD[$i]);
 				$editYoyakuEndDate = SPFWParameter::getValues("editYoyakuEndDate".$BuildingCD[$i]);
 				$editHoliday = SPFWParameter::getValues("editHoliday".$BuildingCD[$i]);
+				$editHolidayPeriod = SPFWParameter::getValues("editHolidayPeriod".$BuildingCD[$i]);
 				$editReserveDay = SPFWParameter::getValues("editReserveDay".$BuildingCD[$i]);
 				$editBuildingData = new Building($myDB);
 				if (!$editBuildingData->executeSelect("BuildingCD = " . $BuildingCD[$i] . " AND MukouFlg = FALSE", "") || $editBuildingData->RecCnt != 1) {
@@ -323,14 +320,8 @@ if ($work == 1) { #新規、修正
 
 				$Holiday = array();
 				if ($wUseAppOnly != '1') {
-					if(is_array($editHoliday) && count($editHoliday) > 0){
-						for ($k = 0; $k < count($editHoliday); $k++) {
-							if ($editHoliday[$k]) {
-								$Holiday[] = $editHoliday[$k];
-							}
-						}
-					}
-					$editBuildingData->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+					$Holiday = combineHolidayInputs($editHoliday, $editHolidayPeriod);
+					$editBuildingData->Holiday1 = encodeHoliday1($Holiday);
 				}
 
 				$ReserveDay = array();
@@ -385,16 +376,11 @@ if ($work == 1) { #新規、修正
 
 					$builingNo = $newBuilingNo[$i];
 					$wHoliday = SPFWParameter::getValues("newHoliday".$builingNo); // 配列
+					$wHolidayPeriod = SPFWParameter::getValues("newHolidayPeriod".$builingNo); // 配列
 					$Holiday = array();
 					if ($wUseAppOnly != '1') {
-						if(is_array($wHoliday) && count($wHoliday) > 0){
-							for ($k = 0; $k < count($wHoliday); $k++) {
-								if ($wHoliday[$k]) {
-									$Holiday[] = $wHoliday[$k];
-								}
-							}
-						}
-						$newBuildingData->Holiday1 = SPFWTools::encodePluralValue($Holiday); #パイプつなぎ
+						$Holiday = combineHolidayInputs($wHoliday, $wHolidayPeriod);
+						$newBuildingData->Holiday1 = encodeHoliday1($Holiday);
 					}
 
 					$wReserveDay = SPFWParameter::getValues("newReserveDay".$builingNo); // 配列

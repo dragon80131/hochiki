@@ -15,6 +15,7 @@ include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSKoji.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once "./include/common.php";
+include_once "./include/holiday_helpers.php";
 
 $myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
 if (!$myDB->Connection)
@@ -133,6 +134,12 @@ if ($wEditBukkenCD) {
 	$BuildingHoliday1 = [];
 	$BuildingHoliday2 = [];
 	$BuildingHoliday3 = [];
+	$BuildingHolidayPeriod1 = [];
+	$BuildingHolidayPeriod2 = [];
+	$BuildingHolidayPeriod3 = [];
+	$BuildingHolidayPeriodSelect1 = [];
+	$BuildingHolidayPeriodSelect2 = [];
+	$BuildingHolidayPeriodSelect3 = [];
 	$BuildingKyukoTable = [];
 	$BuildingHolidayStr = [];
 
@@ -166,26 +173,44 @@ if ($wEditBukkenCD) {
 			$BuildingHoliday1[$i] ="";
 			$BuildingHoliday2[$i] ="";
 			$BuildingHoliday3[$i] ="";
+			$BuildingHolidayPeriod1[$i] ="ALL";
+			$BuildingHolidayPeriod2[$i] ="ALL";
+			$BuildingHolidayPeriod3[$i] ="ALL";
 
 			if ($Holiday1Data) {
-				$Holiday = SPFWTools::decodePluralValue($Holiday1Data);
-				$BuildingHolidayStr[$i] = implode(', ', $Holiday);
-
-				for ($k = 1; $k <= count($Holiday); $k++) {
-					${"BuildingHoliday" . $k}[$i] = $Holiday[$k - 1];
+				$HolidayItems = parseHoliday1($Holiday1Data);
+				$BuildingHolidayStrParts = array();
+				foreach ($HolidayItems as $hi) {
+					$BuildingHolidayStrParts[] = formatHolidayDisplay($hi['token']);
 				}
-				$maxNo 	= count($Holiday);
+				$BuildingHolidayStr[$i] = implode(', ', $BuildingHolidayStrParts);
+
+				for ($k = 1; $k <= count($HolidayItems); $k++) {
+					${"BuildingHoliday" . $k}[$i] = $HolidayItems[$k - 1]['date'];
+					${"BuildingHolidayPeriod" . $k}[$i] = $HolidayItems[$k - 1]['period'];
+				}
+				$maxNo 	= count($HolidayItems);
 				$maxNo1 = ceil($maxNo / 3);
 				$maxNo 	= $maxNo1 * 3 + 1;
 				$j = 4;
+				$holidayDateName = "editHoliday".$BuildingCD[$i]."[]";
+				$holidayPeriodName = "editHolidayPeriod".$BuildingCD[$i]."[]";
+				$holidayDateClass = "wHoliday".$LastBuildingNo;
 				for ($k = 1; $k < $maxNo1; $k++) {
 					$BuildingKyukoTable[$i] .= "<tr><td><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></td>";
-					$BuildingKyukoTable[$i] .= "<td><input type='text' name='editHoliday".$BuildingCD[$i]."[]' value='".${"BuildingHoliday" . $j}[$i]."' class='wHoliday".$LastBuildingNo."' style='width:120px' >";
-					$BuildingKyukoTable[$i] .= "　<input type='text' name='editHoliday".$BuildingCD[$i]."[]' value='".${"BuildingHoliday" . ($j + 1)}[$i]."' class='wHoliday".$LastBuildingNo."' style='width:120px' >";
-					$BuildingKyukoTable[$i] .= "　<input type='text' name='editHoliday".$BuildingCD[$i]."[]' value='".${"BuildingHoliday" . ($j + 2)}[$i]."' class='wHoliday".$LastBuildingNo."' style='width:120px' ></td></tr>";
+					$BuildingKyukoTable[$i] .= "<td>";
+					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . $j}[$i], ${"BuildingHolidayPeriod" . $j}[$i], $holidayDateClass);
+					$BuildingKyukoTable[$i] .= "　";
+					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . ($j + 1)}[$i], ${"BuildingHolidayPeriod" . ($j + 1)}[$i], $holidayDateClass);
+					$BuildingKyukoTable[$i] .= "　";
+					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . ($j + 2)}[$i], ${"BuildingHolidayPeriod" . ($j + 2)}[$i], $holidayDateClass);
+					$BuildingKyukoTable[$i] .= "</td></tr>";
 					$j += 3;
 				}
 			}
+			$BuildingHolidayPeriodSelect1[$i] = holidayPeriodSelectHtml("editHolidayPeriod".$BuildingCD[$i]."[]", $BuildingHolidayPeriod1[$i]);
+			$BuildingHolidayPeriodSelect2[$i] = holidayPeriodSelectHtml("editHolidayPeriod".$BuildingCD[$i]."[]", $BuildingHolidayPeriod2[$i]);
+			$BuildingHolidayPeriodSelect3[$i] = holidayPeriodSelectHtml("editHolidayPeriod".$BuildingCD[$i]."[]", $BuildingHolidayPeriod3[$i]);
 
 			// 予備日
 			$BuildingReserveDay1[$i] ="";
@@ -228,6 +253,12 @@ if ($wEditBukkenCD) {
 			$BuildingHoliday1[$i] ="";
 			$BuildingHoliday2[$i] ="";
 			$BuildingHoliday3[$i] ="";
+			$BuildingHolidayPeriod1[$i] ="ALL";
+			$BuildingHolidayPeriod2[$i] ="ALL";
+			$BuildingHolidayPeriod3[$i] ="ALL";
+			$BuildingHolidayPeriodSelect1[$i] = holidayPeriodSelectHtml("newHolidayPeriod".$LastBuildingNo."[]", "ALL");
+			$BuildingHolidayPeriodSelect2[$i] = holidayPeriodSelectHtml("newHolidayPeriod".$LastBuildingNo."[]", "ALL");
+			$BuildingHolidayPeriodSelect3[$i] = holidayPeriodSelectHtml("newHolidayPeriod".$LastBuildingNo."[]", "ALL");
 
 			if ($Holiday1Data) {
 				$Holiday = SPFWTools::decodePluralValue($Holiday1Data);
@@ -382,29 +413,34 @@ if ($wEditBukkenCD) {
 		}
 
 		// 休工日
+		$wHolidayPeriod1 = "ALL";
+		$wHolidayPeriod2 = "ALL";
+		$wHolidayPeriod3 = "ALL";
 		if ($myBukken->Holiday1) {
-			$Holiday = SPFWTools::decodePluralValue($myBukken->Holiday1);
-			for ($i = 1; $i <= count($Holiday); $i++) {
-				${"wHoliday" . $i} = $Holiday[$i - 1];
+			$HolidayItems = parseHoliday1($myBukken->Holiday1);
+			for ($i = 1; $i <= count($HolidayItems); $i++) {
+				${"wHoliday" . $i} = $HolidayItems[$i - 1]['date'];
+				${"wHolidayPeriod" . $i} = $HolidayItems[$i - 1]['period'];
 			}
-			$maxNo 	= count($Holiday);
+			$maxNo 	= count($HolidayItems);
 			$maxNo1 = ceil($maxNo / 3);
 			$maxNo 	= $maxNo1 * 3 + 1;
 			$j = 4;
 			for ($i = 1; $i < $maxNo1; $i++) {
 				$KyukoTable .= "<tr><td><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></td>";
-				$KyukoTable .= "<td><input type='text' name='wHoliday[]' value='__wHoliday" . $j . "__' class='wHoliday' style='width:120px' >";
-				$KyukoTable .= "　<input type='text' name='wHoliday[]' value='__wHoliday" . ($j + 1) . "__' class='wHoliday' style='width:120px' >";
-				$KyukoTable .= "　<input type='text' name='wHoliday[]' value='__wHoliday" . ($j + 2) . "__' class='wHoliday' style='width:120px' ></td></tr>";
+				$KyukoTable .= "<td>";
+				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . $j}, ${"wHolidayPeriod" . $j}, 'wHoliday');
+				$KyukoTable .= "　";
+				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 1)}, ${"wHolidayPeriod" . ($j + 1)}, 'wHoliday');
+				$KyukoTable .= "　";
+				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 2)}, ${"wHolidayPeriod" . ($j + 2)}, 'wHoliday');
+				$KyukoTable .= "</td></tr>";
 				$j += 3;
 			}
-
-			// $IfMainBuilding = false;
-			// if($BuildingLoop > 0 || $myBukken->BuildingName){
-			// 	$IfMainBuilding = true;
-			// }
-
 		}
+		$wHolidayPeriodSelect1 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod1);
+		$wHolidayPeriodSelect2 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod2);
+		$wHolidayPeriodSelect3 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod3);
 
 		if ($myBukken->ReserveDay) {
 			$ReserveDay = SPFWTools::decodePluralValue($myBukken->ReserveDay);
@@ -465,8 +501,12 @@ if ($wEditBukkenCD) {
 		if($SenyuStartDate1 != '' || $SenyuEndDate1 != ''){
 			$wkSenyuDate1 = $SenyuStartDate1 . ' ～ ' . $SenyuEndDate1;
 		}
-		$wkHoliday1 = SPFWTools::decodePluralValue($myBukken->Holiday1);
-		$wkHoliday1 = implode(', ', $wkHoliday1);
+		$wkHoliday1Items = parseHoliday1($myBukken->Holiday1);
+		$wkHoliday1Parts = array();
+		foreach ($wkHoliday1Items as $hi) {
+			$wkHoliday1Parts[] = formatHolidayDisplay($hi['token']);
+		}
+		$wkHoliday1 = implode(', ', $wkHoliday1Parts);
 
 		$wkReserveDay1 = SPFWTools::decodePluralValue($myBukken->ReserveDay);
 		$wkReserveDay1 = implode(', ', $wkReserveDay1);

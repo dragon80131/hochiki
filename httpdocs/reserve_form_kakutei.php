@@ -25,6 +25,7 @@ include_once _CLS_DIR . "SPUSBukken.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once "./include/common_489.php";
 include_once "./include/building_period_helpers.php";
+include_once "./include/holiday_helpers.php";
 
 
 $wLang = SPFWParameter::getValues('wLang');
@@ -180,9 +181,14 @@ $YoyakuEndDate = $resolvedPeriod['YoyakuEndDate'];
 
 $wHoliday = SPFWTools::decodePluralValue($Holiday);
 sort($wHoliday);
+$HolidayItems = parseHoliday1($Holiday);
 $arrHoliday = [];
-foreach($wHoliday as $aHoliday){
-	array_push($arrHoliday, date('Y-m-d', strtotime($aHoliday)));
+$arrFullDayHoliday = [];
+foreach($HolidayItems as $aHolidayItem){
+	array_push($arrHoliday, $aHolidayItem['date']);
+	if ($aHolidayItem['period'] === 'ALL') {
+		array_push($arrFullDayHoliday, $aHolidayItem['date']);
+	}
 }
 
 $wReserveDay = SPFWTools::decodePluralValue($ReserveDay);
@@ -878,7 +884,7 @@ for ($i = 0; $i < $WeekLoop; $i++) {
 				|| $Holiday[$j] == 't'
 				|| strtotime($TempDate2) > strtotime($SenyuEndDate)
 				|| strtotime($TempDate2) < strtotime($SenyuStartDate)
-				|| in_array($TempDate2, $arrHoliday)) ? FALSE : TRUE;
+				|| in_array($TempDate2, $arrFullDayHoliday)) ? FALSE : TRUE;
 			
 			// 予備日
 			if(in_array($TempDate2, $beforeReserveDay) || in_array($TempDate2, $afterReserveDay)){
@@ -915,7 +921,12 @@ for ($i = 0; $i < $WeekLoop; $i++) {
 					}
 				}
 
-				$WakuZanSuu = getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $TempDate2, $WakuSuu, $STimeList, $ETimeList, $WakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $WakuPattern, $UserCDmantan, $ExcludePattern, $wFrameOverflow);
+				$dayWakuRange = applyHolidayToWakuRange(
+					$WakuRange,
+					$WAKUPATTERN[$WakuPattern]['AMPM'],
+					getHolidayPeriodsForDate($HolidayItems, $TempDate2)
+				);
+				$WakuZanSuu = getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $TempDate2, $WakuSuu, $STimeList, $ETimeList, $dayWakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $WakuPattern, $UserCDmantan, $ExcludePattern, $wFrameOverflow);
 				if ($WakuZanSuu <= 0) {
 					$DayColor[$j] = "#ffffe0";
 					$Jokyo[$j] = "×";
@@ -935,7 +946,7 @@ for ($i = 0; $i < $WeekLoop; $i++) {
 					}
 				}
 				###20110828 予約日色付けEND
-			} else if (in_array($TempDate2, $arrHoliday)) {
+			} else if (in_array($TempDate2, $arrFullDayHoliday)) {
 				$Jokyo[$j] = "休";
 				$IfOK1[$j] = false;
 			} else if ($TempDate < $SenyuEndDate || $TempDate > $SenyuStartDate) {
@@ -1111,20 +1122,36 @@ if ($wDay) {
 
 	###空き確認関数
 	$ExcludePattern = 0;
-	$AkiTime = getAkiWakuTime($myDB, $TargetClientCD, $editBukkenCD, $editBuildingCD,$TargetDate, $WakuSuu, $STimeList, $ETimeList, $WakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $WakuPattern, $UserCDmantan, $ExcludePattern, $wFrameOverflow);
+	$dayWakuRange = applyHolidayToWakuRange(
+		$WakuRange,
+		$WAKUPATTERN[$WakuPattern]['AMPM'],
+		getHolidayPeriodsForDate($HolidayItems, $TargetDate)
+	);
+	$AkiTime = getAkiWakuTime($myDB, $TargetClientCD, $editBukkenCD, $editBuildingCD,$TargetDate, $WakuSuu, $STimeList, $ETimeList, $dayWakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $WakuPattern, $UserCDmantan, $ExcludePattern, $wFrameOverflow);
 
+	$wOKTimeName = array();
+	$OKTimes = array();
+	$OKTimeSelected = array();
 	for ($i = 0; $i < count($AkiTime); $i++) {
+		$slotNameForTime = '';
 		for ($x = 0; $x < $WakuSuu; $x++) {
 			#echo "<br>932行目AkiTime[$i]:". $AkiTime[$i]."---".$ETimeList[$x];
-			if ($AkiTime[$i] == $STimeList[$x]) $AkiEndTime = $ETimeList[$x];
+			if ($AkiTime[$i] == $STimeList[$x]) {
+				$AkiEndTime = $ETimeList[$x];
+				$slotNameForTime = $WAKUPATTERN[$WakuPattern]['AMPM'][$x];
+			}
+		}
+		if ($slotNameForTime !== '' && isSlotHoliday($HolidayItems, $TargetDate, $slotNameForTime)) {
+			continue;
 		}
 
-		$wOKTimeName[$i] = $AkiTime[$i] . "～" . $AkiEndTime;
-		$OKTimes[$i] = $AkiTime[$i];
+		$wOKTimeName[] = $AkiTime[$i] . "～" . $AkiEndTime;
+		$OKTimes[] = $AkiTime[$i];
+		$idx = count($OKTimes) - 1;
 		if(isset($WakuTime['STime']) && $WakuTime['STime'] == $AkiTime[$i] && (date("Y-m-d", strtotime($wTimeFrom)) == date("Y-m-d", strtotime($TargetDate))))
-			$OKTimeSelected[$i] = "selected";
+			$OKTimeSelected[$idx] = "selected";
 		else
-			$OKTimeSelected[$i] = "";
+			$OKTimeSelected[$idx] = "";
 	}
 	if (is_array($wOKTimeName)) {
 		if($FirstDateFeature == 1){
