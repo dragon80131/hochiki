@@ -1151,6 +1151,7 @@ if($editBuildingCD){
 
 
 #いつでも新規登録
+$KojiDate = array('RoomID' => array(), 'RoomDate' => array());
 
 for ($i = 0; $i < count($wSenyuDate); $i++) {
 	#	echo "<br>日付:".date('Y-m-d',strtotime( $wSenyuDate[$i]));
