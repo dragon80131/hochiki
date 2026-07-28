@@ -41,6 +41,39 @@
 		$(function () {
 			var wakupattern = JSON.parse('__wakupattern_json__');
 
+			function formatDateYmd(date) {
+				var y = date.getFullYear();
+				var m = ('0' + (date.getMonth() + 1)).slice(-2);
+				var d = ('0' + date.getDate()).slice(-2);
+				return y + '-' + m + '-' + d;
+			}
+
+			// 階カレンダーは全日休工のみ選択不可（午前/午後は日付選択可）
+			function isFullDayHolidayForFloorPicker(date) {
+				var holidays = document.getElementsByName('wHoliday[]');
+				var periods = document.getElementsByName('wHolidayPeriod[]');
+				var ymd = formatDateYmd(date);
+				for (var i = 0; i < holidays.length; i++) {
+					var hv = (holidays[i].value || '').trim();
+					if (!hv) {
+						continue;
+					}
+					var parts = hv.split(':');
+					var holidayDate = parts[0];
+					var period = (parts[1] || '').toUpperCase();
+					if (!period && periods[i]) {
+						period = (periods[i].value || 'ALL').toUpperCase();
+					}
+					if (!period) {
+						period = 'ALL';
+					}
+					if (holidayDate === ymd && period === 'ALL') {
+						return true;
+					}
+				}
+				return false;
+			}
+
 			$(".datepicker").datepicker({
 				numberOfMonths: 2,
 			});
@@ -84,7 +117,7 @@
 						}
 					});
 				}			
-			});
+			});	
 
 			$(".wReserveDay").datepicker({
 				numberOfMonths: 1,
@@ -144,13 +177,9 @@
 				closeText: '閉じる',
 				currentText: '今日',
 				beforeShowDay: function(date) {
-					let objHolidays = document.getElementsByName('wHoliday[]');
-					for (let objHoliday of objHolidays) {
-						let holiday = new Date(objHoliday.value);
-						if (date.toDateString() === holiday.toDateString()) {
-							return [false, "", "利用不可"];
-						}
-					}					
+					if (isFullDayHolidayForFloorPicker(date)) {
+						return [false, "", "利用不可"];
+					}
 					return [true, ""];
 				},
 				beforeShow: function(input, inst) {

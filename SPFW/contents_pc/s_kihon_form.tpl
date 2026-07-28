@@ -38,6 +38,48 @@
 			margin-right: 0;
 			margin-top: 3px;
 		}
+		/* 休工日: default行と追加行を同じボックスモデルで揃える */
+		table[id^="kyukobi_table"] {
+			table-layout: fixed;
+			width: 100%;
+		}
+		table[id^="kyukobi_table"] col.kyukobi-action-col {
+			width: 90px;
+		}
+		table[id^="kyukobi_table"] td:first-child {
+			width: 90px;
+			vertical-align: middle;
+		}
+		table[id^="kyukobi_table"] td:first-child .kyukobi-action {
+			display: inline-flex;
+			align-items: center;
+			min-width: 86px;
+		}
+		table[id^="kyukobi_table"] td:nth-child(2) {
+			vertical-align: middle;
+		}
+		.holiday-field-group {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			vertical-align: middle;
+			margin-right: 8px;
+			box-sizing: border-box;
+		}
+		.holiday-field-group input[type="text"] {
+			width: 120px;
+			margin: 0;
+			vertical-align: middle;
+		}
+		.holiday-field-group .holiday-period {
+			width: 70px;
+			margin: 0 !important;
+			vertical-align: middle;
+		}
+		.holiday-field-group img.ui-datepicker-trigger {
+			margin: 0;
+			vertical-align: middle;
+		}
 		.remove-building-btn{
 			margin-top: 3px;
 			margin-left: 5px;
@@ -352,18 +394,14 @@
 							<th class="yb">休工日</th>
 							<td>
 								<table class="table table-bordered table-sm" id="kyukobi_table">
+									<colgroup>
+										<col class="kyukobi-action-col">
+										<col>
+									</colgroup>
 									<tr>
+										<td><span class="kyukobi-action"><input type="button" value="＋1行追加" style="background-color: transparent" onclick="addHoliday('kyukobi_table', 'wHoliday[]', '');" /></span></td>
 										<td>
-											<input type="button" value="＋1行追加" style="background-color: transparent"
-												onclick="addHoliday('kyukobi_table', 'wHoliday[]', '');" />
-										</td>
-										<td>
-											<input type="text" name="wHoliday[]" value="__wHoliday1__" class="wHoliday"
-												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect1__
-											　<input type="text" name="wHoliday[]" value="__wHoliday2__" class="wHoliday"
-												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect2__
-											　<input type="text" name="wHoliday[]" value="__wHoliday3__" class="wHoliday"
-												style="width: 120px" autocomplete="off">__wHolidayPeriodSelect3__
+											<span class="holiday-field-group"><input type="text" name="wHoliday[]" value="__wHoliday1__" class="wHoliday" style="width:120px" autocomplete="off"><select name="wHolidayPeriod[]" class="holiday-period"><option value="ALL" __wHolidayPeriodSelectedALL1__>全日</option><option value="AM" __wHolidayPeriodSelectedAM1__>午前</option><option value="PM" __wHolidayPeriodSelectedPM1__>午後</option></select></span><span class="holiday-field-group"><input type="text" name="wHoliday[]" value="__wHoliday2__" class="wHoliday" style="width:120px" autocomplete="off"><select name="wHolidayPeriod[]" class="holiday-period"><option value="ALL" __wHolidayPeriodSelectedALL2__>全日</option><option value="AM" __wHolidayPeriodSelectedAM2__>午前</option><option value="PM" __wHolidayPeriodSelectedPM2__>午後</option></select></span><span class="holiday-field-group"><input type="text" name="wHoliday[]" value="__wHoliday3__" class="wHoliday" style="width:120px" autocomplete="off"><select name="wHolidayPeriod[]" class="holiday-period"><option value="ALL" __wHolidayPeriodSelectedALL3__>全日</option><option value="AM" __wHolidayPeriodSelectedAM3__>午前</option><option value="PM" __wHolidayPeriodSelectedPM3__>午後</option></select></span>
 										</td>
 									</tr>
 									__KyukoTable__
@@ -442,18 +480,14 @@
 								<th class="yb">休工日</th>
 								<td>
 									<table class="table table-bordered table-sm" id="kyukobi_table__BuildingCD__">
+										<colgroup>
+											<col class="kyukobi-action-col">
+											<col>
+										</colgroup>
 										<tr>
+											<td><span class="kyukobi-action"><input type="button" value="＋1行追加" style="background-color: transparent" onclick="addHoliday('kyukobi_table__BuildingCD__', 'editHoliday__BuildingCD__[]', '__BuildingNo__');" /></span></td>
 											<td>
-												<input type="button" value="＋1行追加" style="background-color: transparent"
-													onclick="addHoliday('kyukobi_table__BuildingCD__', 'editHoliday__BuildingCD__[]', '__BuildingNo__');" />
-											</td>
-											<td>
-												<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect1__
-												　<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect2__
-												　<input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off">__BuildingHolidayPeriodSelect3__
+												<span class="holiday-field-group"><input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off">__BuildingHolidayPeriodSelect1__</span><span class="holiday-field-group"><input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off">__BuildingHolidayPeriodSelect2__</span><span class="holiday-field-group"><input type="text" name="editHoliday__BuildingCD__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off">__BuildingHolidayPeriodSelect3__</span>
 											</td>
 										</tr>
 										__BuildingKyukoTable__
@@ -536,18 +570,14 @@
 								<th class="yb">休工日</th>
 								<td>
 									<table class="table table-bordered table-sm" id="kyukobi_table_new__BuildingNo__">
+										<colgroup>
+											<col class="kyukobi-action-col">
+											<col>
+										</colgroup>
 										<tr>
+											<td><span class="kyukobi-action"><input type="button" value="＋1行追加" style="background-color: transparent" onclick="addHoliday('kyukobi_table_new__BuildingNo__', 'newHoliday__BuildingNo__[]', '__BuildingNo__');" /></span></td>
 											<td>
-												<input type="button" value="＋1行追加" style="background-color: transparent"
-													onclick="addHoliday('kyukobi_table_new__BuildingNo__', 'newHoliday__BuildingNo__[]', '__BuildingNo__');" />
-											</td>
-											<td>
-												<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
-												　<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
-												　<input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__"
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>
+												<span class="holiday-field-group"><input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday1__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span><span class="holiday-field-group"><input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday2__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span><span class="holiday-field-group"><input type="text" name="newHoliday__BuildingNo__[]" value="__BuildingHoliday3__" class="wHoliday__BuildingNo__" style="width:120px" autocomplete="off"><select name="newHolidayPeriod__BuildingNo__[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span>
 											</td>
 										</tr>
 										__BuildingKyukoTable__
@@ -1397,29 +1427,24 @@
 
 
 	function holidayPeriodSelectHtmlJs(name){
-		return "<select name='"+name+"' class='holiday-period' style='width:70px;margin-left:2px;'>"
-			+"<option value='ALL' selected>全日</option>"
-			+"<option value='AM'>午前</option>"
-			+"<option value='PM'>午後</option></select>";
+		return "<select name='"+name+"' class='holiday-period'><option value='ALL' selected>全日</option><option value='AM'>午前</option><option value='PM'>午後</option></select>";
+	}
+
+	function holidayFieldGroupHtml(objName, aBuildingNo, periodName){
+		return "<span class='holiday-field-group'><input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName)+"</span>";
 	}
 
 	function addHoliday(tableId, objName, aBuildingNo){
 		var table = document.getElementById(tableId);
-		// 行を行末に追加
 		var row = table.insertRow(-1);
-		// セルの挿入
 		var cell1 = row.insertCell(-1);
 		var cell2 = row.insertCell(-1);
 		var periodName = objName.replace('Holiday', 'HolidayPeriod');
 
-		cell1.innerHTML =
-			"<a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a>";
-		cell2.innerHTML =
-			"<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
-		cell2.innerHTML +=
-			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
-		cell2.innerHTML +=
-			"　<input type='text' name='"+objName+"' value='' class='wHoliday"+aBuildingNo+"' style='width:120px' autocomplete='off'>"+holidayPeriodSelectHtmlJs(periodName);
+		cell1.innerHTML = "<span class='kyukobi-action'><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></span>";
+		cell2.innerHTML = holidayFieldGroupHtml(objName, aBuildingNo, periodName)
+			+ holidayFieldGroupHtml(objName, aBuildingNo, periodName)
+			+ holidayFieldGroupHtml(objName, aBuildingNo, periodName);
 
 		applyDatepicker();
 	}
@@ -1512,17 +1537,11 @@
 								<th class="yb">休工日</th>\
 								<td>\
 									<table class="table table-bordered table-sm" id="kyukobi_table_new_'+LastBuildingNo+'">\
+										<colgroup><col class="kyukobi-action-col"><col></colgroup>\
 										<tr>\
+											<td><span class="kyukobi-action"><input type="button" value="＋1行追加" style="background-color: transparent" onclick="addHoliday(\''+'kyukobi_table_new_'+LastBuildingNo+'\', \'newHoliday'+LastBuildingNo+'[]\', \''+LastBuildingNo+'\');" /></span></td>\
 											<td>\
-												<input type="button" value="＋1行追加" style="background-color: transparent" onclick="addHoliday(\''+'kyukobi_table_new_'+LastBuildingNo+'\', \'newHoliday'+LastBuildingNo+'[]\', \''+LastBuildingNo+'\');" />\
-											</td>\
-											<td>\
-												<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
-												　<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
-												　<input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'"\
-													style="width: 120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period" style="width:70px;margin-left:2px;"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select>\
+												<span class="holiday-field-group"><input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'" style="width:120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span><span class="holiday-field-group"><input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'" style="width:120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span><span class="holiday-field-group"><input type="text" name="newHoliday'+LastBuildingNo+'[]" value="" class="wHoliday'+LastBuildingNo+'" style="width:120px" autocomplete="off"><select name="newHolidayPeriod'+LastBuildingNo+'[]" class="holiday-period"><option value="ALL" selected>全日</option><option value="AM">午前</option><option value="PM">午後</option></select></span>\
 											</td>\
 										</tr>\
 									</table>\

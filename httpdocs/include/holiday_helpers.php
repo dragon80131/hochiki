@@ -296,7 +296,7 @@ function holidayPeriodSelectHtml($name, $selected = 'ALL', $extraClass = '')
 		$selected = 'ALL';
 	}
 	$classAttr = trim('holiday-period ' . $extraClass);
-	$html = "<select name=\"" . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "\" class=\"" . htmlspecialchars($classAttr, ENT_QUOTES, 'UTF-8') . "\" style=\"width:70px;margin-left:2px;\">";
+	$html = "<select name=\"" . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "\" class=\"" . htmlspecialchars($classAttr, ENT_QUOTES, 'UTF-8') . "\">";
 	foreach (array('ALL' => '全日', 'AM' => '午前', 'PM' => '午後') as $value => $label) {
 		$sel = ($selected === $value) ? " selected" : "";
 		$html .= "<option value=\"{$value}\"{$sel}>{$label}</option>";
@@ -320,8 +320,9 @@ function holidayDatePeriodInputHtml($dateName, $periodName, $dateValue = '', $pe
 	$dateValue = htmlspecialchars((string)$dateValue, ENT_QUOTES, 'UTF-8');
 	$dateName = htmlspecialchars($dateName, ENT_QUOTES, 'UTF-8');
 	$dateClass = htmlspecialchars($dateClass, ENT_QUOTES, 'UTF-8');
-	$html = "<input type=\"text\" name=\"{$dateName}\" value=\"{$dateValue}\" class=\"{$dateClass}\" style=\"width:120px\" autocomplete=\"off\">";
+	$html = "<span class=\"holiday-field-group\"><input type=\"text\" name=\"{$dateName}\" value=\"{$dateValue}\" class=\"{$dateClass}\" style=\"width:120px\" autocomplete=\"off\">";
 	$html .= holidayPeriodSelectHtml($periodName, $periodValue);
+	$html .= "</span>";
 	return $html;
 }
 

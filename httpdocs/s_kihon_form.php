@@ -197,12 +197,10 @@ if ($wEditBukkenCD) {
 				$holidayPeriodName = "editHolidayPeriod".$BuildingCD[$i]."[]";
 				$holidayDateClass = "wHoliday".$LastBuildingNo;
 				for ($k = 1; $k < $maxNo1; $k++) {
-					$BuildingKyukoTable[$i] .= "<tr><td><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></td>";
+					$BuildingKyukoTable[$i] .= "<tr><td><span class='kyukobi-action'><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></span></td>";
 					$BuildingKyukoTable[$i] .= "<td>";
 					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . $j}[$i], ${"BuildingHolidayPeriod" . $j}[$i], $holidayDateClass);
-					$BuildingKyukoTable[$i] .= "　";
 					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . ($j + 1)}[$i], ${"BuildingHolidayPeriod" . ($j + 1)}[$i], $holidayDateClass);
-					$BuildingKyukoTable[$i] .= "　";
 					$BuildingKyukoTable[$i] .= holidayDatePeriodInputHtml($holidayDateName, $holidayPeriodName, ${"BuildingHoliday" . ($j + 2)}[$i], ${"BuildingHolidayPeriod" . ($j + 2)}[$i], $holidayDateClass);
 					$BuildingKyukoTable[$i] .= "</td></tr>";
 					$j += 3;
@@ -331,6 +329,19 @@ $wReserveDay3 ="";
 $KyukoTable = "";
 $ReserveDayTable = "";
 
+// 新規登録でも棟1デフォルト休工3枠に全日/午前/午後を表示
+$wHolidayPeriod1 = "ALL";
+$wHolidayPeriod2 = "ALL";
+$wHolidayPeriod3 = "ALL";
+$wHolidayPeriodSelect1 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod1);
+$wHolidayPeriodSelect2 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod2);
+$wHolidayPeriodSelect3 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod3);
+for ($hp = 1; $hp <= 3; $hp++) {
+	${"wHolidayPeriodSelectedALL" . $hp} = "selected";
+	${"wHolidayPeriodSelectedAM" . $hp} = "";
+	${"wHolidayPeriodSelectedPM" . $hp} = "";
+}
+
 if ($wEditBukkenCD) {
 	$myBukken = new Bukken($myDB);
 
@@ -427,12 +438,10 @@ if ($wEditBukkenCD) {
 			$maxNo 	= $maxNo1 * 3 + 1;
 			$j = 4;
 			for ($i = 1; $i < $maxNo1; $i++) {
-				$KyukoTable .= "<tr><td><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></td>";
+				$KyukoTable .= "<tr><td><span class='kyukobi-action'><a href='javascript:void(0)' class='remove-btn' onclick='removeList(this)'><img src='images/icon_delete.png'></a></span></td>";
 				$KyukoTable .= "<td>";
 				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . $j}, ${"wHolidayPeriod" . $j}, 'wHoliday');
-				$KyukoTable .= "　";
 				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 1)}, ${"wHolidayPeriod" . ($j + 1)}, 'wHoliday');
-				$KyukoTable .= "　";
 				$KyukoTable .= holidayDatePeriodInputHtml('wHoliday[]', 'wHolidayPeriod[]', ${"wHoliday" . ($j + 2)}, ${"wHolidayPeriod" . ($j + 2)}, 'wHoliday');
 				$KyukoTable .= "</td></tr>";
 				$j += 3;
@@ -441,6 +450,12 @@ if ($wEditBukkenCD) {
 		$wHolidayPeriodSelect1 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod1);
 		$wHolidayPeriodSelect2 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod2);
 		$wHolidayPeriodSelect3 = holidayPeriodSelectHtml('wHolidayPeriod[]', $wHolidayPeriod3);
+		for ($hp = 1; $hp <= 3; $hp++) {
+			$period = ${"wHolidayPeriod" . $hp};
+			${"wHolidayPeriodSelectedALL" . $hp} = ($period === "ALL") ? "selected" : "";
+			${"wHolidayPeriodSelectedAM" . $hp} = ($period === "AM") ? "selected" : "";
+			${"wHolidayPeriodSelectedPM" . $hp} = ($period === "PM") ? "selected" : "";
+		}
 
 		if ($myBukken->ReserveDay) {
 			$ReserveDay = SPFWTools::decodePluralValue($myBukken->ReserveDay);
