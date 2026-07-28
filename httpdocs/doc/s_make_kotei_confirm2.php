@@ -629,7 +629,9 @@ if($wArrangeType == '1'){
 			$x = 0;
 			for ($k = 0; $k < ${'wWaku' . $WakuName . 'ColSum'}; $k++) {
 				if (!$KojiHoliday[$i]) { //休工日以外
-					if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
+					if (isSlotHoliday($wHolidayItems, $SenyuDate, $WakuName)) { //半日休工（午前/午後）の枠は空きにせず休工にする
+						${'Waku' . $WakuName . 'Room'}[] = "休工";
+					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
 							${'Waku' . $WakuName . 'Room'}[] = "枠越";
 							$Overflows ++;

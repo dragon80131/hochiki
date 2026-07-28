@@ -514,6 +514,53 @@ function numberToCircled($number) {
 		}
 	}
 
+	########################################################
+	# 半日休工（午前/午後）の枠を「休工」に補正する
+	# 工程表案が古い（休工日の登録前に作成・一時保存された）場合、休工の枠が
+	# 「空き」「枠越」のまま残り、編集画面で日程を割り当てられてしまうため。
+	# セルの並び順は下の「詳細工程表イメージ作成」と同一。全日休工日はセルを消費しない。
+	########################################################
+	$HolidayWakuNames = isset($WAKUPATTERN[$wWakuPattern]['AMPM']) ? $WAKUPATTERN[$wWakuPattern]['AMPM'] : array('AM', 'PM');
+	$HolidayBlankLabels = array('空き', '枠越', '休工', '');
+	$HolidayWakuCols = array($wWakuAMcol, $wWakuPM1col);
+	if($wWakuPattern > 2)
+		$HolidayWakuCols[] = $wWakuPM2col;
+
+	$HolidayFixDates = array();
+	foreach($beforeReserveDay as $aReserveDay){
+		$HolidayFixDates[] = date('Y-m-d', strtotime($aReserveDay));
+	}
+	$HolidayFixDate = new DateTime($SenyuStartDate);
+	for($i=0; $i<$SenyuDateCnt; $i++){
+		$HolidayFixDates[] = $HolidayFixDate->format('Y-m-d');
+		$HolidayFixDate->modify('+1 days');
+	}
+	foreach($afterReserveDay as $aReserveDay){
+		$HolidayFixDates[] = date('Y-m-d', strtotime($aReserveDay));
+	}
+
+	$HolidayFixIndex = 0;
+	foreach($HolidayFixDates as $aHolidayFixDate){
+		if(isFullDayHoliday($Holiday, $aHolidayFixDate))
+			continue;#全日休工日は1行だけ表示するのでセルを持たない
+
+		for($j=0; $j<$rowCountforDay; $j++){
+			foreach($HolidayWakuCols as $aWakuIdx => $aWakuCols){
+				$aWakuName = isset($HolidayWakuNames[$aWakuIdx]) ? $HolidayWakuNames[$aWakuIdx] : '';
+				$IsHolidayWaku = ($aWakuName !== '' && isSlotHoliday($Holiday, $aHolidayFixDate, $aWakuName));
+				for($k=0; $k<$aWakuCols; $k++){
+					if($IsHolidayWaku){
+						$aCurLabel = isset($wKoteihyouEX[$HolidayFixIndex]) ? $wKoteihyouEX[$HolidayFixIndex] : '';
+						#部屋番号が入っている枠は消さずに残す（工程表案の作り直しで対応してもらう）
+						if(in_array($aCurLabel, $HolidayBlankLabels, true))
+							$wKoteihyouEX[$HolidayFixIndex] = '休工';
+					}
+					$HolidayFixIndex ++;
+				}
+			}
+		}
+	}
+
 	$i = 0;
 	$disWakuName = 'AM';
 	$WakuPatternNames = $WAKUPATTERN[$wWakuPattern]['Name'];
