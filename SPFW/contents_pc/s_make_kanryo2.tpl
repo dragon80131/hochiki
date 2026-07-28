@@ -38,41 +38,123 @@
 		var wakupatterns = JSON.parse('__wakupattern_json__');
 		var Kaidaka = '__wKaidaka__';
 
-		$(function () {
-			var wakupattern = JSON.parse('__wakupattern_json__');
+		function formatDateYmd(date) {
+			var y = date.getFullYear();
+			var m = ('0' + (date.getMonth() + 1)).slice(-2);
+			var d = ('0' + date.getDate()).slice(-2);
+			return y + '-' + m + '-' + d;
+		}
 
-			function formatDateYmd(date) {
-				var y = date.getFullYear();
-				var m = ('0' + (date.getMonth() + 1)).slice(-2);
-				var d = ('0' + date.getDate()).slice(-2);
-				return y + '-' + m + '-' + d;
+		// 指定日に登録されている休工区分（ALL/AM/PM）の一覧を返す。
+		// wHoliday[] と wHolidayPeriod[] はインデックス対応の並行配列。
+		function getHolidayPeriodsForDateJs(ymd) {
+			var holidays = document.getElementsByName('wHoliday[]');
+			var periods = document.getElementsByName('wHolidayPeriod[]');
+			var result = [];
+			if (!ymd) {
+				return result;
+			}
+			for (var i = 0; i < holidays.length; i++) {
+				var hv = (holidays[i].value || '').trim();
+				if (!hv) {
+					continue;
+				}
+				var parts = hv.split(':');
+				var holidayDate = parts[0];
+				var period = (parts[1] || '').toUpperCase();
+				if (!period && periods[i]) {
+					period = (periods[i].value || 'ALL').toUpperCase();
+				}
+				if (!period) {
+					period = 'ALL';
+				}
+				if (holidayDate === ymd) {
+					result.push(period);
+				}
+			}
+			return result;
+		}
+
+		// holiday_helpers.php の slotMatchesHolidayPeriods() と同一判定（前方一致）
+		function slotMatchesHolidayPeriodsJs(slotName, periods) {
+			slotName = (slotName || '').toString().toUpperCase().replace(/^\s+|\s+$/g, '');
+			for (var i = 0; i < periods.length; i++) {
+				var period = periods[i];
+				if (period === 'ALL') {
+					return true;
+				}
+				if (period === 'AM' && slotName.indexOf('AM') === 0) {
+					return true;
+				}
+				if (period === 'PM' && slotName.indexOf('PM') === 0) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// 階カレンダーは全日休工のみ選択不可（午前/午後は日付選択可）
+		function isFullDayHolidayForFloorPicker(date) {
+			return getHolidayPeriodsForDateJs(formatDateYmd(date)).indexOf('ALL') !== -1;
+		}
+
+		// 各階の日付と休工日を突き合わせ、衝突する時間枠の option を取り除く。
+		// 結合キーは階番号（name="wFloorDay_{階}" / "wFloorWaku_{階}"）のみ。
+		// 休工日が外れたら元に戻せるよう、初回に全枠の一覧をキャッシュしておく。
+		function refreshFloorWakuOptions(showAlert) {
+			// 詳細工程表は階指定（wArrangeType=1）のときのみ使用する
+			if ($('input[name="wArrangeType"]:checked').val() != '1') {
+				return;
 			}
 
-			// 階カレンダーは全日休工のみ選択不可（午前/午後は日付選択可）
-			function isFullDayHolidayForFloorPicker(date) {
-				var holidays = document.getElementsByName('wHoliday[]');
-				var periods = document.getElementsByName('wHolidayPeriod[]');
-				var ymd = formatDateYmd(date);
-				for (var i = 0; i < holidays.length; i++) {
-					var hv = (holidays[i].value || '').trim();
-					if (!hv) {
+			var cleared = [];
+			$('select.sFloorWakuSelect').each(function () {
+				var $select = $(this);
+				var floor = ($select.attr('name') || '').replace('wFloorWaku_', '');
+				var floorDay = ($('[name="wFloorDay_' + floor + '"]').val() || '').replace(/^\s+|\s+$/g, '');
+				var periods = getHolidayPeriodsForDateJs(floorDay);
+				var current = $select.val();
+
+				if ($select.data('wakuSlotsCache') === undefined) {
+					var allSlots = [];
+					$select.find('option').each(function () {
+						allSlots.push($(this).attr('value') || '');
+					});
+					$select.data('wakuSlotsCache', allSlots);
+				}
+
+				var slots = $select.data('wakuSlotsCache');
+				var optionsHtml = '';
+				var currentStillValid = false;
+				for (var i = 0; i < slots.length; i++) {
+					var slotName = slots[i];
+					if (slotName === '') {
+						optionsHtml += '<option value=""></option>'; //空欄は常に選択可
 						continue;
 					}
-					var parts = hv.split(':');
-					var holidayDate = parts[0];
-					var period = (parts[1] || '').toUpperCase();
-					if (!period && periods[i]) {
-						period = (periods[i].value || 'ALL').toUpperCase();
+					if (slotMatchesHolidayPeriodsJs(slotName, periods)) {
+						continue; //休工枠は選択肢から外す
 					}
-					if (!period) {
-						period = 'ALL';
-					}
-					if (holidayDate === ymd && period === 'ALL') {
-						return true;
+					optionsHtml += '<option value="' + slotName + '">' + slotName + '</option>';
+					if (slotName === current) {
+						currentStillValid = true;
 					}
 				}
-				return false;
+
+				$select.html(optionsHtml);
+				$select.val(currentStillValid ? current : '');
+				if (current && !currentStillValid) {
+					cleared.push(floor + 'F ' + floorDay + ' ' + current);
+				}
+			});
+
+			if (showAlert && cleared.length > 0) {
+				alert('休工日と重なるため、次の時間枠の選択を解除しました。\n' + cleared.join('\n'));
 			}
+		}
+
+		$(function () {
+			var wakupattern = JSON.parse('__wakupattern_json__');
 
 			$(".datepicker").datepicker({
 				numberOfMonths: 2,
@@ -116,8 +198,10 @@
 							return false;
 						}
 					});
-				}			
-			});	
+
+					refreshFloorWakuOptions(true);
+				}
+			});
 
 			$(".wReserveDay").datepicker({
 				numberOfMonths: 1,
@@ -197,6 +281,9 @@
 							btn.appendTo(buttonPane);
 						}
 					}, 1);
+				},
+				onSelect: function () {
+					refreshFloorWakuOptions(true);
 				}
 			});
 
@@ -230,6 +317,15 @@
 				$(".maxWakuFormTr").append(waku_form_html);
 			});
 
+			// 休工日・階の日付が変わったら、詳細工程表の時間枠を再判定する。
+			// datepickerの「削除」ボタン経由のクリアも change で拾える。
+			$(document).on('change', '.wHoliday, .holiday-period', function () {
+				refreshFloorWakuOptions(true);
+			});
+			$(document).on('change', '.wFloorDay', function () {
+				refreshFloorWakuOptions(true);
+			});
+
 			refreshArrangeType();
 		});
 
@@ -240,6 +336,9 @@
 			}else{
 				$("#tableMakeKanryo").attr('class', 'arrangeTypeTable0');
 			}
+
+			// 階指定に切り替わったタイミングで時間枠の休工日判定をかけ直す
+			refreshFloorWakuOptions(false);
 		}
 
 		//<!-- 休工日 +1行追加ボタン処理 -->
@@ -304,7 +403,9 @@
 								return false;
 					}
 				});
-					}			
+
+						refreshFloorWakuOptions(true);
+					}
 				});
 
 			});
@@ -386,8 +487,11 @@
 				var tr = obj.parentNode.parentNode;
 				// trのインデックスを取得して行を削除する
 				tr.parentNode.deleteRow(tr.sectionRowIndex);
+
+				// 休工日の行が消えた場合は詳細工程表の時間枠を再判定する
+				refreshFloorWakuOptions(true);
 			}
-		}			
+		}
 
 		function check_form1(){
 			let wYokoVal = document.getElementById("wYoko").value;
@@ -593,6 +697,20 @@
 							jsonFloorPlanInfo[aFloorDay][aFloorWaku] += aFloorCols;
 						}
 					}
+
+					// 休工日（半日含む）との衝突チェック
+					if(aFloorDay != ""){
+						let aHolidayPeriods = getHolidayPeriodsForDateJs(aFloorDay);
+						if(aHolidayPeriods.indexOf('ALL') !== -1){
+							if(ErrorString != '')
+								ErrorString += '<br>';
+							ErrorString += floor+"Fの"+aFloorDay+"は全日休工日のため選択できません。";
+						}else if(aFloorWaku != "" && slotMatchesHolidayPeriodsJs(aFloorWaku, aHolidayPeriods)){
+							if(ErrorString != '')
+								ErrorString += '<br>';
+							ErrorString += floor+"Fの"+aFloorDay+" "+aFloorWaku+"は休工日のため選択できません。";
+						}
+					}
 				}
 
 				for (let kFloorDay in jsonFloorPlanInfo) {
@@ -654,7 +772,8 @@
 			}else{
 				document.getElementById("wFirstDateFeature2").disabled = true;
 			}
-/*			
+/*			※この枠再構築を復活させる場合、直後に refreshFloorWakuOptions(false) を呼び、
+			　休工日と衝突する option を再度 disabled にすること。
 			let optionsWaku ='<option value=""></option>';
 			if(wakupatterns && wakupatterns[wWakuPatternVal] && wakupatterns[wWakuPatternVal]['AMPM']){
 				for(let i=0; i<wakupatterns[wWakuPatternVal]['AMPM'].length; i++){

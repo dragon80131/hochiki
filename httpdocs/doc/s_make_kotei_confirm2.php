@@ -213,6 +213,25 @@ if($wArrangeType == '1'){
 		}
 		$FloorReserveInfo = json_encode($arrFloorReserveInfo);
 	}
+
+	# 休工日（半日含む）のサーバ側ガード。
+	# クライアント側（s_make_kanryo2.tpl）で無効化しているが、迂回された場合はここで止める。
+	$FloorHolidayItems = holidayItems($Holiday);
+	$FloorHolidayErrors = array();
+	foreach($arrFloorReserveInfo as $aFloor => $aFloorInfo){
+		$aFloorDay = isset($aFloorInfo["wFloorDay"]) ? $aFloorInfo["wFloorDay"] : '';
+		$aFloorWaku = isset($aFloorInfo["wFloorWaku"]) ? $aFloorInfo["wFloorWaku"] : '';
+		if(!$aFloorDay)
+			continue;
+
+		if(isFullDayHoliday($FloorHolidayItems, $aFloorDay)){
+			$FloorHolidayErrors[] = $aFloor."Fの".$aFloorDay."は全日休工日のため選択できません。";
+		}else if($aFloorWaku && isSlotHoliday($FloorHolidayItems, $aFloorDay, $aFloorWaku)){
+			$FloorHolidayErrors[] = $aFloor."Fの".$aFloorDay." ".$aFloorWaku."は休工日のため選択できません。";
+		}
+	}
+	if(count($FloorHolidayErrors) > 0)
+		showAdminSorryPage($FloorHolidayErrors);
 }
 $FloorReserveInfo = htmlspecialchars($FloorReserveInfo, ENT_QUOTES, 'UTF-8');
 

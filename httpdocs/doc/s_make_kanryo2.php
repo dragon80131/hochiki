@@ -750,11 +750,19 @@ for($floor=$wKaidaka; $floor>=1; $floor--){
 
 		$optionsWaku = '<option value=""></option>';
 		for ($i = 0; $i < $WakuAMPMCnt; $i++) {
+			$slotName = $WAKUPATTERN[$wWakuPattern]['AMPM'][$i];
+
+			# 休工日（全日・午前・午後）と重なる枠は選択不可にする
+			$isHolidaySlot = ($wFloorDayVal !== '' && isSlotHoliday($HolidayItems, $wFloorDayVal, $slotName));
+
 			$selected = '';
-			if(isset($arrFloorReserveInfo[$floor]["wFloorWaku"]) && $arrFloorReserveInfo[$floor]["wFloorWaku"] == $WAKUPATTERN[$wWakuPattern]['AMPM'][$i])
+			# 休工枠にはselectedを付けない（保存済みデータが後から休工日と衝突した場合は空欄に落として再選択させる）
+			if(!$isHolidaySlot && isset($arrFloorReserveInfo[$floor]["wFloorWaku"]) && $arrFloorReserveInfo[$floor]["wFloorWaku"] == $slotName)
 				$selected = 'selected';
 
-			$optionsWaku .= "<option value='".$WAKUPATTERN[$wWakuPattern]['AMPM'][$i]."' ".$selected.">".$WAKUPATTERN[$wWakuPattern]['AMPM'][$i]."</option>";
+			# option自体は全枠出力し、休工枠の除去は refreshFloorWakuOptions() が行う
+			# （選択肢のラベルを変えるとselectの幅が変わるため、ここでは印を付けない）
+			$optionsWaku .= "<option value='".$slotName."' ".$selected.">".$slotName."</option>";
 		}
 		$FloorTableInfo .= "<td align='center'><select class='sFloorWakuSelect' name='wFloorWaku_".$floor."'>".$optionsWaku."</select></td>";
 		$FloorTableInfo .= "<td align='center'>".$ColsCount."<input type='hidden' name='wFloorCols_".$floor."' value='".$ColsCount."'></td>";
