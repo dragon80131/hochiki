@@ -177,8 +177,8 @@ $cRowsPerPage2 = 20;
 
 $file = "./images/".$wClientCD.'mobile.png';
 // QRコードを生成するデータ
-// $URLdata = 'https://app5.489501.jp/hochiki/login.php?editBukkenCD='.$editBukkenCD ;
-$URLdata = "https://app5.489501.jp/hochiki/login_form.php?m=1";
+// $URLdata = _ROOT_URL . 'login.php?editBukkenCD=' . $editBukkenCD;
+$URLdata = _ROOT_URL . 'login_form.php?m=1';
 if (!file_exists($file)) {
 	include 'phpqrcode/qrlib.php';
 	QRcode::png($URLdata, $file, QR_ECLEVEL_L, 10);

@@ -222,10 +222,10 @@ unset($myBukken);
 
 $folderPath = './upfile/'.date('Y',strtotime($Created) );
 $DomainQR_path = $folderPath."/".$editBukkenCD.'qrcode.png';
-$TargetURL = "https://app5.489501.jp/hochiki/login.php";
+$TargetURL = _ROOT_URL . 'login.php';
 if($editBuildingCD){
 	$DomainQR_path = $folderPath."/".$editBukkenCD.'-'.$editBuildingCD.'qrcode.png';
-	$TargetURL = "https://app5.489501.jp/hochiki/login.php?editBuildingCD=".$editBuildingCD;
+	$TargetURL = _ROOT_URL . 'login.php?editBuildingCD=' . $editBuildingCD;
 }
 
 

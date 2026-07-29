@@ -229,12 +229,13 @@ if($editBuildingCD){
 	$QRCD = $folderPath."/".$editBukkenCD.'-'.$editBuildingCD.'qrcode.png';
 }
 // QRコードを生成するデータ
+$loginUrl = _ROOT_URL . 'login.php';
 if($editBuildingCD){
-	$URLdata = 'https://app5.489501.jp/hochiki/login.php?editBukkenCD='.$editBukkenCD.'&editBuildingCD='.$editBuildingCD ;
-	$URL = 'https://app5.489501.jp/hochiki/login.php?editBuildingCD='.$editBuildingCD;
+	$URLdata = $loginUrl . '?editBukkenCD=' . $editBukkenCD . '&editBuildingCD=' . $editBuildingCD;
+	$URL = $loginUrl . '?editBuildingCD=' . $editBuildingCD;
 }else{
-	$URLdata = 'https://app5.489501.jp/hochiki/login.php?editBukkenCD='.$editBukkenCD ;
-	$URL = 'https://app5.489501.jp/hochiki/login.php';
+	$URLdata = $loginUrl . '?editBukkenCD=' . $editBukkenCD;
+	$URL = $loginUrl;
 }
 if (!file_exists($QRCD)) {
 	include 'phpqrcode/qrlib.php';

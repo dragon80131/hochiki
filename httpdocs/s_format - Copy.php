@@ -105,8 +105,9 @@ if (!is_dir($folderPath)) {
 }
 $QRCD = $folderPath."/".$editBukkenCD.'qrcode.png';
 // QRコードを生成するデータ
-$URLdata = 'https://app5.489501.jp/hochiki/login.php?editBukkenCD='.$editBukkenCD ;
-$URL = 'https://app5.489501.jp/hochiki/login.php';
+$loginUrl = _ROOT_URL . 'login.php';
+$URLdata = $loginUrl . '?editBukkenCD=' . $editBukkenCD;
+$URL = $loginUrl;
 if (!file_exists($QRCD)) {
 	include 'phpqrcode/qrlib.php';
 	$file = $QRCD;
