@@ -175,15 +175,24 @@ $cRowsPerPage2 = 20;
 # モバイル用QRコード表示
 ########################################################
 
-$file = "./images/".$wClientCD.'mobile.png';
+$folderPath = './images';
+// フォルダが存在するかチェック
+if (!is_dir($folderPath)) {
+	// フォルダが存在しない場合、作成する
+	if (mkdir($folderPath, 0777, true)) {
+		// echo "フォルダ '$folderPath' が作成されました。";
+	}
+}
+$file = $folderPath."/".$wClientCD.'mobile.png';
 // QRコードを生成するデータ
 // $URLdata = _ROOT_URL . 'login.php?editBukkenCD=' . $editBukkenCD;
 $URLdata = _ROOT_URL . 'login_form.php?m=1';
-if (!file_exists($file)) {
-	include 'phpqrcode/qrlib.php';
-	QRcode::png($URLdata, $file, QR_ECLEVEL_L, 10);
-	// echo 'QRコードが生成されました: ' . $file;
-}
+// 毎回コードから生成する（URLが変わっても古い画像が残らないように）
+include_once 'phpqrcode/qrlib.php';
+QRcode::png($URLdata, $file, QR_ECLEVEL_L, 10);
+// echo 'QRコードが生成されました: ' . $file;
+// ブラウザキャッシュ対策（URLが変わった時だけ再取得される）
+$file .= '?v=' . substr(md5($URLdata), 0, 8);
 
 
 
