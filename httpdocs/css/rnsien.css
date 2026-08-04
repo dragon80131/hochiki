@@ -632,7 +632,12 @@ ul.menu_list > li.brown:hover {
 }
 .bukken-alert-item--active .bukken-alert-item-body{
   color: #1a73b8;
-  font-weight: 500;
+  font-weight: bold;
+}
+.bukken-alert-item--active .bukken-alert-item-label,
+.bukken-alert-item--active .bukken-alert-item-time{
+  color: #1a73b8;
+  font-weight: bold;
 }
 .bukken-alert-item--active:hover{
   background: #dceefb;

@@ -1,7 +1,6 @@
 (function () {
   var cachedItems = [];
   var dropdownOpen = false;
-  var unreadCount = 0;
 
   function getRKey() {
     var input = document.querySelector('input[name="rKey"]');
@@ -34,7 +33,6 @@
   }
 
   function updateBadge(count) {
-    unreadCount = count;
     var badge = document.querySelector('.bukken-alert-badge');
     if (!badge) {
       return;
@@ -103,7 +101,7 @@
         }
         var label = item.ActivityLabel || (item.ActivityType == 2 ? '更新' : '予約');
         var activeClass = item.IsUnread ? ' bukken-alert-item--active' : ' bukken-alert-item--read';
-        var timeLabel = formatRelativeTime(item.LastWebActivityAt);
+        var timeLabel = formatRelativeTime(item.LastActivityAt);
         html += '<a href="#" class="bukken-alert-item' + activeClass + '" data-bukkencd="' + item.BukkenCD + '">';
         html += '<div class="bukken-alert-item-head">';
         html += '<span class="bukken-alert-item-label">' + escapeHtml(label) + '</span>';
@@ -123,34 +121,12 @@
         var bukkenCD = el.getAttribute('data-bukkencd');
         var rKey = getRKey();
         var m = getMParam();
-        var url = 's_menu.php?rKey=' + encodeURIComponent(rKey) + '&editBukkenCD=' + encodeURIComponent(bukkenCD);
+        // 既読化は遷移先の s_menu.php 側で行う（押下して物件に飛んだのがトリガー）
+        var url = 's_menu.php?rKey=' + encodeURIComponent(rKey) + '&editBukkenCD=' + encodeURIComponent(bukkenCD) + '&fromAlert=1';
         if (m) {
           url += '&m=' + encodeURIComponent(m);
         }
-
-        var wasUnread = el.classList.contains('bukken-alert-item--active');
-        if (!wasUnread) {
-          window.location.href = url;
-          return;
-        }
-
-        fetch('mark_bukken_alert_read.php?rKey=' + encodeURIComponent(rKey) + '&editBukkenCD=' + encodeURIComponent(bukkenCD))
-          .then(function (res) { return res.json(); })
-          .then(function (data) {
-            if (!data || !data.ok) {
-              return;
-            }
-            cachedItems = cachedItems.map(function (item) {
-              if (String(item.BukkenCD) === String(bukkenCD)) {
-                return Object.assign({}, item, { IsUnread: false });
-              }
-              return item;
-            });
-            updateBadge(Math.max(0, unreadCount - 1));
-            renderDropdownItems(cachedItems);
-            window.location.href = url;
-          })
-          .catch(function () {});
+        window.location.href = url;
       });
     });
   }
@@ -167,7 +143,7 @@
       return {
         BukkenCD: item.BukkenCD,
         BukkenName: item.BukkenName,
-        LastWebActivityAt: item.LastWebActivityAt,
+        LastActivityAt: item.LastActivityAt,
         ActivityType: item.ActivityType,
         ActivityLabel: item.ActivityLabel || (item.ActivityType == 2 ? '更新' : '予約'),
         IsUnread: !!item.IsUnread,
@@ -181,19 +157,6 @@
     }
   }
 
-  function markAllAlertsRead() {
-    var rKey = getRKey();
-    if (!rKey) {
-      return;
-    }
-    updateBadge(0);
-    cachedItems = cachedItems.map(function (item) {
-      return Object.assign({}, item, { IsUnread: false });
-    });
-    fetch('mark_bukken_alert_read.php?rKey=' + encodeURIComponent(rKey) + '&markAll=1')
-      .catch(function () {});
-  }
-
   function toggleDropdown() {
     var dropdown = getDropdown();
     if (!dropdown) {
@@ -205,9 +168,7 @@
       return;
     }
 
-    if (unreadCount > 0) {
-      markAllAlertsRead();
-    }
+    // ベルを開いただけでは既読にしない
     renderDropdownItems(cachedItems);
     dropdown.style.display = 'block';
     dropdownOpen = true;

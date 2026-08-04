@@ -24,6 +24,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
 
 include_once "./include/kenmei_connect.php";
+include_once "./include/bukken_alert.php";
 
 
 $myDB = new SPFWDatabase(_MAIN_DB, _HOST_NAME, _USER_NAME, _PASSWD, FALSE);
@@ -61,6 +62,12 @@ $MyZokusei = $myUser->Extra3;	#管理ユーザ２一般ユーザ１
 $UserKbn = $myUser->UserKbn; //ユーザー区分1:幹事企業一般 2:管理者 3:協力業者CD	
 $User_GyosyaCD = $myUser->GyosyaCD; //ユーザー区分1:幹事企業一般 2:管理者 3:協力業者CD
 $UserID = $myUser->ID;
+
+# アラートから遷移してきた場合のみ既読にする（押下して物件に飛んだのがトリガー）
+if (SPFWParameter::getValues('fromAlert') && $UserKbn != 4) {
+	markBukkenAlertRead($myDB, $myUser->UserCD, $editBukkenCD);
+}
+
 unset($myUser);
 
 $IfWorker		= $UserKbn == 3;

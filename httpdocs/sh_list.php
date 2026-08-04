@@ -20,6 +20,7 @@ include_once "C:/xampp/htdocs/hochiki/SPFW/inc/setting.properties";
 	// include_once _CLS_DIR . "SPUSHenkoRoom.cls";
 	// include_once _CLS_DIR . "SPUSHenkoDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
+include_once __DIR__ . "/include/bukken_alert.php";
 include_once __DIR__ . "/include/sh_list_slot_helpers.php";
 include_once __DIR__ . "/include/building_period_helpers.php";
 include_once __DIR__ . "/include/holiday_helpers.php";
@@ -372,6 +373,8 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			if (!$myReservation->executeUpdate())
 				trigger_error("Updating myReservation Failed.", E_USER_ERROR);
 
+			recordBukkenTelActivity($myDB, $editBukkenCD);#TEL受付更新を協力会社へ通知
+
 	// // 		####登録処理End
 	// // 		####変数ドロップしておく。
 			SPFWTemplate::dropValue('work');
@@ -392,6 +395,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			$myUser->ConfirmFlg = "1";
 			if (!$myUser->executeUpdate())
 				trigger_error("Updating myUser Failed.", E_USER_ERROR);
+			recordBukkenTelActivity($myDB, $editBukkenCD);#TEL受付更新を協力会社へ通知
 			SPFWTemplate::dropValue('work');
 		}else if($work == '3'){ // 変更
 			if($aHenkoDate && $aTimeFromTime){
@@ -429,6 +433,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			$myUser->ConfirmFlg = "1";
 			if (!$myUser->executeUpdate())
 				trigger_error("Updating myUser Failed.", E_USER_ERROR);
+			recordBukkenTelActivity($myDB, $editBukkenCD);#TEL受付更新を協力会社へ通知
 			SPFWTemplate::dropValue('work');
 		}else if($work == '4'){ // 辞退
 			$myReservation->TimeExact = NULL;
@@ -450,6 +455,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 
 			if (!$myUser->executeUpdate())
 				trigger_error("Updating myUser Failed.", E_USER_ERROR);
+			recordBukkenTelActivity($myDB, $editBukkenCD);#TEL受付更新を協力会社へ通知
 			SPFWTemplate::dropValue('work');
 		}else if($work == '5'){ // 復活
 			$myReservation->TimeFrom = $aHenkoDate." ".$aTimeFromTime;
@@ -477,6 +483,7 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 			$myUser->ConfirmFlg = "1";
 			if (!$myUser->executeUpdate())
 				trigger_error("Updating myUser Failed.", E_USER_ERROR);
+			recordBukkenTelActivity($myDB, $editBukkenCD);#TEL受付更新を協力会社へ通知
 			SPFWTemplate::dropValue('work');
 		}
 
