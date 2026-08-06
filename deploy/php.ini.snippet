@@ -1,0 +1,9 @@
+; ホーチキ本番 php.ini 推奨設定（詳細工程表 1500室超対策）
+; ファイル例: /etc/php/8.x/apache2/php.ini または php-fpm pool
+
+max_input_vars = 5000
+
+; 反映後 Apache / PHP-FPM を再起動:
+;   sudo systemctl restart apache2
+;   または
+;   sudo systemctl restart php8.2-fpm && sudo systemctl restart apache2

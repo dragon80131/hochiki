@@ -121,34 +121,29 @@ function go_confirm(url){
 }
 function submit_confirm(page){
 	if(tempSavedReservationCnt > 0){
+		disableKoteihyouEXForPost();
 		document.mainform.action = page;
 		document.mainform.submit(true);
 	}else{
 		if(confirm("修正した内容は反映されませんが、問題ございませんか？")){
+			disableKoteihyouEXForPost();
 			document.mainform.action = page;
 			document.mainform.submit(true);
 		}
 	}
 }
 
-function makeKanryo(page){
-	if(ReservationCount > 0){
-		if(!confirm("すでに作業日程が作成されています。住人様が登録した情報等も削除されますが問題ございませんでしょうか。")){
-			$('#alert').modal({
-				backdrop: false,
-				keyboard: false
-			});
-			return false;
-		}
-	}
+function appendKoteihyouEXChunks() {
+	$('form[name="mainform"] input[name^="wKoteihyouEX_"]').filter(function () {
+		return this.name !== 'wKoteihyouEX_count';
+	}).remove();
+	$('form[name="mainform"] input[name="wKoteihyouEX_count"]').remove();
 
 	let KoteihyouEXChunk = '|';
 	let wKoteihyouEX_count = 0;
 	let wKoteihyouEX_no = 0;
 	$('input[name="wwKoteihyouEX[]"]').each(function() {
 		KoteihyouEXChunk += $(this).val() + '|';
-
-
 		wKoteihyouEX_no ++;
 		if(wKoteihyouEX_no > 299){
 			$('<input>').attr({
@@ -174,6 +169,28 @@ function makeKanryo(page){
 		name: 'wKoteihyouEX_count',
 		value: wKoteihyouEX_count
 	}).appendTo('form[name="mainform"]');
+
+	$('input[name="wwKoteihyouEX[]"]').prop('disabled', true);
+
+	return wKoteihyouEX_count;
+}
+
+function disableKoteihyouEXForPost() {
+	$('input[name="wwKoteihyouEX[]"]').prop('disabled', true);
+}
+
+function makeKanryo(page){
+	if(ReservationCount > 0){
+		if(!confirm("すでに作業日程が作成されています。住人様が登録した情報等も削除されますが問題ございませんでしょうか。")){
+			$('#alert').modal({
+				backdrop: false,
+				keyboard: false
+			});
+			return false;
+		}
+	}
+
+	appendKoteihyouEXChunks();
 
 	document.mainform.action = page;
 	document.mainform.submit(true);
@@ -188,38 +205,7 @@ function makeKanryo(page){
 }
 
 function temporarilySave(){
-	let KoteihyouEXChunk = '|';
-	let wKoteihyouEX_count = 0;
-	let wKoteihyouEX_no = 0;
-	$('input[name="wwKoteihyouEX[]"]').each(function() {
-		KoteihyouEXChunk += $(this).val() + '|';
-
-
-		wKoteihyouEX_no ++;
-		if(wKoteihyouEX_no > 299){
-			$('<input>').attr({
-				type: 'hidden',
-				name: 'wKoteihyouEX_'+wKoteihyouEX_count,
-				value: KoteihyouEXChunk
-			}).appendTo('form[name="mainform"]');
-			wKoteihyouEX_count ++;
-			wKoteihyouEX_no = 0;
-			KoteihyouEXChunk = '|';
-		}
-	});
-	if(wKoteihyouEX_no > 0){
-		$('<input>').attr({
-			type: 'hidden',
-			name: 'wKoteihyouEX_'+wKoteihyouEX_count,
-			value: KoteihyouEXChunk
-		}).appendTo('form[name="mainform"]');
-		wKoteihyouEX_count ++;
-	}
-	$('<input>').attr({
-		type: 'hidden',
-		name: 'wKoteihyouEX_count',
-		value: wKoteihyouEX_count
-	}).appendTo('form[name="mainform"]');
+	appendKoteihyouEXChunks();
 
 	$('#act').val("temp_save");
 	document.mainform.action = '';

@@ -112,11 +112,7 @@ for($i=0; $i<$wKoteihyouEX_count; $i++){
 	$wKoteihyouEX = array_merge($wKoteihyouEX, SPFWTools::decodePluralValue($wKoteihyouEX_temp));
 }
 foreach ($wKoteihyouEX as $idx => $label) {
-	if ($label === '余地') {
-		$wKoteihyouEX[$idx] = '空き';
-	} else if ($label === '時間外') {
-		$wKoteihyouEX[$idx] = '枠越';
-	}
+	$wKoteihyouEX[$idx] = normalizeSlotLabelToCurrent($label);
 }
 for($i=0; $i<$wHansuEX_count; $i++){
 	$wHansuEX_temp = SPFWParameter::getValues('wHansuEX_'.$i);
@@ -145,7 +141,7 @@ $PM1_Blanks = array();
 $PM1_Rooms = array();
 $PM2_Blanks = array();
 $PM2_Rooms = array();
-$val_Blanks = ['空き', '枠越', ''];
+$val_Blanks = array_merge(slotBlankLabels(), array('空き', '枠越', '余地', '時間外'));
 $rowIndex = 0;
 
 $wKoteihyouEXTemp = array();
@@ -814,11 +810,11 @@ for ($i = 0; $i < $beforeReserveDayDateCnt * $rowCountforDay; $i++) {
 	if ($y == 0) {
 		for ($j = 0; $j < $wWakuAMPM; $j++) {
 			$cell = getExcelAddress($cell_col, $cell_row); #列　行　D9から
-			if ($wKoteihyouEX[$k] == "空き") {
+			if (isSlotLabelAki($wKoteihyouEX[$k])) {
 				#セルに値をセットする
 				$sheet->setCellValue($cell, "");
 			// } elseif ($wKoteihyouEX[$k] == "") {
-			}else if ($wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工"){
+			}else if (isSlotLabelWakuover($wKoteihyouEX[$k]) || $wKoteihyouEX[$k] == "休工"){
 				$sheet->setCellValue($cell, $wKoteihyouEX[$k] == "休工" ? "休工" : "");
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
@@ -875,10 +871,10 @@ for ($i = 0; $i < $SenyuDateCnt * $rowCountforDay; $i++) { #1 専有部日数　
 				unset($sharedStyle1);
 			} else {
 				$cell = getExcelAddress($cell_col, $cell_row); #列　行　D9から
-				if ($wKoteihyouEX[$k] == "空き") {
+				if (isSlotLabelAki($wKoteihyouEX[$k])) {
 					#セルに値をセットする
 					$sheet->setCellValue($cell, "");
-				} elseif ($wKoteihyouEX[$k] == "" || $wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工") {
+				} elseif ($wKoteihyouEX[$k] == "" || isSlotLabelWakuover($wKoteihyouEX[$k]) || $wKoteihyouEX[$k] == "休工") {
 					if ($wKoteihyouEX[$k] == "休工") {
 						$sheet->setCellValue($cell, "休工");
 					}
@@ -953,11 +949,11 @@ for ($i = 0; $i < $afterReserveDayDateCnt * $rowCountforDay; $i++) {
 	if ($y == 0) {
 		for ($j = 0; $j < $wWakuAMPM; $j++) {
 			$cell = getExcelAddress($cell_col, $cell_row); #列　行　D9から
-			if ($wKoteihyouEX[$k] == "空き") {
+			if (isSlotLabelAki($wKoteihyouEX[$k])) {
 				#セルに値をセットする
 				$sheet->setCellValue($cell, "");
 			// } elseif ($wKoteihyouEX[$k] == "") {
-			}else if ($wKoteihyouEX[$k] == "枠越" || $wKoteihyouEX[$k] == "休工"){
+			}else if (isSlotLabelWakuover($wKoteihyouEX[$k]) || $wKoteihyouEX[$k] == "休工"){
 				$sheet->setCellValue($cell, $wKoteihyouEX[$k] == "休工" ? "休工" : "");
 				$spreadsheet->getSheetByName('Sheet1')->getStyle($cell)->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)

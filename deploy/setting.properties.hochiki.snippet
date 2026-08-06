@@ -1,0 +1,30 @@
+<?php
+/**
+ * ホーチキ本番 (192.168.98.102 /var/www/hochiki) 向け setting.properties 追記・差分
+ *
+ * ※ 本番の既存 setting.properties をバックアップしてから、
+ *    DB 接続・メール等はそのまま残し、以下だけマージしてください。
+ */
+
+// --- URL / パス（本番の実際の値に合わせて調整） ---
+define('_ROOT_URL', "http://192.168.98.102/");
+define('_ROOT_URL2', "http://192.168.98.102/");
+
+define("_LIBRARY_ROOT", "/var/www/hochiki/SPFW/");
+define("_DOCUMENT_ROOT", "/var/www/hochiki/httpdocs/");
+
+// --- 工程表スロット表示ラベル（hochiki 本番は 余地 / 時間外）---
+// nespe_dia 開発では 空き / 枠越
+define('_SLOT_LABEL_AKI', '余地');
+define('_SLOT_LABEL_WAKUOVER', '時間外');
+
+// kotei_slot_labels.php は setting.properties 内で自動 include されます:
+// if (file_exists(_DOCUMENT_ROOT . 'include/kotei_slot_labels.php')) {
+//     include_once _DOCUMENT_ROOT . 'include/kotei_slot_labels.php';
+// }
+
+// --- DB は本番既存値を維持（上書きしないこと）---
+// define("_MAIN_DB", "...");
+// define("_HOST_NAME", "...");
+// define("_USER_NAME", "...");
+// define("_PASSWD", "...");

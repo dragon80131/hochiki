@@ -1,0 +1,61 @@
+# ホーチキ本番反映 — デプロイ対象ファイル一覧
+# ローカル: C:\xampp\htdocs\hochiki
+# 本番:     /var/www/hochiki  (192.168.98.102)
+#
+# 使い方: deploy/create-deploy-package.ps1 で zip 作成 → 本番に展開
+
+# --- 1. 大型物件 (max_input_vars 対策) + 工程表一時保存 ---
+httpdocs/doc/s_make_kanryo_hensyu.php
+SPFW/contents_pc/s_make_kanryo_hensyu.tpl
+SPFW/class/SPUSReservationTemp.cls
+
+# --- 2. 部屋配置マトリクス (Ctrl+ドラッグ) ---
+httpdocs/doc/s_make_matrix.php
+SPFW/contents_pc/s_make_matrix.tpl
+
+# --- 3. 日程変更一覧・最終更新日時 ---
+httpdocs/sh_henko_list.php
+SPFW/contents_pc/sh_henko_list.tpl
+
+# --- 4. Excel ダウンロード (ステータス列) ---
+httpdocs/s_henko_download.php
+
+# --- 5. 物件基本情報 (棟別専有部・受付締切・休工半日) ---
+httpdocs/s_kihon_form.php
+httpdocs/s_kihon_finish.php
+SPFW/contents_pc/s_kihon_form.tpl
+httpdocs/include/building_period_helpers.php
+
+# --- 6. 詳細工程表 (休工 全日/午前/午後) ---
+httpdocs/doc/s_make_kanryo2.php
+SPFW/contents_pc/s_make_kanryo2.tpl
+httpdocs/include/holiday_helpers.php
+
+# --- 7. 工程表生成・TEL受付 (休工・スロットラベル) ※要 setting.properties 連携 ---
+httpdocs/s_format.php
+httpdocs/sh_list.php
+httpdocs/doc/s_make_kotei_EXCEL.php
+httpdocs/include/kotei_slot_labels.php
+httpdocs/include/sh_list_slot_helpers.php
+
+# --- 8. アラート機能 ---
+httpdocs/include/bukken_alert.php
+httpdocs/js/bukken_alert.js
+httpdocs/css/rnsien.css
+httpdocs/get_bukken_alerts.php
+httpdocs/mark_bukken_alert_read.php
+httpdocs/s_menu.php
+httpdocs/reserve_finish.php
+httpdocs/reserve_finish_kakutei.php
+# SPFW/inc/system.properties  ← bukken_alert.js の行のみ本番にマージ（ファイル全体の上書き非推奨）
+
+# --- 9. WEB予約 (休工半日) ---
+httpdocs/reserve_form_kakutei.php
+httpdocs/top.php
+httpdocs/reserve_detail_yotei_EXCEL.php
+
+# --- SQL (別途実行) ---
+# sql/tBukkenWebActivity.sql
+
+# --- 本番 setting.properties のみ手動マージ (zip に含めない) ---
+# deploy/setting.properties.hochiki.snippet

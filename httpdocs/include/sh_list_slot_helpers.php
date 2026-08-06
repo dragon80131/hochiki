@@ -32,10 +32,10 @@ function shListRecordWakuSlotMeta(&$rooms, &$slotMeta, $viewOrderNo, $ban, $seny
 	$slotType = 'room';
 	if ($forceSlotType !== null && $forceSlotType !== '') {
 		$slotType = $forceSlotType;
-	} else if ($slotVal === '空き') {
-		$slotType = '空き';
-	} else if ($slotVal === '枠越') {
-		$slotType = '枠越';
+	} else if ($slotVal === _SLOT_LABEL_AKI || isSlotLabelAki($slotVal)) {
+		$slotType = _SLOT_LABEL_AKI;
+	} else if ($slotVal === _SLOT_LABEL_WAKUOVER || isSlotLabelWakuover($slotVal)) {
+		$slotType = _SLOT_LABEL_WAKUOVER;
 	}
 	$slotMeta[] = array(
 		'viewOrderNo' => intval($viewOrderNo),
@@ -52,11 +52,11 @@ function shListRestoreRemovedRoomSlot(&$rooms, &$slotMeta, $index, $roomId) {
 	$roomId = strval($roomId);
 	$metaSlotType = isset($slotMeta[$index]['slotType']) ? $slotMeta[$index]['slotType'] : null;
 	if ($rooms[$index] === $roomId || $rooms[$index] === 'overflow@' . $roomId) {
-		$restore = '空き';
-		if ($metaSlotType === '枠越') {
-			$restore = '枠越';
-		} else if ($rooms[$index] === 'overflow@' . $roomId && $metaSlotType === '空き') {
-			$restore = '空き';
+		$restore = _SLOT_LABEL_AKI;
+		if ($metaSlotType === _SLOT_LABEL_WAKUOVER || isSlotLabelWakuover($metaSlotType)) {
+			$restore = _SLOT_LABEL_WAKUOVER;
+		} else if ($rooms[$index] === 'overflow@' . $roomId && ($metaSlotType === _SLOT_LABEL_AKI || isSlotLabelAki($metaSlotType))) {
+			$restore = _SLOT_LABEL_AKI;
 		}
 		$rooms[$index] = $restore;
 	}
@@ -111,10 +111,10 @@ function shListApplyBlankSlotAssignments(&$rooms, &$slotMeta, $arrViewOrderNo, $
 				continue;
 			}
 			if ($slotType === SH_LIST_SLOT_AKI) {
-				if ($rooms[$i] !== '空き' && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
+				if (!isSlotLabelAki($rooms[$i]) && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
 					continue;
 				}
-			} else if ($rooms[$i] !== '枠越' && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
+			} else if (!isSlotLabelWakuover($rooms[$i]) && $rooms[$i] !== $roomId && $rooms[$i] !== 'overflow@' . $roomId) {
 				continue;
 			}
 			$targetIdx = $i;

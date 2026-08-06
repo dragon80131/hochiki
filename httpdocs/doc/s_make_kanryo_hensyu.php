@@ -23,18 +23,12 @@ $isAdminMode = TRUE;
 include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 
 	function normalizeKoteihyouSlotLabel($label) {
-		if ($label === '余地') {
-			return '空き';
-		}
-		if ($label === '時間外') {
-			return '枠越';
-		}
-		return $label;
+		return normalizeSlotLabelToCurrent($label);
 	}
 
 	function normalizeKoteihyouSlotLabels($labels) {
 		foreach ($labels as $i => $label) {
-			$labels[$i] = normalizeKoteihyouSlotLabel($label);
+			$labels[$i] = normalizeSlotLabelToCurrent($label);
 		}
 		return $labels;
 	}
@@ -521,7 +515,7 @@ function numberToCircled($number) {
 	# セルの並び順は下の「詳細工程表イメージ作成」と同一。全日休工日はセルを消費しない。
 	########################################################
 	$HolidayWakuNames = isset($WAKUPATTERN[$wWakuPattern]['AMPM']) ? $WAKUPATTERN[$wWakuPattern]['AMPM'] : array('AM', 'PM');
-	$HolidayBlankLabels = array('空き', '枠越', '休工', '');
+	$HolidayBlankLabels = slotBlankLabels();
 	$HolidayWakuCols = array($wWakuAMcol, $wWakuPM1col);
 	if($wWakuPattern > 2)
 		$HolidayWakuCols[] = $wWakuPM2col;
@@ -662,12 +656,12 @@ function numberToCircled($number) {
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -694,12 +688,12 @@ function numberToCircled($number) {
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -728,12 +722,12 @@ function numberToCircled($number) {
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if($wKoteihyouEX[$m]=="空き"){
+						if(isSlotLabelAki($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m]=="枠越"){
+						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -819,12 +813,12 @@ function numberToCircled($number) {
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -851,12 +845,12 @@ function numberToCircled($number) {
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
 						$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -885,12 +879,12 @@ function numberToCircled($number) {
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if($wKoteihyouEX[$m]=="空き"){
+						if(isSlotLabelAki($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#' >".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m]=="枠越"){
+						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -975,12 +969,12 @@ function numberToCircled($number) {
 
 				#★３AM枠数の班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuAMcol ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -1007,12 +1001,12 @@ function numberToCircled($number) {
 
 				#★３-２PM１枠数を班数で割った数分繰り返す
 				for($k=0 ; $k < $wWakuPM1col ;$k++ ){
-					if($wKoteihyouEX[$m]=="空き"){
+					if(isSlotLabelAki($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
-					}else if($wKoteihyouEX[$m]=="枠越"){
+					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
 						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
@@ -1041,12 +1035,12 @@ function numberToCircled($number) {
 				#★３-３PM２枠数を班数で割った数分繰り返す
 				if($wWakuPattern > 2){
 					for($k=0 ; $k < $wWakuPM2col ;$k++){
-						if($wKoteihyouEX[$m]=="空き"){
+						if(isSlotLabelAki($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d1f9b7'>";
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
-						}else if($wKoteihyouEX[$m]=="枠越"){
+						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
 							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
 							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";

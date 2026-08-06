@@ -1,0 +1,139 @@
+================================================================================
+EXCEL FILE: c:\Users\Javelin\Downloads\ホーチキ本番反映.xlsx
+SHEETS: ['Sheet1']
+================================================================================
+
+################################################################################
+SHEET: Sheet1
+Dimensions: A1:O38
+################################################################################
+
+--- ROWS WITH CONTENT (30 rows) ---
+R1:	192.168.98.102														
+R2:	var/www/hochiki														
+R4:	ホーチキダイア														
+R5:											参考Sladk				
+R6:	反映させたい内容										↓				
+R7:	・大型物件対応(処理ができない問題を解消）					hiddenの作業分					https://nespe2.slack.com/archives/C08686QFGA2/p1775555093412969?thread_ts=1775455266.881719&cid=C08686QFGA2				
+R8:	・作業日程登録＞詳細工程表＞部屋構成作成　　ctrl+カーソルで部屋設定							s_make_matrix.php			https://nespe2.slack.com/archives/C08686QFGA2/p1776409846853679?thread_ts=1776383269.676819&cid=C08686QFGA2				
+R9:	・工程表　一次保存機能			s_make_kanryo_hensyu.php											
+R10:	・作業工程表		最終更新表示				sh_henko_list.php								
+R11:	・作業工程表　　　Excelダウンロード　ステータス表示						s_henko_download.php								
+R12:	・物件基本情報　棟側に専有部/受付締切日					s_kihon_form.php		写真①							
+R13:	・物件基本情報/詳細工程表　休工日　（AM・PM・全日）						s_kihon_form.php　/		s_make_kanryo2.php						写真①
+R14:	・アラート機能														
+R16:	それに伴う														
+R17:	s_format.php														
+R18:	sh_list.php		※Excelダウンロードも												
+R19:	微調整は必要です。		（休工日の表示等）												
+R26:	s_make_kanryo_hensyu.php														
+R27:	s_format.php														
+R28:	sh_list.php														
+R29:		この３つは！！注意！！													
+R30:	nespe_diaは														
+R31:	【空き】【枠越】														
+R32:			文言まで変更しないように注意												
+R33:	hochikiは														
+R34:	【時間外】【余地】														
+R35:	↑														
+R36:	工程表														
+R37:	案内資料生成														
+R38:	日程変更（TEL受付）														
+
+--- GRAY-FILLED CELLS (90) ---
+  A6: '反映させたい内容' (gray fill)
+  B6: '' (gray fill)
+  C6: '' (gray fill)
+  D6: '' (gray fill)
+  E6: '' (gray fill)
+  F6: '' (gray fill)
+  G6: '' (gray fill)
+  H6: '' (gray fill)
+  I6: '' (gray fill)
+  J6: '' (gray fill)
+  A7: '・大型物件対応(処理ができない問題を解消）' (gray fill)
+  B7: '' (gray fill)
+  C7: '' (gray fill)
+  D7: '' (gray fill)
+  E7: '' (gray fill)
+  F7: 'hiddenの作業分' (gray fill)
+  G7: '' (gray fill)
+  H7: '' (gray fill)
+  I7: '' (gray fill)
+  J7: '' (gray fill)
+  A8: '・作業日程登録＞詳細工程表＞部屋構成作成　　ctrl+カーソルで部屋設定' (gray fill)
+  B8: '' (gray fill)
+  C8: '' (gray fill)
+  D8: '' (gray fill)
+  E8: '' (gray fill)
+  F8: '' (gray fill)
+  G8: '' (gray fill)
+  H8: 's_make_matrix.php' (gray fill)
+  I8: '' (gray fill)
+  J8: '' (gray fill)
+  A9: '・工程表　一次保存機能' (gray fill)
+  B9: '' (gray fill)
+  C9: '' (gray fill)
+  D9: 's_make_kanryo_hensyu.php' (gray fill)
+  E9: '' (gray fill)
+  F9: '' (gray fill)
+  G9: '' (gray fill)
+  H9: '' (gray fill)
+  I9: '' (gray fill)
+  J9: '' (gray fill)
+  A10: '・作業工程表' (gray fill)
+  B10: '' (gray fill)
+  C10: '最終更新表示' (gray fill)
+  D10: '' (gray fill)
+  E10: '' (gray fill)
+  F10: '' (gray fill)
+  G10: 'sh_henko_list.php' (gray fill)
+  H10: '' (gray fill)
+  I10: '' (gray fill)
+  J10: '' (gray fill)
+  A11: '・作業工程表　　　Excelダウンロード　ステータス表示' (gray fill)
+  B11: '' (gray fill)
+  C11: '' (gray fill)
+  D11: '' (gray fill)
+  E11: '' (gray fill)
+  F11: '' (gray fill)
+  G11: 's_henko_download.php' (gray fill)
+  H11: '' (gray fill)
+  I11: '' (gray fill)
+  J11: '' (gray fill)
+  A12: '・物件基本情報　棟側に専有部/受付締切日' (gray fill)
+  B12: '' (gray fill)
+  C12: '' (gray fill)
+  D12: '' (gray fill)
+  E12: '' (gray fill)
+  F12: 's_kihon_form.php' (gray fill)
+  G12: '' (gray fill)
+  H12: '写真①' (gray fill)
+  I12: '' (gray fill)
+  J12: '' (gray fill)
+  A13: '・物件基本情報/詳細工程表　休工日　（AM・PM・全日）' (gray fill)
+  B13: '' (gray fill)
+  C13: '' (gray fill)
+  D13: '' (gray fill)
+  E13: '' (gray fill)
+  F13: '' (gray fill)
+  G13: 's_kihon_form.php　/' (gray fill)
+  H13: '' (gray fill)
+  I13: 's_make_kanryo2.php' (gray fill)
+  J13: '' (gray fill)
+  A14: '・アラート機能' (gray fill)
+  B14: '' (gray fill)
+  C14: '' (gray fill)
+  D14: '' (gray fill)
+  E14: '' (gray fill)
+  F14: '' (gray fill)
+  G14: '' (gray fill)
+  H14: '' (gray fill)
+  I14: '' (gray fill)
+  J14: '' (gray fill)
+
+--- STATUS COLUMNS/VALUES: none detected ---
+
+================================================================================
+FORMULA CELLS (if any)
+================================================================================
