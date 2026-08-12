@@ -21,6 +21,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 include_once dirname(__DIR__) . "/include/holiday_helpers.php";
+include_once dirname(__DIR__) . "/include/kotei_slot_labels.php";
 
 
 // データベースコネクト
@@ -633,7 +634,7 @@ if($wArrangeType == '1'){
 						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -643,11 +644,11 @@ if($wArrangeType == '1'){
 						$x++;
 						$passed_rooms ++;
 					} elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+						${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_AKI;
 						$passed_rooms ++;
 					} else {
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -707,7 +708,7 @@ if($wArrangeType == '1'){
 						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -717,11 +718,11 @@ if($wArrangeType == '1'){
 					// 	$x++;
 					// 	$passed_rooms ++;
 					} elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+						${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_AKI;
 						$passed_rooms ++;
 					} else {
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -780,7 +781,7 @@ if($wArrangeType == '1'){
 						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -790,11 +791,11 @@ if($wArrangeType == '1'){
 						$x++;
 						$passed_rooms ++;
 					} elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+						${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_AKI;
 						$passed_rooms ++;
 					} else {
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -851,7 +852,7 @@ if($wArrangeType == '1'){
 						${'Waku' . $WakuName . 'Room'}[] = "休工";
 					} else if($ban_rooms > $max_ban && $ban_rooms <= $limit_ban){
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -861,11 +862,11 @@ if($wArrangeType == '1'){
 					// 	$x++;
 					// 	$passed_rooms ++;
 					} elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-						${'Waku' . $WakuName . 'Room'}[] = "空き";
+						${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_AKI;
 						$passed_rooms ++;
 					} else {
 						if($Overflows < $wFrameOverflow){
-							${'Waku' . $WakuName . 'Room'}[] = "枠越";
+							${'Waku' . $WakuName . 'Room'}[] = _SLOT_LABEL_WAKUOVER;
 							$Overflows ++;
 						}else{
 							${'Waku' . $WakuName . 'Room'}[] = "";
@@ -996,7 +997,8 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 							$Koteihyou .= "<td class='link_cell' style='background-color:#ffffcf;'>";
 						}
 					}
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
+					$cellLabel = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
+					if (isSlotLabelAki($cellLabel) || isSlotLabelWakuover($cellLabel) || $cellLabel == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';
@@ -1077,7 +1079,8 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						}
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
+					$cellLabel = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
+					if (isSlotLabelAki($cellLabel) || isSlotLabelWakuover($cellLabel) || $cellLabel == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';
@@ -1157,7 +1160,8 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						}
 					}
 
-					if (${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "空き" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "枠越" || ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] == "休工") {
+					$cellLabel = ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
+					if (isSlotLabelAki($cellLabel) || isSlotLabelWakuover($cellLabel) || $cellLabel == "休工") {
 						$Koteihyou .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
 					} else {
 						$Koteihyou .= '<font style="font-size:20px"> <b>' . ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}] . '</b></font>';

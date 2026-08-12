@@ -1013,10 +1013,10 @@
 					<tr>
 						<td bgcolor="#f4cccc">
 							<div class="arrangeTypeElement0">
-								枠越え
+								時間外
 							</div>
 							<div class="arrangeTypeElement1">
-								 枠越え
+								 時間外
 							</div>
 
 						</td>

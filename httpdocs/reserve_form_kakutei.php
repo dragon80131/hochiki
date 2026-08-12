@@ -26,6 +26,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once "./include/common_489.php";
 include_once "./include/building_period_helpers.php";
 include_once "./include/holiday_helpers.php";
+include_once "./include/web_reserve_slot_helpers.php";
 
 
 $wLang = SPFWParameter::getValues('wLang');
@@ -95,9 +96,9 @@ if($editBuildingCD){
 	$wFloorReserveInfo = $myBuilding->FloorReserveInfo;
 }
 
-// 工事の場合は、ユーザー側で時間指定枠を考慮しません。
-if($wArrangeType != '1')
-	$wFrameOverflow = 0;
+// ホーチキ工事: FrameOverflow（時間外枠数）を WEB 空き判定に使用する。
+// 点検は従来どおり時間外のみ。余地（通常枠）は WEB 変更対象外。
+$wFrameOverflow = intval($wFrameOverflow);
 
 // 棟一覧
 $myListObject = new SPFWListObject($myDB);
@@ -1242,16 +1243,16 @@ unset($myLog);
 // 点検の場合は、ユーザー側で時間指定枠を考慮します。 $wFrameOverflow
 function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $TargetDate, $WakuSuu, $STimeList, $ETimeList, $WakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $wWakuPattern, $loginUserCD = "", $ExcludePattern=0, $wFrameOverflow=0)
 {
-	// 【2026/06 不具合対応】WEB申込の空き残数は「工事」と同条件で算出する。
-	// 枠越（オーバーフロー）枠は空き数に含めず、実際の空き枠のみを数える。
-	// 旧・点検仕様は枠越セルのみを空きとして数えていたため、PMに実空きが
-	// 残っていてもAMの枠越を案内する／枠越が満枠になると×表示になる等の
-	// 不具合が発生していた。下記2行で工事と同じ集計（実空きのみ）に統一する。
-	// しきい値（残数3→△ / 残数0→×）は呼び出し側のまま。
-	$wArrangeType = '0'; // 工事と同じ集計ロジックを使用
-	$wFrameOverflow = 0; // 枠越は空き数に含めない
+	// ホーチキ WEB申込: 時間外（FrameOverflow）枠のみを空きとして数える。
+	// 余地（通常枠の空き）は WEB 変更対象外。点検も従来どおり時間外のみ。
+	$wFrameOverflow = intval($wFrameOverflow);
+	$wHansu = intval($wHansu);
+	if ($wHansu < 1) {
+		$wHansu = 1;
+	}
 
-	if($wArrangeType != '1'){ // 工事の場合は
+	$useOverflowOnly = webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow);
+	if (!$useOverflowOnly) {
 		$myListObject = new SPFWListObjectNoCount($myDB); #GroupBYを無効にしているクラス
 
 		$sql = "SELECT ";
@@ -1331,6 +1332,9 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 		}
 
 	}else{
+		if ($wFrameOverflow < 1) {
+			return 0;
+		}
 		$MaxWaku = explode("-",$WakuRange);
 		$wWakuAM = $MaxWaku[0];
 		$wWakuPM = $MaxWaku[1];
@@ -1593,13 +1597,15 @@ function getAkiWaku($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $Targe
 
 function getAkiWakuTime($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $TargetDate, $WakuSuu, $STimeList, $ETimeList, $WakuRange, $wArrangeType, $WAKUPATTERN, $wHansu, $wFloorReserveInfo, $wWakuPattern, $loginUserCD = "", $ExcludePattern=0, $wFrameOverflow=0)
 {
-	// 【2026/06 不具合対応】WEB申込の選択可能時間帯も「工事」と同条件で算出する。
-	// 枠越（オーバーフロー）枠は対象外とし、実際に空きのある時間帯のみを返す。
-	// これにより、AMが満枠でPMに空きがある場合に正しくPMの時間帯を案内する。
-	$wArrangeType = '0'; // 工事と同じ集計ロジックを使用
-	$wFrameOverflow = 0; // 枠越は空き時間帯に含めない
+	// ホーチキ WEB申込: 選択可能な時間帯も時間外枠のみ。
+	$wFrameOverflow = intval($wFrameOverflow);
+	$wHansu = intval($wHansu);
+	if ($wHansu < 1) {
+		$wHansu = 1;
+	}
 
-	if($wArrangeType != '1'){ // 工事の場合は
+	$useOverflowOnly = webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow);
+	if (!$useOverflowOnly) {
 		$myListObject = new SPFWListObjectNoCount($myDB); #GroupBYを無効にしているクラス
 
 		$sql = "SELECT ";
@@ -1687,6 +1693,9 @@ function getAkiWakuTime($myDB, $TargetClientCD,$editBukkenCD,$editBuildingCD, $T
 			// }
 		}
 	}else{
+		if ($wFrameOverflow < 1) {
+			return array();
+		}
 		$MaxWaku = explode("-",$WakuRange);
 		$wWakuAM = $MaxWaku[0];
 		$wWakuPM = $MaxWaku[1];

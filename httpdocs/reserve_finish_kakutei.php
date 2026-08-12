@@ -28,6 +28,7 @@ include_once _CLS_DIR . "SPUSBranche.cls";
 
 include_once "./include/common_489.php";
 include_once "./include/bukken_alert.php";
+include_once "./include/web_reserve_slot_helpers.php";
 include_once "./include/holiday_helpers.php";
 
 
@@ -604,7 +605,7 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 						// 辞退
 						if(isset($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && $UserData['ReplyFlg'][$Reserve[$WakuName][$x]] == '3'){
 							// $ReserveCount[$j] ++;
-							if($wArrangeType == '1'){
+							if(webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 								$reserveHansu = $dis_ban;
 								break;
 							}
@@ -615,7 +616,7 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 							$x ++;
 						}
 					}else{
-						if($wArrangeType == '1'){
+						if(webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 							$reserveHansu = $dis_ban;
 							break;
 						}
@@ -627,14 +628,14 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 				&& (!$arrHanNo[$Reserve[$WakuName][$x]] || $arrHanNo[$Reserve[$WakuName][$x]] == $dis_ban)){
 				// 辞退
 				if(isset($UserData['ReplyFlg'][$Reserve[$WakuName][$x]]) && $UserData['ReplyFlg'][$Reserve[$WakuName][$x]] == '3'){
-					if($wArrangeType != '1'){
+					if(!webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 						$reserveHansu = $dis_ban;
 						break;
 					}
 					$passed_rooms ++;
 					$x ++;
 				}else{
-					if($wArrangeType == '1'){
+					if(webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 						$bReservedRooms = 0;
 						foreach($arrFloorReserveInfo as $floor => $FloorReserveInfo){
 							if(date("Y-m-d", strtotime($FloorReserveInfo["wFloorDay"])) == date("Y-m-d", strtotime($wDate)) && $FloorReserveInfo["wFloorWaku"] == $WakuName){
@@ -653,14 +654,14 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 					}
 				}
 			}elseif (${'wWaku' . $WakuName} > $passed_rooms) { //残った最大工事枠数分は空き
-				if($wArrangeType != '1'){
+				if(!webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 					$reserveHansu = $dis_ban;
 					break;
 				}
 				$passed_rooms ++;
 			}else{
 				if($Overflows < $wFrameOverflow){
-					if($wArrangeType == '1'){
+					if(webReserveUsesOverflowSlotsOnly($wArrangeType, $wFrameOverflow)){
 						$reserveHansu = $dis_ban;
 						break;
 					}
