@@ -17,6 +17,7 @@ include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSBukkenMatrix.cls";
 
 include_once "./include/common_489.php";
+include_once "./include/kotei_slot_labels.php";
 include_once "./include/building_period_helpers.php";
 include_once "./include/holiday_helpers.php";
 

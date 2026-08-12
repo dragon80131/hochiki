@@ -24,6 +24,7 @@ include_once _CLS_DIR . "SPUSReservation.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once _CLS_DIR . "SPUSReservationInit.cls";
 include_once _CLS_DIR . "SPUSReservationTemp.cls";
+include_once dirname(__DIR__) . "/include/kotei_slot_labels.php";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 include_once dirname(__DIR__) . "/include/holiday_helpers.php";
 

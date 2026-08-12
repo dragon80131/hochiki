@@ -1,16 +1,15 @@
 <?php
 /**
- * 工程表スロット表示ラベル（環境別）
+ * 工程表スロット表示ラベル（hochiki: 余地 / 時間外）
  *
- * hochiki 本番: 余地 / 時間外  （SPFW/inc/setting.properties で定義）
- * nespe_dia 開発: 空き / 枠越
+ * 各画面から直接 include。setting.properties は変更しません。
  */
 
 if (!defined('_SLOT_LABEL_AKI')) {
-	define('_SLOT_LABEL_AKI', '空き');
+	define('_SLOT_LABEL_AKI', '余地');
 }
 if (!defined('_SLOT_LABEL_WAKUOVER')) {
-	define('_SLOT_LABEL_WAKUOVER', '枠越');
+	define('_SLOT_LABEL_WAKUOVER', '時間外');
 }
 
 function slotLabelAki()

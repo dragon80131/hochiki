@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/kotei_slot_labels.php';
+
 if (!defined('SH_LIST_SLOT_AKI')) {
 	define('SH_LIST_SLOT_AKI', 'aki');
 }
