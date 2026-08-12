@@ -176,7 +176,7 @@ $wTime = SPFWParameter::getValues('wTime'); #20171230追加
 
 if (!$wTime) {
 	$IfErr = true;
-	include_once("reserve_form.php");
+	include_once("reserve_form_kakutei.php");
 	exit;
 }
 
