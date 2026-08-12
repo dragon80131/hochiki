@@ -425,7 +425,7 @@
               <button type="submit" class="btn btn-success btn-sm ml-2" name="bikoreg" value="yes">登録</button>
               </div> 
               <div class="mt-1">
-              部屋番号をクリック、次に、「空き」または「枠越」をクリックしてください。<a href="#reg_form_start">ページ下部</a>のお客さま情報を入力し登録します。
+              部屋番号をクリック、次に、「時間外」をクリックしてください。<a href="#reg_form_start">ページ下部</a>のお客さま情報を入力し登録します。（「余地」は選択できません）
               </div> 
               <div class="mt-1 serch_panel">
               <input type="text" id="srch_room" class="form-control">
@@ -437,7 +437,7 @@
                 <span id="span9"></span>
                 部屋番号: <span id="span4" style="font-size: 24px;"></span>
                 <div id="decline_blank">
-                復活する場合は「空き」枠を選択してください
+                復活する場合は「時間外」枠を選択してください
                 </div>
                 <div id="befor">
                   <span class="state-lbl">【変更前】</span>

@@ -663,8 +663,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -695,8 +695,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -729,8 +729,8 @@ function numberToCircled($number) {
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="休工"){
@@ -820,8 +820,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -852,8 +852,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -886,8 +886,8 @@ function numberToCircled($number) {
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="休工"){
@@ -976,8 +976,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden' id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -1008,8 +1008,8 @@ function numberToCircled($number) {
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-						$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#d2e5ff; color:#1f1f1f;'>";
-						$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+						$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#d2e5ff; cursor:default; color:#1f1f1f;'>";
+						$Koteihyou .= $wKoteihyouEX[$m];
 						$Koteihyou .= "<input type='hidden'  id='m".$m."'  name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 						$Koteihyou .="</td>";
 					}else if($wKoteihyouEX[$m]=="休工"){
@@ -1042,8 +1042,8 @@ function numberToCircled($number) {
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if(isSlotLabelWakuover($wKoteihyouEX[$m])){
-							$Koteihyou .="<td id='link_cell_".$m."' class='link_cell_blank' style='background-color:#ffefd5; color:#1f1f1f;'>";
-							$Koteihyou .= "<a href='#'>".$wKoteihyouEX[$m]."</a>";
+							$Koteihyou .="<td id='link_cell_".$m."' style='background-color:#ffefd5; cursor:default; color:#1f1f1f;'>";
+							$Koteihyou .= $wKoteihyouEX[$m];
 							$Koteihyou .= "<input type='hidden'  id='m".$m."' name='wwKoteihyouEX[]' value=".$wKoteihyouEX[$m]." >";
 							$Koteihyou .="</td>";
 						}else if($wKoteihyouEX[$m]=="休工"){
@@ -1131,6 +1131,8 @@ function numberToCircled($number) {
 	########################################################
 
 	$CNT_FILE = "s_make_kanryo_hensyu.tpl";
+	$SlotLabelAki = _SLOT_LABEL_AKI;
+	$SlotLabelWakuover = _SLOT_LABEL_WAKUOVER;
 
 	$myTemplate = new SPFWTemplate($CNT_FILE, $MyCarrier);
 	$HiddenValues = $myTemplate->getValuesToPass();

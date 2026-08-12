@@ -376,7 +376,7 @@ __IfShortage__
 
 
 ■詳細工程表<br>
-部屋番号をクリック、次に、「空き」または「枠越」をクリックしてください。
+部屋番号をクリック、次に、「__SlotLabelAki__」をクリックしてください。（「__SlotLabelWakuover__」は配置できません）
 
 <br>__IfError__<font color=red >※すべての部屋を組み込むことができませんでした。</font>__IfError__<br>
 __Koteihyou__
