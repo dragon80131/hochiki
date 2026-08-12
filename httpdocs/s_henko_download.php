@@ -72,8 +72,8 @@ function obtainWakuTime($WakuPattern, $TimeFrom,$WAKUPATTERN){
         $EndTime = $WAKUPATTERN[$WakuPattern]['EndTime'][$i];
         $sEndTime = strtotime($EndTime);
 
-        // $sTimeFromが$sStartTime以上、かつ$sEndTime以下の場合に時間枠に含まれる
-        if($sStartTime <= $sTimeFrom && $sTimeFrom < $sEndTime){
+        // 終了時刻ちょうど（例: AM 12:00）も枠内とする（sh_henko_list と同じ）
+        if($sStartTime <= $sTimeFrom && $sTimeFrom <= $sEndTime){
             // $WakuTime['STime'] = $StartTime;
             // $WakuTime['ETime'] = $EndTime;
 			$WakuTime = $WAKUPATTERN[$WakuPattern]['AMPM'][$i];
