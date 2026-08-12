@@ -464,11 +464,23 @@ if (!isset($AkiWakuAMPMTime["akiTimeFrom"])) {
 
 	$WakuRange = $MaxWakuSu;	
 	$MaxWaku = explode("-",$WakuRange);
-	$wWakuAM = $MaxWaku[0];
-	$wWakuPM = $MaxWaku[1];
-	$wWakuPM1 = $MaxWaku[1];
+	$wWakuAM = isset($MaxWaku[0]) ? $MaxWaku[0] : 0;
+	$wWakuPM = isset($MaxWaku[1]) ? $MaxWaku[1] : 0;
+	$wWakuPM1 = isset($MaxWaku[1]) ? $MaxWaku[1] : 0;
 	if(count($MaxWaku)>2){
 		$wWakuPM2 = $MaxWaku[2];
+	}
+
+	$wFrameOverflow = intval($wFrameOverflow);
+	$wHansu = intval($wHansu);
+	if ($wHansu < 1) {
+		$wHansu = 1;
+	}
+	$wWakuAM = intval($wWakuAM);
+	$wWakuPM = intval($wWakuPM);
+	$wWakuPM1 = intval($wWakuPM1);
+	if (isset($wWakuPM2)) {
+		$wWakuPM2 = intval($wWakuPM2);
 	}
 
 	$wFloorReserveInfo = html_entity_decode($wFloorReserveInfo, ENT_QUOTES, 'UTF-8');
