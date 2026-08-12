@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width">
 	<meta name="format-detection" content="telephone=no">
 <title>__TITLENAME__</title>
+</head>
 
 <body bgcolor="__SBackground__" text="__STextColor__" link="__SLinkColor__" alink="__SALinkColor__" vlink="__SVLinkColor__">
 __SHeaderWithoutLogoutKanri__
