@@ -8,7 +8,25 @@ if (!defined('SH_LIST_SLOT_WAKUOVER')) {
 	define('SH_LIST_SLOT_WAKUOVER', 'wakuover');
 }
 
+/**
+ * TEL受付で「余地」枠への新規登録・変更を許可するか。
+ * ホーチキ仕様: 余地は表示用バッファのみ。登録は時間外のみ。
+ */
+function shListAllowsAkiSlotBooking()
+{
+	return false;
+}
+
+function shListRejectAkiSlotBooking($blankSlotType)
+{
+	return !shListAllowsAkiSlotBooking() && $blankSlotType === SH_LIST_SLOT_AKI;
+}
+
 function shListApplyBlankSlotTypeToReservation(&$myReservation, $blankSlotType) {
+	if (shListRejectAkiSlotBooking($blankSlotType)) {
+		$myReservation->R003 = NULL;
+		return;
+	}
 	if ($blankSlotType === SH_LIST_SLOT_AKI) {
 		$myReservation->R003 = SH_LIST_SLOT_AKI;
 	} else if ($blankSlotType === SH_LIST_SLOT_WAKUOVER) {

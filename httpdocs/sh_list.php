@@ -312,6 +312,12 @@ if($work){ // 情報登録=1, 確定=2, 変更=3
 	###登録処理
 	if($aHenkoDate != 'red'){#Javascriptに　HiddenHenkoDate の　ElementByID部分の変更前の値
 
+		if (($work == '1' || $work == '3') && shListRejectAkiSlotBooking($aBlankSlotType)) {
+			SPFWTemplate::dropValue('work');
+			header("Location: " . $_SERVER['PHP_SELF'] . "?ClientCD=" . urlencode($ClientCD)."&editBukkenCD=" . urlencode($editBukkenCD)."&editBuildingCD=" . urlencode($editBuildingCD)."&rKey=" . urlencode($rKey));
+			exit;
+		}
+
 		$myReservation = new Reservation($myDB);
 
 		if($editBuildingCD){
@@ -1403,13 +1409,13 @@ foreach($beforeReserveDay as $key => $aReserveDay){
 						$Koteihyou_event = "";
 					} else if (isSlotLabelAki(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}])) {
 						if ($k % 2 == 0) {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffff9e;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffff9e; cursor:default'>";
 						} else {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffffcf;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffffcf; cursor:default'>";
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
+						$Koteihyou_event = "";
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
 						if($NextBlankTime[$WakuName] > $WakuEndtime)
@@ -1622,13 +1628,13 @@ for ($i = 0; $i < $SenyuDateCnt; $i++) {
 						$Koteihyou_event = "";
 					} else if (isSlotLabelAki(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}])) {
 						if ($k % 2 == 0) {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffff9e;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffff9e; cursor:default'>";
 						} else {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffffcf;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffffcf; cursor:default'>";
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
+						$Koteihyou_event = "";
 
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
@@ -1847,13 +1853,13 @@ foreach($afterReserveDay as $key => $aReserveDay){
 						$Koteihyou_event = "";
 					} else if (isSlotLabelAki(${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}])) {
 						if ($k % 2 == 0) {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffff9e;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffff9e; cursor:default'>";
 						} else {
-							$Koteihyou_temp = "<td class='link_cell_blank' style='background-color:#ffffcf;' @event@>";
+							$Koteihyou_temp = "<td class='link_cell link_cell_none no-action' style='background-color:#ffffcf; cursor:default'>";
 						}
 
 						$Koteihyou_temp .= ${'Waku' . $WakuName . 'Room'}[${$WakuName . "index"}];
-						$Koteihyou_event = "onclick=\"clickBtn7('".$SenyuDate."', '".$NextBlankTime[$WakuName]."', '".$WakuName."', '".$abanNo."', '".$ViewOrderNo."', 'aki')\"";
+						$Koteihyou_event = "";
 
 						$arrBlankCount[$WakuName] ++;
 						$NextBlankTime[$WakuName] = date('H:i', strtotime("+".(floor($NextBlankContinusCount[$WakuName] / $arrCountRepeat[$k])*$MinuteTime)." minutes", strtotime($NextBlankTime[$WakuName])));
