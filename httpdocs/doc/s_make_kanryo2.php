@@ -24,6 +24,7 @@ include_once _CLS_DIR . "SPUSKojiDate.cls";
 include_once _CLS_DIR . "SPUSBuilding.cls";
 include_once dirname(__DIR__) . "/include/building_period_helpers.php";
 include_once dirname(__DIR__) . "/include/holiday_helpers.php";
+include_once dirname(__DIR__) . "/include/large_post_helpers.php";
 
 // データベースコネクト
 
@@ -34,7 +35,9 @@ if (!$myDB->Connection)
 ########################################################
 # 認証動作
 ########################################################
-$rkey = SPFWParameter::getValues('rkey');
+if ($rKey == NULL)
+	$rKey = SPFWParameter::getValues('rKey');
+
 $wKosu = SPFWParameter::getValues("wKosu");
 
 $myUser = new User($myDB);
@@ -67,7 +70,7 @@ $work = SPFWParameter::getValues('work');
 if ($work == 1) {
 
 	$KojiJun = SPFWParameter::getValues('KojiJun');
-	$KaiRoom = SPFWParameter::getValues('KaiRoom'); #配列
+	$KaiRoom = parseKaiRoomFromRequest();
 
 	$myBukkenMatrix = new BukkenMatrix($myDB);
 

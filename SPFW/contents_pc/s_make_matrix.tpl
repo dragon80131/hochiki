@@ -341,6 +341,48 @@
 
         document.getElementById("RoomSuu").innerHTML = RoomSuu;
       }
+      function appendKaiRoomChunks() {
+        $('form[name="mainform"] input[name^="KaiRoom_"]').filter(function () {
+          return this.name !== 'KaiRoom_count';
+        }).remove();
+        $('form[name="mainform"] input[name="KaiRoom_count"]').remove();
+
+        let KaiRoomChunk = '|';
+        let KaiRoom_count = 0;
+        let KaiRoom_no = 0;
+        $('input[name="KaiRoom[]"]:checked').each(function() {
+          KaiRoomChunk += $(this).val() + '|';
+          KaiRoom_no++;
+          if (KaiRoom_no > 299) {
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'KaiRoom_' + KaiRoom_count,
+              value: KaiRoomChunk
+            }).appendTo('form[name="mainform"]');
+            KaiRoom_count++;
+            KaiRoom_no = 0;
+            KaiRoomChunk = '|';
+          }
+        });
+        if (KaiRoom_no > 0) {
+          $('<input>').attr({
+            type: 'hidden',
+            name: 'KaiRoom_' + KaiRoom_count,
+            value: KaiRoomChunk
+          }).appendTo('form[name="mainform"]');
+          KaiRoom_count++;
+        }
+        $('<input>').attr({
+          type: 'hidden',
+          name: 'KaiRoom_count',
+          value: KaiRoom_count
+        }).appendTo('form[name="mainform"]');
+
+        $('input[name="KaiRoom[]"]').prop('disabled', true);
+
+        return KaiRoom_count;
+      }
+
       function moveandCheck() {
         if(document.getElementById("wKosu").value == "" || document.getElementById("wKosu").value == "0"){
           document.getElementById("ErrorString").innerHTML = "戸数は必須項目です。";
@@ -359,6 +401,7 @@
         if(isNaN(wKosuVal))
           wKosuVal = 0;
         if (RoomSuu == wKosuVal) {
+          appendKaiRoomChunks();
           return true;
         } else {
           document.getElementById("ErrorString").innerHTML =
@@ -438,6 +481,10 @@
       __IfOK__
       部屋構成を作成しますので、以下の項目を入力し、「確定」ボタンをクリックしてください。<br />
       <form action="s_make_kanryo2.php" method="POST" name="mainform" onsubmit="return moveandCheck();">
+        <input type="hidden" name="rKey" value="__rKey__" />
+        <input type="hidden" name="editBukkenCD" value="__editBukkenCD__" />
+        <input type="hidden" name="editBuildingCD" value="__editBuildingCD__" />
+        <input type="hidden" name="work" value="1" />
         <font color="red"><span id="ErrorString"></span></font><br />
         <table border="1" class="setting_input_panel">
           <tr>
@@ -511,10 +558,6 @@
 	</td></tr>
 </table>-->
 
-        <input type="hidden" name="rKey" value="__rKey__" />
-        <input type="hidden" name="editBukkenCD" value="__editBukkenCD__" />
-        <input type="hidden" name="editBuildingCD" value="__editBuildingCD__" />
-        <input type="hidden" name="work" value="1" /><br />
         <input
           type="submit"
           value="確定"

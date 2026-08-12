@@ -430,8 +430,8 @@ function numberToCircled($number) {
 		$myReservationTemp->BukkenCD = $editBukkenCD;
 		$myReservationTemp->BuildingCD = $editBuildingCD;
 		$myReservationTemp->ReservationInfo = json_encode($_POST);
-		$myReservationTemp->Creator = $MyUserCD;
-		$myReservationTemp->Updater = $MyUserCD;
+		$myReservationTemp->Creator = $UserCD;
+		$myReservationTemp->Updater = $UserCD;
 		if (!$myReservationTemp->executeUpdate()) {
 			$ErrorString = [];
 			$ErrorString[] = '予約情報一時保存時にエラーがおこりました。';
